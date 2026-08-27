@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "白云区",
+    "adcode": "440111",
+    "level": "district"
+  },
+  "status": "completed",
+  "school_type_coverage": {
+    "幼儿园": "covered",
+    "小学": "covered",
+    "初中": "covered",
+    "高中": "covered"
+  },
+  "sources": [
+    {
+      "source_title": "广州市白云区义务教育学校基本信息一览表",
+      "publisher": "广州市白云区教育局",
+      "publication_date": "2023-02-03",
+      "landing_page_url": "https://www.by.gov.cn/zwgk/zdlyxxgkzl/jyxxgkzl/content/mpost_8787739.html",
+      "content_url": "https://www.by.gov.cn/zwgk/zdlyxxgkzl/jyxxgkzl/content/mpost_8787739.html",
+      "source_format": "html",
+      "covered_school_types": ["compulsory_education"],
+      "contains_address": true,
+      "local_files": ["广州市白云区义务教育学校基本信息一览表.html"]
+    },
+    {
+      "source_title": "广州市白云区幼儿园办学信息一览表",
+      "publisher": "广州市白云区教育局",
+      "publication_date": "2024-12-30",
+      "landing_page_url": "https://www.by.gov.cn/gzbyjy/gkmlpt/content/10/10051/post_10051466.html",
+      "content_url": "https://www.by.gov.cn/gzbyjy/gkmlpt/content/10/10051/post_10051466.html",
+      "source_format": "html",
+      "covered_school_types": ["kindergarten"],
+      "contains_address": true,
+      "local_files": ["广州市白云区幼儿园办学信息一览表.html"]
+    },
+    {
+      "source_title": "2026年广州市高中阶段学校报考指南",
+      "publisher": "广州市招生考试委员会办公室",
+      "publication_date": "2026-05-18",
+      "landing_page_url": "https://gzzk.gz.gov.cn/gkmlpt/content/10/10816/post_10816550.html",
+      "content_url": "https://gzzk.gz.gov.cn/attachment/8/8027/8027351/10816553.pdf",
+      "source_format": "pdf",
+      "covered_school_types": ["senior_high_school"],
+      "contains_address": true,
+      "local_files": ["2026年广州市高中阶段学校招生报考指南.pdf"]
+    }
+  ]
+}

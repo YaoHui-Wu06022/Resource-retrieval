@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "番禺区",
+    "adcode": "440113",
+    "level": "district"
+  },
+  "status": "completed",
+  "school_type_coverage": {
+    "幼儿园": "covered",
+    "小学": "covered",
+    "初中": "covered",
+    "高中": "covered"
+  },
+  "sources": [
+    {
+      "source_title": "广州市番禺区依法持证幼儿园一览表",
+      "publisher": "广州市番禺区教育局",
+      "publication_date": "2026-04-01",
+      "landing_page_url": "https://www.panyu.gov.cn/jgzy/qzfbm/fzqjyj/jyjgkml/xzzf/content/post_10750376.html",
+      "content_url": "https://www.panyu.gov.cn/attachment/7/7996/7996016/10750376.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": ["kindergarten"],
+      "contains_address": true,
+      "local_files": ["广州市番禺区依法持证幼儿园一览表.xlsx"]
+    },
+    {
+      "source_title": "2025年番禺区义务教育阶段学校招生计划、招生地段及条件",
+      "publisher": "广州市番禺区教育局",
+      "publication_date": "2025-04-28",
+      "landing_page_url": "https://www.panyu.gov.cn/jgzy/qzfbm/fzqjyj/jyjgkml/qt/tzgg/content/post_10241386.html",
+      "content_url": "https://www.panyu.gov.cn/attachment/7/7876/7876307/10241386.xls",
+      "source_format": "xls",
+      "covered_school_types": ["primary_school", "junior_high_school"],
+      "contains_address": true,
+      "local_files": ["2025年番禺区义务教育阶段学校招生计划招生地段及条件.xls"]
+    },
+    {
+      "source_title": "2026年广州市高中阶段学校报考指南",
+      "publisher": "广州市招生考试委员会办公室",
+      "publication_date": "2026-05-18",
+      "landing_page_url": "https://gzzk.gz.gov.cn/gkmlpt/content/10/10816/post_10816550.html",
+      "content_url": "https://gzzk.gz.gov.cn/attachment/8/8027/8027351/10816553.pdf",
+      "source_format": "pdf",
+      "covered_school_types": ["senior_high_school"],
+      "contains_address": true,
+      "local_files": ["2026年广州市高中阶段学校招生报考指南.pdf"]
+    }
+  ]
+}

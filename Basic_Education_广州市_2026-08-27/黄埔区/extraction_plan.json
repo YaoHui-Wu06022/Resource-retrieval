@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0",
+  "stage": "basic_education_extraction_plan",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "黄埔区",
+    "adcode": "440112",
+    "level": "district"
+  },
+  "source_manifest": "sources.json",
+  "items": [
+    {
+      "source_title": "广州市黄埔区教育局关于黄埔区在册幼儿园名单的公告",
+      "publisher": "广州市黄埔区教育局",
+      "publication_date": "2025-03-24",
+      "landing_page_url": "https://www.hp.gov.cn/gzjg/qzfgwhgzbm/qjyj/xxgk/content/post_10175673.html",
+      "content_url": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls",
+      "covered_school_types": [
+        "kindergarten"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "黄埔区在册幼儿园名单一览表.xls",
+          "format": "xls",
+          "size_bytes": 65024,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "sheet",
+              "location": {
+                "sheet": "Sheet1"
+              },
+              "row_count": 157,
+              "column_count": 12,
+              "preview_rows": [
+                [
+                  "黄埔区在册幼儿园名单一览表\n（数据截止2024年12月31日）",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  ""
+                ],
+                [
+                  "序号",
+                  "幼儿园名称",
+                  "公办幼儿园注册证号或民办幼儿园办学许可证号",
+                  "办园性质",
+                  "是否普惠",
+                  "办园规模（班）",
+                  "幼儿园地址",
+                  "是否配齐配足教职工",
+                  "保教费收费标准（元/月/生）",
+                  "幼儿园联系电话",
+                  "收费举报电话",
+                  ""
+                ],
+                [
+                  "1",
+                  "广州市黄埔区育蕾幼儿园",
+                  "0112010001",
+                  "教育部门办园",
+                  "是",
+                  "14",
+                  "广州市黄埔区黄埔东路188号大院27号",
+                  "是",
+                  "995",
+                  "82594883",
+                  "82113092",
+                  ""
+                ],
+                [
+                  "2",
+                  "广州市黄埔区育蕾幼儿园（金碧分园）",
+                  "0112010001",
+                  "教育部门办园",
+                  "是",
+                  "6",
+                  "广州市黄埔区骏雅北街2号",
+                  "是",
+                  "823",
+                  "32399103",
+                  "82113092",
+                  ""
+                ],
+                [
+                  "3",
+                  "广州市黄埔区育蕾幼儿园（金港分园）",
+                  "0112010001",
+                  "教育部门办园",
+                  "是",
+                  "5",
+                  "广州市黄埔区荔香路38号大院22号",
+                  "是",
+                  "823",
+                  "82181622",
+                  "82113092",
+                  ""
+                ],
+                [
+                  "4",
+                  "广州开发区第一幼儿园（西区园）",
+                  "0112010002",
+                  "教育部门办园",
+                  "是",
+                  "10",
+                  "广州市黄埔区夏港街青年路东园六街2号",
+                  "是",
+                  "995",
+                  "82111392",
+                  "82113092",
+                  ""
+                ],
+                [
+                  "5",
+                  "广州开发区第一幼儿园（中心园）",
+                  "0112010002",
+                  "教育部门办园",
+                  "是",
+                  "24",
+                  "广州市黄埔区萝岗街开萝大道33号",
+                  "是",
+                  "995",
+                  "32039290",
+                  "82113092",
+                  ""
+                ],
+                [
+                  "6",
+                  "广州开发区第二幼儿园（西区园）",
+                  "0112010003",
+                  "教育部门办园",
+                  "是",
+                  "10",
+                  "广州市黄埔区创业路普晖五街48号",
+                  "是",
+                  "995",
+                  "82113645",
+                  "82113092",
+                  ""
+                ]
+              ]
+            },
+            {
+              "kind": "sheet",
+              "location": {
+                "sheet": "Sheet2"
+              },
+              "row_count": 0,
+              "column_count": 0,
+              "preview_rows": []
+            },
+            {
+              "kind": "sheet",
+              "location": {
+                "sheet": "Sheet3"
+              },
+              "row_count": 0,
+              "column_count": 0,
+              "preview_rows": []
+            }
+          ],
+          "repeated_blocks": [],
+          "text_preview": ""
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "黄埔区在册幼儿园名单一览表.xls",
+          "kind": "sheet",
+          "location": {
+            "sheet": "Sheet1"
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 7,
+          "school_type_column": null,
+          "school_type_value": "幼儿园",
+          "school_nature_column": 4,
+          "school_nature_value": "",
+          "fill_down_columns": [],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    }
+  ],
+  "inspection_summary": {
+    "source_count": 1,
+    "file_count": 1,
+    "suggested_rule_count": 1,
+    "status_counts": {
+      "ready": 1
+    },
+    "error_count": 0
+  }
+}

@@ -1,0 +1,1217 @@
+{
+  "schema_version": "1.0",
+  "stage": "basic_education_extraction_plan",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "天河区",
+    "adcode": "440106",
+    "level": "district"
+  },
+  "source_manifest": "sources.json",
+  "items": [
+    {
+      "source_title": "2026年天河区教育部门办幼儿园小班对外电脑派位招生计划",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2026-05-18",
+      "landing_page_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815546.html",
+      "content_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815546.html",
+      "covered_school_types": [
+        "kindergarten"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2026年天河区教育部门办幼儿园招生计划.html",
+          "format": "html",
+          "size_bytes": 320602,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 79,
+              "column_count": 9,
+              "preview_rows": [
+                [
+                  "序号",
+                  "幼儿园名称",
+                  "园区地址",
+                  "2026年小班计划招生班数（个）",
+                  "2026年面向社会电脑派位招生总数（人）",
+                  "其中业主子女人数（人）",
+                  "剩余随机电脑派位招生人数（人）",
+                  "咨询电话",
+                  "备注"
+                ],
+                [
+                  "1",
+                  "广州市天河区东圃幼儿园",
+                  "广州市天河区东圃大马路荣圃街2号",
+                  "3",
+                  "68",
+                  "0",
+                  "68",
+                  "82300767转102",
+                  ""
+                ],
+                [
+                  "2",
+                  "广州市天河区东圃幼儿园广场园区",
+                  "广州市天河区黄村西路90号",
+                  "2",
+                  "45",
+                  "19",
+                  "26",
+                  "82300767转102",
+                  ""
+                ],
+                [
+                  "3",
+                  "广州市天河区东圃幼儿园蒲公英园区",
+                  "广州市天河区车陂北天禧街1号",
+                  "3",
+                  "68",
+                  "10",
+                  "58",
+                  "82300767转102",
+                  ""
+                ],
+                [
+                  "4",
+                  "广州市天河区美好居幼儿园",
+                  "广州市天河区中山大道中71号",
+                  "2",
+                  "45",
+                  "15",
+                  "30",
+                  "82579462转8006",
+                  ""
+                ],
+                [
+                  "5",
+                  "广州市天河区美好居幼儿园云创园区",
+                  "广州市天河区云启街4号",
+                  "2",
+                  "45",
+                  "10",
+                  "35",
+                  "31707230转8006",
+                  ""
+                ],
+                [
+                  "6",
+                  "广州市天河区美好居幼儿园和美园区",
+                  "广州市天河区假日新街6号",
+                  "3",
+                  "68",
+                  "26",
+                  "42",
+                  "82526973转8005",
+                  ""
+                ],
+                [
+                  "7",
+                  "广州市天河区盈溪幼儿园",
+                  "广州市天河区中山大道中1090号",
+                  "3",
+                  "68",
+                  "14",
+                  "54",
+                  "32039730",
+                  ""
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试 2026年天河区教育部门办幼儿园小班对外电脑派位招生计划 发表时间： 2026-05-18 15:37:55 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 序号 幼儿园名称 园区地址 2026年 小班计划招生班数（个） 2026年 面向社会电脑派位招生总数（人） 其中 业主子女人数（人） 剩余随机电脑派位招生人数（人） 咨询电话 备注 1 广州市天河区东圃幼儿园 广州市天河区东圃大马路荣圃街2号 3 68 0 68 82300767转102 2 广州市天河区东圃幼儿园广场园区 广州市天河区黄村西路90号 2 45 19 26 82300767转102 3 广州市天河区东圃幼儿园蒲公英园区 广州市天河区车陂北天禧街1号 3 68 10 58 82300767转102 4 广州市天河区美好居幼儿园 广州市天河区中山大道中71号 2 45 15 30 82579462转8006 5 广州市天河区美好居幼儿园云创园区 广州市天河区云启街4号 2 45 10 35 31707230转8006 6 广州市天河区美好居幼儿园和美园区 广州市天河区假日新街6号 3 68 26 42 82526973转8005 7 广州市天河区盈溪幼儿园 广州市天河区中山大"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2026年天河区教育部门办幼儿园招生计划.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 1,
+          "data_start_row": 2,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 3,
+          "school_type_column": null,
+          "school_type_value": "幼儿园",
+          "school_nature_column": null,
+          "school_nature_value": "公办",
+          "fill_down_columns": [],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "2026年天河区其他部门办幼儿园对外信息表",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2026-05-18",
+      "landing_page_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815974.html",
+      "content_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815974.html",
+      "covered_school_types": [
+        "kindergarten"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2026年天河区其他部门办幼儿园对外信息表.html",
+          "format": "html",
+          "size_bytes": 144216,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 36,
+              "column_count": 8,
+              "preview_rows": [
+                [
+                  "序号",
+                  "幼儿园名称",
+                  "幼儿园地址",
+                  "办园性质",
+                  "办园情况",
+                  "园所电话",
+                  "2026年小班计划招生班数（个）",
+                  "备注"
+                ],
+                [
+                  "1",
+                  "广州市天河区车陂幼儿园",
+                  "广州市天河区车陂祠前大街1号",
+                  "集体办",
+                  "规范幼儿园",
+                  "82562195",
+                  "4",
+                  ""
+                ],
+                [
+                  "2",
+                  "广州市天河区珠村幼儿园",
+                  "广州市天河区珠村东横一路1-1号",
+                  "集体办",
+                  "规范幼儿园",
+                  "32234889",
+                  "3",
+                  ""
+                ],
+                [
+                  "3",
+                  "广州市天河区棠东幼儿园",
+                  "广州市天河区棠东官育路14号",
+                  "集体办",
+                  "规范幼儿园",
+                  "85551577",
+                  "4",
+                  ""
+                ],
+                [
+                  "4",
+                  "中国人民武装警察部队广东省总队幼儿园",
+                  "广州市天河区科韵北路棠安苑",
+                  "部队办",
+                  "规范幼儿园",
+                  "85667301",
+                  "2",
+                  ""
+                ],
+                [
+                  "5",
+                  "广州市天河区棠下幼儿园",
+                  "广州市天河区棠下荷光一横路自编2号",
+                  "集体办",
+                  "规范幼儿园",
+                  "85662463",
+                  "2",
+                  ""
+                ],
+                [
+                  "6",
+                  "华南师范大学附属幼儿园",
+                  "广州市天河区广州大道西55号华南师范大学附属幼儿园",
+                  "事业单位办",
+                  "示范幼儿园",
+                  "85215768",
+                  "6",
+                  ""
+                ],
+                [
+                  "7",
+                  "暨南大学幼儿园",
+                  "广州市天河区黄埔大道西601号暨南大学校园内",
+                  "事业单位办",
+                  "示范幼儿园",
+                  "85220152",
+                  "5",
+                  ""
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试 2026年天河区其他部门办幼儿园对外信息表 发表时间： 2026-05-18 15:37:56 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 序号 幼儿园名称 幼儿园地址 办园性质 办园情况 园所电话 2026年 小班计划招生班数（个） 备注 1 广州市天河区车陂幼儿园 广州市天河区车陂祠前大街1号 集体办 规范幼儿园 82562195 4 2 广州市天河区珠村幼儿园 广州市天河区珠村东横一路1-1号 集体办 规范幼儿园 32234889 3 3 广州市天河区棠东幼儿园 广州市天河区棠东官育路14号 集体办 规范幼儿园 85551577 4 4 中国人民武装警察部队广东省总队幼儿园 广州市天河区科韵北路棠安苑 部队办 规范幼儿园 85667301 2 5 广州市天河区棠下幼儿园 广州市天河区棠下荷光一横路自编2号 集体办 规范幼儿园 85662463 2 6 华南师范大学附属幼儿园 广州市天河区广州大道西55号华南师范大学附属幼儿园 事业单位办 示范幼儿园 85215768 6 7 暨南大学幼儿园 广州市天河区黄埔大道西601号暨南大学校园内 事业单位办 示范幼儿园 85220152 5 8 中国人民解放军陆军特种作战学院广州幼儿园 广州市"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2026年天河区其他部门办幼儿园对外信息表.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 1,
+          "data_start_row": 2,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 3,
+          "school_type_column": null,
+          "school_type_value": "幼儿园",
+          "school_nature_column": 4,
+          "school_nature_value": "",
+          "fill_down_columns": [],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "2026年天河区民办幼儿园对外信息表",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2026-05-18",
+      "landing_page_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815624.html",
+      "content_url": "https://www.thnet.gov.cn/gzjg/qzf/qjyj/zsks/content/post_10815624.html",
+      "covered_school_types": [
+        "kindergarten"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2026年天河区民办幼儿园对外信息表.html",
+          "format": "html",
+          "size_bytes": 511931,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 121,
+              "column_count": 10,
+              "preview_rows": [
+                [
+                  "序号",
+                  "幼儿园名称",
+                  "幼儿园地址",
+                  "办学许可证号",
+                  "办园等级",
+                  "园所电话",
+                  "是否普惠性幼儿园",
+                  "2024年年检结论",
+                  "2026年小班计划招生班数（个）",
+                  "备注"
+                ],
+                [
+                  "1",
+                  "广州市天河区吉山幼儿园",
+                  "广州市天河区珠吉街吉山村下街北1号",
+                  "教民144010660000221",
+                  "规范 幼儿园",
+                  "82370506 18988918816",
+                  "普惠性",
+                  "合格",
+                  "2",
+                  ""
+                ],
+                [
+                  "2",
+                  "广州市天河区前进幼儿园",
+                  "广州市天河区桃园中路8号101室",
+                  "教民144010660000031",
+                  "规范 幼儿园",
+                  "82564768 82563738",
+                  "/",
+                  "合格",
+                  "3",
+                  ""
+                ],
+                [
+                  "3",
+                  "广州市天河区金色未来幼儿园",
+                  "广州市天河区东圃天力街11号",
+                  "教民144010660000171",
+                  "规范 幼儿园",
+                  "82010925 18011715909",
+                  "普惠性",
+                  "合格",
+                  "2",
+                  ""
+                ],
+                [
+                  "4",
+                  "广州市天河区美林湖畔翰林幼儿园",
+                  "广州市天河区桃园南二街188号",
+                  "教民144010660000801",
+                  "规范 幼儿园",
+                  "32299127",
+                  "普惠性",
+                  "合格",
+                  "1",
+                  ""
+                ],
+                [
+                  "5",
+                  "广州市天河区明珠幼儿园",
+                  "广州市天河区东圃珠村力子园",
+                  "教民144010660001321",
+                  "规范 幼儿园",
+                  "89857717",
+                  "普惠性",
+                  "合格",
+                  "2",
+                  ""
+                ],
+                [
+                  "6",
+                  "广州市天河区天朗幼儿园",
+                  "广州市天河区富力天朗明居250号",
+                  "教民144010660000711",
+                  "规范 幼儿园",
+                  "85542225",
+                  "普惠性",
+                  "合格",
+                  "2",
+                  ""
+                ],
+                [
+                  "7",
+                  "广州市天河区黄村幼儿园",
+                  "广州市天河区黄村街黄村大道39号",
+                  "教民144010660000101",
+                  "示范 幼儿园",
+                  "31709926 19878855975",
+                  "普惠性",
+                  "合格",
+                  "4",
+                  ""
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 工作机构 > 区政府 > 区教育局 > 招生考试 2026年天河区民办幼儿园对外信息表 发表时间： 2026-05-18 15:37:56 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 序号 幼儿园 名称 幼儿园地址 办学许可证号 办园 等级 园所电话 是否普惠性幼儿园 2024年年检 结论 2026年小班计划招生班数（个） 备注 1 广州市天河区吉山幼儿园 广州市天河区珠吉街吉山村下街北1号 教民144010660000221 规范 幼儿园 82370506 18988918816 普惠性 合格 2 2 广州市天河区前进幼儿园 广州市天河区桃园中路8号101室 教民144010660000031 规范 幼儿园 82564768 82563738 / 合格 3 3 广州市天河区金色未来幼儿园 广州市天河区东圃天力街11号 教民144010660000171 规范 幼儿园 82010925 18011715909 普惠性 合格 2 4 广州市天河区美林湖畔翰林幼儿园 广州市天河区桃园南二街188号 教民144010660000801 规范 幼儿园 32299127 普惠性 合格 1 5 广州市天河区明珠幼儿园 广州市天河区东圃珠村力子园 教民144010660001321 规范 幼儿园 89"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2026年天河区民办幼儿园对外信息表.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 1,
+          "data_start_row": 2,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 3,
+          "school_type_column": null,
+          "school_type_value": "幼儿园",
+          "school_nature_column": null,
+          "school_nature_value": "民办",
+          "fill_down_columns": [],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区小学基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2023-02-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/xx/content/post_8724023.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/xx/content/post_8724023.html",
+      "covered_school_types": [
+        "primary_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区小学基本情况.html",
+          "format": "html",
+          "size_bytes": 139314,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 76,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区小学基本情况表",
+                  "2022年天河区小学基本情况表",
+                  "2022年天河区小学基本情况表",
+                  "2022年天河区小学基本情况表",
+                  "2022年天河区小学基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区元岗小学",
+                  "元岗街道",
+                  "天河区下元岗东街39-40号(东校区）/天河区元岗路299号（西校区）",
+                  "（020）37081697(东校区）/（020）38615927（西校区）"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区长湴小学",
+                  "长兴街道",
+                  "天河区长兴街禾串树直街2号",
+                  "（020）37201696"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区岑村小学",
+                  "长兴街道",
+                  "天河区岑村圣堂路4号",
+                  "（020）87238695转802"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区龙洞小学",
+                  "龙洞街道",
+                  "天河区龙洞西大街1号(龙洞校区）/天河区天源路品翠街31号（绿洲校区）/天河区天源路宝翠路5号（宝翠园校区）",
+                  "（020）87029630"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区渔沙坦小学",
+                  "凤凰街道",
+                  "天河区渔中路1号",
+                  "（020）87218137转810"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区柯木塱小学",
+                  "凤凰街道",
+                  "天河区广汕一路761号",
+                  "（020）87039601"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 小学"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 小学 天河区小学基本情况 发表时间： 2023-02-20 16:54:22 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有小学74所，其中区属公办59所，省属1所，民办学校11所，其他单位办学3所。 2022年天河区小学基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 区属公办 广州市天河区元岗小学 元岗街道 天河区下元岗东街39-40号(东校区）/天河区元岗路299号（西校区） （020）37081697(东校区）/（020）38615927（西校区） 广州市天河区长湴小学 长兴街道 天河区长兴街禾串树直街2号 （020）37201696 广州市天河区岑村小学 长兴街道 天河区岑村圣堂路4号 （020）87238695转802 广州市天河区龙洞小学 龙洞街道 天河区龙洞西大街1号(龙洞校区）/天河区天源路品翠街31号（绿洲校区）/天河区天源路宝翠路5号（宝翠园校区） （020）87029630 广州市天河区渔沙坦小学 凤凰街道 天河区渔中路1号 （020）87218137转810 广州市天河区柯木塱小学 凤凰街道 天河区广汕一路761号 （020）87039601 广州市天河区高塘石小学 凤凰街道 天河区"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区小学基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "小学",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区初级中学基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2023-02-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/cjzx/content/post_8724029.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/cjzx/content/post_8724029.html",
+      "covered_school_types": [
+        "junior_high_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区初级中学基本情况.html",
+          "format": "html",
+          "size_bytes": 32216,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 8,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区初级中学基本情况表",
+                  "2022年天河区初级中学基本情况表",
+                  "2022年天河区初级中学基本情况表",
+                  "2022年天河区初级中学基本情况表",
+                  "2022年天河区初级中学基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "区属公办",
+                  "广州市泰安中学",
+                  "棠下街道",
+                  "天河区泰安南路1号",
+                  "（020）85237934"
+                ],
+                [
+                  "区属公办",
+                  "广州市长兴中学",
+                  "长兴街道",
+                  "天河区长兴路美景街148号",
+                  "（020）61391255"
+                ],
+                [
+                  "区属公办",
+                  "广州市天荣中学",
+                  "天河南街道",
+                  "天河区天河南街道天荣路3号",
+                  "（020）85597709转8203"
+                ],
+                [
+                  "区属公办",
+                  "广州市骏景中学",
+                  "天园街道",
+                  "天河区中山大道骏景路和风街1号",
+                  "（020）38670956"
+                ],
+                [
+                  "区属公办",
+                  "广州市第十八中学",
+                  "前进街道",
+                  "天河区前进街桃园中路276号",
+                  "（020）22308122"
+                ],
+                [
+                  "民办学校",
+                  "广州市天河区同仁艺体实验中学",
+                  "凤凰街道",
+                  "天河区柯木塱大坪街18号",
+                  "（020）87746705"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 初级中学"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 初级中学 天河区初级中学基本情况 发表时间： 2023-02-20 16:54:54 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有初级中学6所，其中区属公办5所，民办学校1所。 2022年天河区初级中学基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 区属公办 广州市泰安中学 棠下街道 天河区泰安南路1号 （020）85237934 广州市长兴中学 长兴街道 天河区长兴路美景街148号 （020）61391255 广州市天荣中学 天河南街道 天河区天河南街道天荣路3号 （020）85597709转8203 广州市骏景中学 天园街道 天河区中山大道骏景路和风街1号 （020）38670956 广州市第十八中学 前进街道 天河区前进街桃园中路276号 （020）22308122 民办学校 广州市天河区同仁艺体实验中学 凤凰街道 天河区柯木塱大坪街18号 （020）87746705 扫一扫在手机打开当前页 打印 关闭 网站地图 | 联系我们 | 友情链接 | 网站标识码：4401060050 您是第 - 位访客 主办：广州市天河区人民政府 承办：广州市天河区政务服务和数据管理局 备案序号： 粤ICP备150164"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区初级中学基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "初中",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区九年一贯制学校基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2023-02-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/jnygzxx/content/post_8724037.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/jnygzxx/content/post_8724037.html",
+      "covered_school_types": [
+        "nine_year_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区九年一贯制学校基本情况.html",
+          "format": "html",
+          "size_bytes": 70045,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 32,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区九年一贯制学校基本情况表",
+                  "2022年天河区九年一贯制学校基本情况表",
+                  "2022年天河区九年一贯制学校基本情况表",
+                  "2022年天河区九年一贯制学校基本情况表",
+                  "2022年天河区九年一贯制学校基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "区属公办",
+                  "广州市华颖中学（广州市华颖外国语学校）",
+                  "员村街道",
+                  "天河区员村一横路七号大院83号",
+                  "（020）38696961"
+                ],
+                [
+                  "区属公办",
+                  "广州市南国学校",
+                  "猎德街道",
+                  "天河区平月路202号",
+                  "（020）38208115"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河区汇景实验学校",
+                  "五山街道",
+                  "天河区汇景南路5-9号",
+                  "（020）87140688"
+                ],
+                [
+                  "区属公办",
+                  "广州市第一一三中学陶育实验学校",
+                  "石牌街道",
+                  "天河区陶育路102号",
+                  "（020）85228013"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河中学猎德实验学校",
+                  "猎德街道",
+                  "天河区珠江新城海清路海定街1号",
+                  "（020）38939505转8008"
+                ],
+                [
+                  "民办学校",
+                  "广州市天河区华实学校",
+                  "珠吉街道",
+                  "天河区珠吉街道大灵山路18号之九",
+                  "（020）85582415"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 九年一贯制学校"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 九年一贯制学校 天河区九年一贯制学校基本情况 发表时间： 2023-02-20 16:55:26 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有九年一贯制学校30所，其中区属公办5所，民办23所，其他单位办学2所。 2022年天河区九年一贯制学校基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 区属公办 广州市华颖中学（广州市华颖外国语学校） 员村街道 天河区员村一横路七号大院83号 （020）38696961 广州市南国学校 猎德街道 天河区平月路202号 （020）38208115 广州市天河区汇景实验学校 五山街道 天河区汇景南路5-9号 （020）87140688 广州市第一一三中学陶育实验学校 石牌街道 天河区陶育路102号 （020）85228013 广州市天河中学猎德实验学校 猎德街道 天河区珠江新城海清路海定街1号 （020）38939505转8008 民办学校 广州市天河区华实学校 珠吉街道 天河区珠吉街道大灵山路18号之九 （020）85582415 广州市天河区新蕾五星学校 兴华街道 天河区沙太路88号 （020）87227599/（020）87227707 广州市天河区黄村中英文学校 "
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区九年一贯制学校基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "九年一贯制学校",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区完全中学基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2023-02-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/wqzx/content/post_8724046.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/wqzx/content/post_8724046.html",
+      "covered_school_types": [
+        "complete_middle_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区完全中学基本情况.html",
+          "format": "html",
+          "size_bytes": 40103,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 12,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区完全中学基本情况表",
+                  "2022年天河区完全中学基本情况表",
+                  "2022年天河区完全中学基本情况表",
+                  "2022年天河区完全中学基本情况表",
+                  "2022年天河区完全中学基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "区属公办学校",
+                  "广州中学",
+                  "凤凰街道/五山街道/天河南街道/林和街道",
+                  "天河区华美路63号（凤凰校区）/天河区五山路贤韵街5号（五山校区）/天河区华文街10号（名雅校区）/天河区天寿路20号（天润校区）",
+                  "（020）89810774"
+                ],
+                [
+                  "区属公办学校",
+                  "广州市天河外国语学校",
+                  "冼村街道",
+                  "天河区海乐路9号",
+                  "（020）37267747"
+                ],
+                [
+                  "区属公办学校",
+                  "广州市天河中学",
+                  "天河南街道/冼村街道",
+                  "天河区天河南街道天河东路44号（初中部天河东校区）/天河区冼村街道猎德大道27号(初中部花城校区)/天河区冼村街道华成路7号(高中部珠江新城校区)",
+                  "（020）87580551/（天河东校区）（020）38735387(花城校区)/（020）38016326(珠江新城校区)"
+                ],
+                [
+                  "区属公办学校",
+                  "广州市第一一三中学",
+                  "天园街道/员村街道/",
+                  "天河区东方二路1号(东方校区）/天河区员村二横路4号大院(金融校区）/天河区员村西街6号（乐学校区）",
+                  "（020）85617739(东方校区）/（020）87564103(金融校区）/（020）87589257（乐学校区）"
+                ],
+                [
+                  "区属公办学校",
+                  "广州市第八十九中学",
+                  "龙洞街道",
+                  "天河区天源路1219号",
+                  "（020）37217060"
+                ],
+                [
+                  "区属公办学校",
+                  "广州市第七十五中学",
+                  "沙东街道/兴华街道",
+                  "天河区广州大道北498号（初中部天平架校区）/天河区燕成路21号（初中部燕塘西校区）/天河区燕岭路151号（高中部燕塘东校区）",
+                  "（020）87747260"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 4,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 完全中学"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 完全中学 天河区完全中学基本情况 发表时间： 2023-02-20 16:56:01 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有完全中学10所，其中区属公办学校 7所，省属学校 1所，市属学校1所，民办学校1所。 2022年天河区完全中学基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 区属公办学校 广州中学 凤凰街道/五山街道/天河南街道/林和街道 天河区华美路63号（凤凰校区）/天河区五山路贤韵街5号（五山校区）/天河区华文街10号（名雅校区）/天河区天寿路20号（天润校区） （020）89810774 广州市天河外国语学校 冼村街道 天河区海乐路9号 （020）37267747 广州市天河中学 天河南街道/冼村街道 天河区天河南街道天河东路44号（初中部天河东校区）/天河区冼村街道猎德大道27号(初中部花城校区)/天河区冼村街道华成路7号(高中部珠江新城校区) （020）87580551/（天河东校区）（020）38735387(花城校区)/（020）38016326(珠江新城校区) 广州市第一一三中学 天园街道/员村街道/ 天河区东方二路1号(东方校区）/天河区员村二横路4号大院(金融校区）/天河"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区完全中学基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "完全中学",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区十二年制学校基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2022-12-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/senzxx/content/post_8722523.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/senzxx/content/post_8722523.html",
+      "covered_school_types": [
+        "twelve_year_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区十二年一贯制学校基本情况.html",
+          "format": "html",
+          "size_bytes": 27945,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 5,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区十二年制学校基本情况表",
+                  "2022年天河区十二年制学校基本情况表",
+                  "2022年天河区十二年制学校基本情况表",
+                  "2022年天河区十二年制学校基本情况表",
+                  "2022年天河区十二年制学校基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "市属学校",
+                  "清华附中湾区学校",
+                  "车陂街道",
+                  "天河区天坤二路99号",
+                  "020-62969989"
+                ],
+                [
+                  "民办学校",
+                  "广州市华美英语实验学校",
+                  "凤凰街道",
+                  "天河区华美路23号",
+                  "020-87210183"
+                ],
+                [
+                  "民办学校",
+                  "广州思源学校",
+                  "黄村街道",
+                  "天河区东圃广州世界大观前",
+                  "020-82345760"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 5,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 十二年制学校"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 十二年制学校 天河区十二年制学校基本情况 发表时间： 2022-12-20 15:38:53 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有十二年制学校 3所，其中市属学校1所，民办学校 2所。 2022年天河区十二年制学校基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 市属学校 清华附中湾区学校 车陂街道 天河区天坤二路99号 020-62969989 民办学校 广州市华美英语实验学校 凤凰街道 天河区华美路23号 020-87210183 广州思源学校 黄村街道 天河区东圃广州世界大观前 020-82345760 扫一扫在手机打开当前页 打印 关闭 网站地图 | 联系我们 | 友情链接 | 网站标识码：4401060050 您是第 - 位访客 主办：广州市天河区人民政府 承办：广州市天河区政务服务和数据管理局 备案序号： 粤ICP备15016469号-2 粤公网安备 44010602000147号 手机版 穗好办 天河政府网 广州天河发布微博 广州天河发布微信"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区十二年一贯制学校基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "十二年一贯制学校",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "天河区职业中学基本情况",
+      "publisher": "广州市天河区教育局",
+      "publication_date": "2022-12-20",
+      "landing_page_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/zyzx/content/post_8722493.html",
+      "content_url": "https://www.thnet.gov.cn/zwgk/ggqsydwxxgkzl/jyly/zyzx/content/post_8722493.html",
+      "covered_school_types": [
+        "vocational_high_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2022年天河区职业中学基本情况.html",
+          "format": "html",
+          "size_bytes": 24435,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 3,
+              "column_count": 5,
+              "preview_rows": [
+                [
+                  "2022年天河区职业中学基本情况表",
+                  "2022年天河区职业中学基本情况表",
+                  "2022年天河区职业中学基本情况表",
+                  "2022年天河区职业中学基本情况表",
+                  "2022年天河区职业中学基本情况表"
+                ],
+                [
+                  "学校性质",
+                  "学校名称",
+                  "所在街道",
+                  "具体地址",
+                  "联系电话"
+                ],
+                [
+                  "区属公办",
+                  "广州市天河职业高级中学（广州市广播电视大学天河区分校）",
+                  "沙河街道/棠下街道/员村街道",
+                  "天河区广州大道中1247号（沙河校区）天河区棠德路121号（棠德校区）天河区科韵中路13号（科韵校区）",
+                  "020-37234727"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "div",
+              "classes": [
+                "container"
+              ],
+              "count": 5,
+              "preview": [
+                "搜索热词： 公共服务 产业扶持政策 投资创业",
+                "首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies",
+                "您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 职业中学"
+              ]
+            }
+          ],
+          "text_preview": "无障碍阅读 长者助手 繁体版 英文版 EN 登 录 网站支持IPV6 搜索热词： 公共服务 产业扶持政策 投资创业 首页 Home 天河动态 Local News 走进天河 About Tianhe 政务服务 E-services 政务公开 Government Affairs 营商环境 Business & Investment in Tianhe 互动交流 Enquiries 工作机构 Government Agencies 您当前所在的位置： 首页 > 政务公开 > 公共企事业单位信息公开专栏 > 教育领域 > 职业中学 天河区职业中学基本情况 发表时间： 2022-12-20 15:39:43 信息来源： 天河区教育局 浏览量： - A + 大 A + 中 A + 小 天河区现有职业中学 1所，其中区属公办1所。 2022年天河区职业中学基本情况表 学校性质 学校名称 所在街道 具体地址 联系电话 区属公办 广州市天河职业高级中学（广州市广播电视大学天河区分校） 沙河街道/棠下街道/员村街道 天河区广州大道中1247号（沙河校区） 天河区棠德路121号（棠德校区） 天河区科韵中路13号（科韵校区） 020-37234727 扫一扫在手机打开当前页 打印 关闭 网站地图 | 联系我们 | 友情链接 | 网站标识码：4401060050 您是第 - 位访客 主办：广州市天河区人民政府 承办：广州市天河区政务服务和数据管理局 备案序号： 粤ICP备15016469号-2 粤公网安备 44010602000147号 手机版 穗好办 天河政府网 广州天河发布微博 广州天河发布微信"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "file": "2022年天河区职业中学基本情况.html",
+          "kind": "table",
+          "location": {
+            "table_index": 1
+          },
+          "header_row": 2,
+          "data_start_row": 3,
+          "data_end_row": null,
+          "place_name_columns": [
+            2
+          ],
+          "place_name_separator": "",
+          "original_address_column": 4,
+          "school_type_column": null,
+          "school_type_value": "职业高级中学",
+          "school_nature_column": 1,
+          "school_nature_value": "",
+          "fill_down_columns": [
+            1
+          ],
+          "exclude_rows": [],
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    }
+  ],
+  "inspection_summary": {
+    "source_count": 9,
+    "file_count": 9,
+    "suggested_rule_count": 9,
+    "status_counts": {
+      "ready": 9
+    },
+    "error_count": 0
+  }
+}

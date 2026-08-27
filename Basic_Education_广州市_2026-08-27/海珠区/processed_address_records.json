@@ -1,0 +1,5001 @@
+{
+  "schema_version": "1.0",
+  "stage": "processed_address_records",
+  "city": "广州市",
+  "items": [
+    {
+      "place_name": "广州市幼儿师范学校附属海珠幼儿园（海琴园区）",
+      "original_address": "海珠区滨江东路宜利街13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 4",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路宜利街13号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路宜利街13号"
+    },
+    {
+      "place_name": "广州市幼儿师范学校附属海珠幼儿园（美景园区）",
+      "original_address": "海珠区新港西路德华街8号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 5",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路德华街8号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路德华街8号"
+    },
+    {
+      "place_name": "广州市海珠区蓝色康园幼儿园（蓝康园区）",
+      "original_address": "海珠区滨江东路蓝康街20号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 6",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路蓝康街20号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路蓝康街20号"
+    },
+    {
+      "place_name": "广州市海珠区蓝色康园幼儿园（雅郡园区）",
+      "original_address": "海珠区新港东路雅郡路13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 7",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港东路雅郡路13号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路雅郡路13号"
+    },
+    {
+      "place_name": "广州市海珠区蓝色康园幼儿园（云顶园区）",
+      "original_address": "海珠区广州大道南金菊路南贤大街22号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 8",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南金菊路南贤大街22号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南金菊路南贤大街22号"
+    },
+    {
+      "place_name": "广州市海珠区大塘幼儿园（大塘园区）",
+      "original_address": "海珠区聚德西横街16号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 9",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区聚德西横街16号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区聚德西横街16号"
+    },
+    {
+      "place_name": "广州市海珠区大塘幼儿园（金丰园区）",
+      "original_address": "海珠区赤岗路269号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 10",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区赤岗路269号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗路269号"
+    },
+    {
+      "place_name": "广州市海珠区大塘幼儿园（聚德园区）",
+      "original_address": "海珠区聚德路80号之二",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 11",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区聚德路80号之二",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区聚德路80号之二"
+    },
+    {
+      "place_name": "广州市海珠区逸景幼儿园（东区园区）",
+      "original_address": "海珠区广州大道南逸景东四径2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 12",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南逸景东四径2号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南逸景东四径2号"
+    },
+    {
+      "place_name": "广州市海珠区逸景幼儿园（中区园区）",
+      "original_address": "海珠区广州大道南逸景翠园琵琶径2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 13",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南逸景翠园琵琶径2号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南逸景翠园琵琶径2号"
+    },
+    {
+      "place_name": "广州市海珠区逸景幼儿园（鸣翠园区）",
+      "original_address": "海珠区永翠路34号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 14",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区永翠路34号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区永翠路34号"
+    },
+    {
+      "place_name": "广州市海珠区海鸥幼儿园（细岗园区）",
+      "original_address": "海珠区细岗路细岗东三街7号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 15",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区细岗路细岗东三街7号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区细岗路细岗东三街7号"
+    },
+    {
+      "place_name": "广州市海珠区海鸥幼儿园（东银园区）",
+      "original_address": "海珠区东晓路278号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 16",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区东晓路278号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓路278号"
+    },
+    {
+      "place_name": "广州市海珠区前进路幼儿园（基立园区）",
+      "original_address": "海珠区前进路基立东北街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 17",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区前进路基立东北街6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路基立东北街6号"
+    },
+    {
+      "place_name": "广州市海珠区前进路幼儿园（金汇园区）",
+      "original_address": "海珠区江湾路107号汇景街10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 18",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江湾路107号汇景街10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江湾路107号汇景街10号"
+    },
+    {
+      "place_name": "广州市海珠区前进路幼儿园（海逸园区）",
+      "original_address": "海珠区江南大道中海逸街38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 19",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南大道中海逸街38号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道中海逸街38号"
+    },
+    {
+      "place_name": "广州市海珠区穗花幼儿园（南方园区）",
+      "original_address": "海珠区昌岗中路南方花园建南街31号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 20",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区昌岗中路南方花园建南街31号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区昌岗中路南方花园建南街31号"
+    },
+    {
+      "place_name": "广州市海珠区穗花幼儿园（翠城园区）",
+      "original_address": "海珠区宝岗大道南翠城花园翠城北街8号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 21",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道南翠城花园翠城北街8号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道南翠城花园翠城北街8号"
+    },
+    {
+      "place_name": "广州市海珠区穗花幼儿园（熙园园区）",
+      "original_address": "海珠区昌岗中路信宝街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 22",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区昌岗中路信宝街6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区昌岗中路信宝街6号"
+    },
+    {
+      "place_name": "广州市海珠区海珠幼儿园（紫山园区）",
+      "original_address": "海珠区江南西路紫山大街30号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 23",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南西路紫山大街30号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南西路紫山大街30号"
+    },
+    {
+      "place_name": "广州市海珠区海珠幼儿园(江南花园园区)",
+      "original_address": "海珠区宝业路40号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 24",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝业路40号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝业路40号之一"
+    },
+    {
+      "place_name": "广州市海珠区海珠幼儿园(可逸家园园区)",
+      "original_address": "海珠区青柳大街40号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 25",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区青柳大街40号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区青柳大街40号"
+    },
+    {
+      "place_name": "广州市海珠区福安幼儿园（东园区）",
+      "original_address": "海珠区南华西路南福安街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 26",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南华西路南福安街3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南华西路南福安街3号"
+    },
+    {
+      "place_name": "广州市海珠区福安幼儿园（西园区）",
+      "original_address": "海珠区南华西路南福安街17号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 27",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南华西路南福安街17号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南华西路南福安街17号"
+    },
+    {
+      "place_name": "广州市海珠区福安幼儿园（天誉园区）",
+      "original_address": "海珠区同福西路14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 28",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区同福西路14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区同福西路14号"
+    },
+    {
+      "place_name": "广州市海珠区光大同福幼儿园（康榕园区)",
+      "original_address": "海珠区革新路光大花园康榕街24号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 29",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区革新路光大花园康榕街24号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路光大花园康榕街24号"
+    },
+    {
+      "place_name": "广州市海珠区光大同福幼儿园(中海园区）",
+      "original_address": "海珠区水榕路168号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 30",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区水榕路168号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区水榕路168号"
+    },
+    {
+      "place_name": "广州市海珠区光大同福幼儿园（橡园园区）",
+      "original_address": "海珠区水榕路61号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 31",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区水榕路61号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区水榕路61号"
+    },
+    {
+      "place_name": "广州市海珠区光大同福幼儿园（观澜园区）",
+      "original_address": "海珠区润锦路40号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 32",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区润锦路40号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区润锦路40号"
+    },
+    {
+      "place_name": "广州市海珠区金碧第一幼儿园（东园区）",
+      "original_address": "海珠区工业大道南821号金碧花园金碧二街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 33",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道南821号金碧花园金碧二街3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道南821号金碧花园金碧二街3号"
+    },
+    {
+      "place_name": "广州市海珠区金碧第一幼儿园（西园区）",
+      "original_address": "海珠区工业大道南金诚3街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 34",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道南金诚3街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道南金诚3街1号"
+    },
+    {
+      "place_name": "广州市海珠区金碧第一幼儿园（琶洲园区）",
+      "original_address": "海珠区琶洲跃龙新街2号、6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 35",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区琶洲跃龙新街2号、6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区琶洲跃龙新街2号、6号"
+    },
+    {
+      "place_name": "广州市海珠区晓港中马路幼儿园（晓港园区）",
+      "original_address": "海珠区晓港中马路114号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 36",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区晓港中马路114号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区晓港中马路114号"
+    },
+    {
+      "place_name": "广州市海珠区晓港中马路幼儿园（悦安园区）",
+      "original_address": "海珠区泰沙路悦安街12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 37",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区泰沙路悦安街12号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区泰沙路悦安街12号"
+    },
+    {
+      "place_name": "广州市海珠区晓港中马路幼儿园（新苑园区）",
+      "original_address": "海珠区晓港东横街10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 38",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区晓港东横街10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区晓港东横街10号"
+    },
+    {
+      "place_name": "广州市海珠区晓港中幼儿园盛景分园",
+      "original_address": "海珠区中盛路48号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 39",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区中盛路48号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区中盛路48号"
+    },
+    {
+      "place_name": "广州市公安局机关幼儿园",
+      "original_address": "海珠区前进路基立村学院巷2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 40",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区前进路基立村学院巷2号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路基立村学院巷2号"
+    },
+    {
+      "place_name": "广州市海珠区安安幼儿园",
+      "original_address": "海珠区江海路162号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 41",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江海路162号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江海路162号"
+    },
+    {
+      "place_name": "中国人民解放军海军广州市海韵幼儿园",
+      "original_address": "海珠区石榴岗路106号大院",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 42",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路106号大院",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路106号大院"
+    },
+    {
+      "place_name": "中国人民解放军陆军第七十四集团军医院幼儿园",
+      "original_address": "海珠区新港中路468号大院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 43",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港中路468号大院内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路468号大院内"
+    },
+    {
+      "place_name": "南方医科大学中西医结合医院幼儿园",
+      "original_address": "海珠区石榴岗路13号大院",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 44",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路13号大院",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路13号大院"
+    },
+    {
+      "place_name": "广州美术学院幼儿园",
+      "original_address": "海珠区昌岗东路257号广州美术学院大院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 45",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区昌岗东路257号广州美术学院大院内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区昌岗东路257号广州美术学院大院内"
+    },
+    {
+      "place_name": "中国科学院南海海洋研究所幼儿园",
+      "original_address": "海珠区新港西路164号大院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 46",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路164号大院内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路164号大院内"
+    },
+    {
+      "place_name": "广州市海珠区鸿运花园幼儿园",
+      "original_address": "海珠区新港中路鸿运花园赤岗西一街10号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 47",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港中路鸿运花园赤岗西一街10号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路鸿运花园赤岗西一街10号首层"
+    },
+    {
+      "place_name": "广州市海珠区凤安幼儿园",
+      "original_address": "海珠区革新路凤安四街14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 48",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区革新路凤安四街14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路凤安四街14号"
+    },
+    {
+      "place_name": "广州市海珠区康隆幼儿园",
+      "original_address": "海珠区宝业路202号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 49",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝业路202号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝业路202号"
+    },
+    {
+      "place_name": "广州市海珠区康隆幼儿园（同福园区）",
+      "original_address": "海珠区同福中路仁济直街14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 50",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区同福中路仁济直街14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区同福中路仁济直街14号"
+    },
+    {
+      "place_name": "广州市海珠区宝贤幼儿园",
+      "original_address": "海珠区江泰路38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 51",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江泰路38号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江泰路38号"
+    },
+    {
+      "place_name": "广州市海珠区宝贤幼儿园（晓园分园）",
+      "original_address": "海珠区泰沙路42号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 52",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区泰沙路42号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区泰沙路42号"
+    },
+    {
+      "place_name": "广州市海珠区祁乐幼儿园",
+      "original_address": "海珠区怡乐路70号大院23号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 53",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡乐路70号大院23号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡乐路70号大院23号"
+    },
+    {
+      "place_name": "广州市海珠区祁乐幼儿园（南华分园）",
+      "original_address": "海珠区东晓南路凤景路兴南三街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 54",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区东晓南路凤景路兴南三街6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路凤景路兴南三街6号"
+    },
+    {
+      "place_name": "广州市海珠区祁乐幼儿园（怡乐分园）",
+      "original_address": "海珠区怡乐路怡乐四巷40号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 55",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡乐路怡乐四巷40号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡乐路怡乐四巷40号"
+    },
+    {
+      "place_name": "广州市海珠区金影幼儿园",
+      "original_address": "海珠区新港中路艺苑南路230-232号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 56",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港中路艺苑南路230-232号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路艺苑南路230-232号"
+    },
+    {
+      "place_name": "广州市海珠区金影幼儿园（瑞宝北分园）",
+      "original_address": "海珠区工业大道南821号金碧花园二街260号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 57",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道南821号金碧花园二街260号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道南821号金碧花园二街260号"
+    },
+    {
+      "place_name": "广州市海珠区金影幼儿园（瑞宝南分园）",
+      "original_address": "海珠区工业大道南821号金恒北二街14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 58",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道南821号金恒北二街14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道南821号金恒北二街14号"
+    },
+    {
+      "place_name": "广州市海珠区愉乐幼儿园（愉景园区）",
+      "original_address": "海珠区新港西路景馨街51号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 59",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路景馨街51号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路景馨街51号首层"
+    },
+    {
+      "place_name": "广州市海珠区愉乐幼儿园（乐涛园区）",
+      "original_address": "海珠区上渡路165号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 60",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区上渡路165号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区上渡路165号"
+    },
+    {
+      "place_name": "广州市海珠区雅致花园幼儿园",
+      "original_address": "海珠区工业大道中373号雅致花园西韵阁",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 61",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道中373号雅致花园西韵阁",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道中373号雅致花园西韵阁"
+    },
+    {
+      "place_name": "广州市海珠区侨诚花园幼儿园",
+      "original_address": "海珠区江南大道侨诚花园冬日街40号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 62",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南大道侨诚花园冬日街40号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道侨诚花园冬日街40号"
+    },
+    {
+      "place_name": "广州市海珠区兰亭幼儿园",
+      "original_address": "海珠区前进路33号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 63",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区前进路33号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路33号"
+    },
+    {
+      "place_name": "广州市海珠区兰亭幼儿园（加怡分园）",
+      "original_address": "海珠区侨港路怡顺街19号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 64",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区侨港路怡顺街19号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区侨港路怡顺街19号"
+    },
+    {
+      "place_name": "广州市海珠区兰亭幼儿园（蓝翠分园）",
+      "original_address": "海珠区新港西路28号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 65",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路28号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路28号"
+    },
+    {
+      "place_name": "广州市海珠区富泽园幼儿园",
+      "original_address": "海珠区革新路富泽二街15号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 66",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区革新路富泽二街15号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路富泽二街15号"
+    },
+    {
+      "place_name": "广州市海珠区富泽园幼儿园（金碧湾园区）",
+      "original_address": "海珠区革新路118号之五",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 67",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区革新路118号之五",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路118号之五"
+    },
+    {
+      "place_name": "广州市海珠区富泽园幼儿园（洪德园区）",
+      "original_address": "海珠区洪德路洪德五巷七号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 68",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区洪德路洪德五巷七号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区洪德路洪德五巷七号"
+    },
+    {
+      "place_name": "广州市海珠区粤信幼儿园",
+      "original_address": "海珠区石榴岗路2号粤信广场内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 69",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路2号粤信广场内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路2号粤信广场内"
+    },
+    {
+      "place_name": "广州市海珠区少年宫海富幼儿园",
+      "original_address": "海珠区江燕路海富花园海富南街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 70",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江燕路海富花园海富南街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江燕路海富花园海富南街1号"
+    },
+    {
+      "place_name": "广州市海珠区少年宫海富幼儿园（南石头分园）",
+      "original_address": "海珠区南箕路南箕中街53号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 71",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南箕路南箕中街53号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南箕路南箕中街53号"
+    },
+    {
+      "place_name": "广州市海珠区少年宫海富幼儿园（江南西分园）",
+      "original_address": "海珠区宝岗大道杏坛大街95号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 72",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道杏坛大街95号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道杏坛大街95号"
+    },
+    {
+      "place_name": "广州市海珠区晓港湾幼儿园",
+      "original_address": "海珠区南洲北路晓港湾小区英华街149号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 73",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲北路晓港湾小区英华街149号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲北路晓港湾小区英华街149号"
+    },
+    {
+      "place_name": "广州市海珠区晓港湾幼儿园（万华分园）",
+      "original_address": "海珠区南洲北路万华西街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 74",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲北路万华西街4号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲北路万华西街4号"
+    },
+    {
+      "place_name": "广州市海珠区珠江帝景幼儿园",
+      "original_address": "海珠区艺洲路灏景街28号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 75",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区艺洲路灏景街28号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区艺洲路灏景街28号"
+    },
+    {
+      "place_name": "广州市海珠区珠江帝景幼儿园（森语星园园区）",
+      "original_address": "海珠区广州大道南森语二街55号森语星园小区内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 76",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南森语二街55号森语星园小区内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南森语二街55号森语星园小区内"
+    },
+    {
+      "place_name": "广州市海珠区珠江帝景幼儿园（磨碟沙君逸园区）",
+      "original_address": "海珠区芳园路10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 77",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区芳园路10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区芳园路10号"
+    },
+    {
+      "place_name": "广州市海珠区珠江帝景幼儿园（贝恩园区）",
+      "original_address": "海珠区滨江东路康怡街1号101房，1号二楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 78",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路康怡街1号101房，1号二楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路康怡街1号101房，1号二楼"
+    },
+    {
+      "place_name": "广州市海珠区珠江帝景幼儿园（天悦园区）",
+      "original_address": "海珠区宸悦路11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 79",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宸悦路11号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宸悦路11号"
+    },
+    {
+      "place_name": "广州市海珠区顺景幼儿园",
+      "original_address": "海珠区新港西路顺景街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 80",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路顺景街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路顺景街5号"
+    },
+    {
+      "place_name": "广州市海珠区实小穗花幼儿园",
+      "original_address": "海珠区穗花新村三巷11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 81",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区穗花新村三巷11号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区穗花新村三巷11号"
+    },
+    {
+      "place_name": "广州市海珠区实小穗花幼儿园（乐居苑园区）",
+      "original_address": "海珠区宝岗大道龙田西街口67号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 82",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道龙田西街口67号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道龙田西街口67号"
+    },
+    {
+      "place_name": "广州市海珠区实小穗花幼儿园（绿怡园区）",
+      "original_address": "海珠区宝岗大道绿怡街13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 83",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道绿怡街13号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道绿怡街13号"
+    },
+    {
+      "place_name": "广州市海珠区实小穗花幼儿园（富基园区）",
+      "original_address": "海珠区富基路240号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 84",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区富基路240号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区富基路240号"
+    },
+    {
+      "place_name": "广州市海珠区实小穗花幼儿园（润南园区）",
+      "original_address": "海珠区南泰路润怡三街15号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 85",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南泰路润怡三街15号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南泰路润怡三街15号"
+    },
+    {
+      "place_name": "广州市海珠区逸彩幼儿园",
+      "original_address": "海珠区广州大道南叠景路彩棕街15号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 86",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南叠景路彩棕街15号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南叠景路彩棕街15号"
+    },
+    {
+      "place_name": "广州市海珠区新海燕实验幼儿园（时代大家园区）",
+      "original_address": "海珠区玉澜街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 87",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区玉澜街3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区玉澜街3号"
+    },
+    {
+      "place_name": "广州市海珠区新海燕实验幼儿园（芳草轩园区）",
+      "original_address": "海珠区东晓南路梦轩南街22号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 88",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区东晓南路梦轩南街22号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路梦轩南街22号"
+    },
+    {
+      "place_name": "广州市海珠区新海燕实验幼儿园（凤南园区）",
+      "original_address": "海珠区泰沙路凤阳街32号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 89",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区泰沙路凤阳街32号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区泰沙路凤阳街32号首层"
+    },
+    {
+      "place_name": "广州市海珠区新海燕实验幼儿园（天荟居园区）",
+      "original_address": "海珠区科韵南路111号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 90",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区科韵南路111号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区科韵南路111号"
+    },
+    {
+      "place_name": "广州市海珠区南燕幼儿园",
+      "original_address": "海珠区江燕路236号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 91",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江燕路236号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江燕路236号"
+    },
+    {
+      "place_name": "广州市海珠区南燕幼儿园（中冶园区）",
+      "original_address": "海珠区燕翔路156号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 92",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区燕翔路156号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区燕翔路156号"
+    },
+    {
+      "place_name": "广州市海珠区赤岗幼儿园",
+      "original_address": "海珠区新港中路赤岗三街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 93",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港中路赤岗三街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路赤岗三街5号"
+    },
+    {
+      "place_name": "广州市海珠区赤岗幼儿园（坚真园区）",
+      "original_address": "海珠区聚德南路利和街13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 94",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区聚德南路利和街13号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区聚德南路利和街13号"
+    },
+    {
+      "place_name": "广州市海珠区赤岗幼儿园（聚德园区）",
+      "original_address": "海珠区聚德路12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 95",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区聚德路12号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区聚德路12号"
+    },
+    {
+      "place_name": "广州市海珠区科雅幼儿园",
+      "original_address": "海珠区江南西路青葵大街19号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 96",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南西路青葵大街19号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南西路青葵大街19号"
+    },
+    {
+      "place_name": "广州市海珠区科雅幼儿园（滨江东园区）",
+      "original_address": "海珠区滨江东路136号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 97",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路136号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路136号"
+    },
+    {
+      "place_name": "广州市海珠区科雅幼儿园（江南苑园区）",
+      "original_address": "海珠区宝业路骏园东街14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 98",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝业路骏园东街14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝业路骏园东街14号"
+    },
+    {
+      "place_name": "广州市海珠区新桥幼儿园",
+      "original_address": "海珠区南洲路廊桥三街八号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 99",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲路廊桥三街八号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路廊桥三街八号"
+    },
+    {
+      "place_name": "广州市海珠区新桥幼儿园（海珠新城园区）",
+      "original_address": "海珠区南洲路1059号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 100",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲路1059号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路1059号"
+    },
+    {
+      "place_name": "广州市海珠区绿翠幼儿园",
+      "original_address": "海珠区怡乐路33号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 101",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡乐路33号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡乐路33号"
+    },
+    {
+      "place_name": "广州市海珠区绿翠幼儿园（米兰园区）",
+      "original_address": "海珠区广州大道南55号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 102",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南55号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南55号"
+    },
+    {
+      "place_name": "广州市海珠区教育实践基地海印南苑幼儿园",
+      "original_address": "海珠区建基路83号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 103",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区建基路83号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区建基路83号"
+    },
+    {
+      "place_name": "广州市海珠区教育实践基地海印南苑幼儿园（名都分园）",
+      "original_address": "海珠区纺织路一号中海名都花园A5栋1-3层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 104",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区纺织路一号中海名都花园A5栋1-3层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区纺织路一号中海名都花园A5栋1-3层"
+    },
+    {
+      "place_name": "广州市海珠区教育实践基地童乐幼儿园",
+      "original_address": "海珠区东翠东街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 105",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区东翠东街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东翠东街5号"
+    },
+    {
+      "place_name": "广州市海珠区教育实践基地童乐幼儿园（汇美景台分园）",
+      "original_address": "海珠区滨江东路927号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 106",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路927号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路927号"
+    },
+    {
+      "place_name": "广州市海珠区万松园幼儿园",
+      "original_address": "海珠区前进路万松园7-10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 107",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区前进路万松园7-10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路万松园7-10号"
+    },
+    {
+      "place_name": "广州市海珠区万松园幼儿园（晓安苑分园）",
+      "original_address": "海珠区南泰路晓安苑逸安街34号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 108",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南泰路晓安苑逸安街34号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南泰路晓安苑逸安街34号"
+    },
+    {
+      "place_name": "广州市海珠区海宝幼儿园（宝怡阁分园）",
+      "original_address": "海珠区怡福路210号首、二层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 109",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡福路210号首、二层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡福路210号首、二层"
+    },
+    {
+      "place_name": "广州市海珠区海宝幼儿园（海珠半岛分园）",
+      "original_address": "海珠区滨江东路69、71、73号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 110",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路69、71、73号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路69、71、73号"
+    },
+    {
+      "place_name": "广州市海珠区海宝幼儿园（嘉丽苑分园）",
+      "original_address": "海珠区江南大道中紫来大街53号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 111",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南大道中紫来大街53号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道中紫来大街53号"
+    },
+    {
+      "place_name": "广州市海珠区海宝幼儿园（大江苑分园）",
+      "original_address": "海珠区新港西路大江苑夏沙巷17号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 112",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路大江苑夏沙巷17号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路大江苑夏沙巷17号"
+    },
+    {
+      "place_name": "广州市海珠区海宝幼儿园（赤岗苑分园）",
+      "original_address": "海珠区赤岗苑靖晖街1号地下、二楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 113",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区赤岗苑靖晖街1号地下、二楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗苑靖晖街1号地下、二楼"
+    },
+    {
+      "place_name": "广州市海珠区星晖园幼儿园",
+      "original_address": "海珠区南洲路沥滘星晖园星晖三街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 114",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲路沥滘星晖园星晖三街6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路沥滘星晖园星晖三街6号"
+    },
+    {
+      "place_name": "广州市海珠区星晖园幼儿园（琴海居分园）",
+      "original_address": "海珠区滨江东艺洲路41号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 115",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东艺洲路41号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东艺洲路41号"
+    },
+    {
+      "place_name": "广州市海珠区锦安苑幼儿园",
+      "original_address": "海珠区艺景路锦安苑锦贤街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 116",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区艺景路锦安苑锦贤街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区艺景路锦安苑锦贤街1号"
+    },
+    {
+      "place_name": "广州市海珠区江海街桂田幼儿园",
+      "original_address": "海珠区广州大道南桂田南约大街19号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 117",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广州大道南桂田南约大街19号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南桂田南约大街19号之一"
+    },
+    {
+      "place_name": "广州市海珠区官洲街星光幼儿园",
+      "original_address": "海珠区官洲街仑头环村南路53-54号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 118",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区官洲街仑头环村南路53-54号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区官洲街仑头环村南路53-54号"
+    },
+    {
+      "place_name": "广州广船幼儿园海珠分园",
+      "original_address": "海珠区沙园五一新村二街北28号前座、21号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 119",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区沙园五一新村二街北28号前座、21号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区沙园五一新村二街北28号前座、21号首层"
+    },
+    {
+      "place_name": "广州市海珠区保利红棉幼儿园（红棉园区）",
+      "original_address": "海珠区江燕南路2街26号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 120",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江燕南路2街26号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江燕南路2街26号"
+    },
+    {
+      "place_name": "广州市海珠区保利红棉幼儿园（保利园区）",
+      "original_address": "海珠区工业大道中400号保利花园镜湖东街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 121",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道中400号保利花园镜湖东街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道中400号保利花园镜湖东街1号"
+    },
+    {
+      "place_name": "广州市海珠区保利红棉幼儿园（百合园区）",
+      "original_address": "海珠区工业大道中381号东篱街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 122",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道中381号东篱街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道中381号东篱街5号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（江海园区）",
+      "original_address": "海珠区赤岗西路224号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 123",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区赤岗西路224号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗西路224号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园(官洲园区）",
+      "original_address": "海珠区北山村龙吟大街51号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 124",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区北山村龙吟大街51号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区北山村龙吟大街51号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园(华洲园区）",
+      "original_address": "海珠区土华东华大路东6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 125",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区土华东华大路东6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区土华东华大路东6号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园(琶洲园区）",
+      "original_address": "海珠区新港东路36号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 126",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港东路36号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路36号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（昌岗园区）",
+      "original_address": "海珠区昌岗街恂恂大街37-39号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 127",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区昌岗街恂恂大街37-39号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区昌岗街恂恂大街37-39号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（晶晶园区）",
+      "original_address": "海珠区华洲街新步头东三巷五号、七号、九号、十一号、十三号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 128",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区华洲街新步头东三巷五号、七号、九号、十一号、十三号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区华洲街新步头东三巷五号、七号、九号、十一号、十三号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（宝灵园区）",
+      "original_address": "海珠区桂田南约东六巷六号、八号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 129",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区桂田南约东六巷六号、八号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区桂田南约东六巷六号、八号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（西滘园区）",
+      "original_address": "海珠区西滘大街十六巷11号，13号，15号，19号，21号，23号，25号，27号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 130",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区西滘大街十六巷11号，13号，15号，19号，21号，23号，25号，27号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区西滘大街十六巷11号，13号，15号，19号，21号，23号，25号，27号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（童梦园区）",
+      "original_address": "海珠区小洲村瀛南大街三巷3、5、7号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 131",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区小洲村瀛南大街三巷3、5、7号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区小洲村瀛南大街三巷3、5、7号"
+    },
+    {
+      "place_name": "广州市海珠区海创幼儿园（童星园区）",
+      "original_address": "海珠区东晓南路五凤乡凤岗脚34号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 公办幼儿园 | row 132",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区东晓南路五凤乡凤岗脚34号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路五凤乡凤岗脚34号之一"
+    },
+    {
+      "place_name": "中山大学南校区幼儿园大树园区",
+      "original_address": "海珠区新港西路135号中山大学西南区481号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 4",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路135号中山大学西南区481号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路135号中山大学西南区481号"
+    },
+    {
+      "place_name": "中山大学南校区幼儿园西湖园区",
+      "original_address": "海珠区新港西路135号中山大学蒲园区610号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 5",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路135号中山大学蒲园区610号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路135号中山大学蒲园区610号"
+    },
+    {
+      "place_name": "广州市海珠区南洲街春之光幼儿园",
+      "original_address": "海珠区三滘后滘村西大街三约9号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 6",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区三滘后滘村西大街三约9号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区三滘后滘村西大街三约9号"
+    },
+    {
+      "place_name": "广州市海珠区泓景花园幼儿园",
+      "original_address": "海珠区赤岗北路泓景花园泓景南街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 7",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区赤岗北路泓景花园泓景南街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗北路泓景花园泓景南街1号"
+    },
+    {
+      "place_name": "广州市海珠区江南中街江南幼儿园",
+      "original_address": "海珠区江南西路紫龙大街22号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 8",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区江南西路紫龙大街22号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南西路紫龙大街22号"
+    },
+    {
+      "place_name": "广州市海珠区南石头街轻机幼儿园",
+      "original_address": "海珠区工业大道中石岗路93号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 9",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区工业大道中石岗路93号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道中石岗路93号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街新凤凰幼儿园",
+      "original_address": "海珠区革新路乐善大街11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 10",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区革新路乐善大街11号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路乐善大街11号"
+    },
+    {
+      "place_name": "广州市海珠区南石头街好时光幼儿园",
+      "original_address": "海珠区工业大道296号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 11",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区工业大道296号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道296号之一"
+    },
+    {
+      "place_name": "广州市海珠区江海街艺轩幼儿园",
+      "original_address": "海珠区敦和路大塘村口2号之一、之二",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 12",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区敦和路大塘村口2号之一、之二",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区敦和路大塘村口2号之一、之二"
+    },
+    {
+      "place_name": "广州市海珠区南华西街轻乐幼儿园",
+      "original_address": "海珠区滨江西路海鸣街6号首层，6号之一至6号之六首层及海天四望30号，30号之一首层自编A01",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 13",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区滨江西路海鸣街6号首层，6号之一至6号之六首层及海天四望30号，30号之一首层自编A01",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江西路海鸣街6号首层，6号之一至6号之六首层及海天四望30号，30号之一首层自编A01"
+    },
+    {
+      "place_name": "广州市海珠区凤阳街群星幼儿园",
+      "original_address": "海珠区新港西路鹭江西街99号群星苑内105、109号商铺",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 14",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路鹭江西街99号群星苑内105、109号商铺",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路鹭江西街99号群星苑内105、109号商铺"
+    },
+    {
+      "place_name": "广州市海珠区赤岗街广发耀汉幼儿园",
+      "original_address": "海珠区新港中路489号广发街11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 15",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港中路489号广发街11号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路489号广发街11号"
+    },
+    {
+      "place_name": "广州市海珠区素社街东晓维多利亚幼儿园",
+      "original_address": "海珠区昌岗中路92号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 16",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区昌岗中路92号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区昌岗中路92号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街东晓怡雅幼儿园",
+      "original_address": "海珠区桃源路50号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 17",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区桃源路50号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区桃源路50号"
+    },
+    {
+      "place_name": "广州市海珠区元邦明月幼儿园",
+      "original_address": "海珠区赤岗东路219号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 18",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区赤岗东路219号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗东路219号之一"
+    },
+    {
+      "place_name": "广州市海珠区新南洋幼儿园",
+      "original_address": "海珠区雅郡路9号201",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 19",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区雅郡路9号201",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区雅郡路9号201"
+    },
+    {
+      "place_name": "广州市海珠区昌岗街隔山幼儿园",
+      "original_address": "海珠区江南大道中隔山新街18号之二",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 20",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区江南大道中隔山新街18号之二",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道中隔山新街18号之二"
+    },
+    {
+      "place_name": "广州市海珠区南洲街御景湾幼儿园",
+      "original_address": "海珠区南洲路博景街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 21",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南洲路博景街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路博景街1号"
+    },
+    {
+      "place_name": "广州市海珠区江南中街汇源幼儿园",
+      "original_address": "海珠区江南大道中涌尾大街81、82、83号1-3楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 22",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区江南大道中涌尾大街81、82、83号1-3楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道中涌尾大街81、82、83号1-3楼"
+    },
+    {
+      "place_name": "广州市海珠区琶洲街凯洛斯幼儿园",
+      "original_address": "海珠区新港东路2794号东街自编33号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 23",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港东路2794号东街自编33号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路2794号东街自编33号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街龙福幼儿园龙福路园区",
+      "original_address": "海珠区龙福路二巷3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 24",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区龙福路二巷3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区龙福路二巷3号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街龙福幼儿园尚领园区",
+      "original_address": "海珠区东晓南路尚领三街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 25",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区东晓南路尚领三街4号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路尚领三街4号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街怡童幼儿园",
+      "original_address": "海珠区工业大道中石岗二巷10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 26",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区工业大道中石岗二巷10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道中石岗二巷10号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街雅思幼儿园",
+      "original_address": "海珠区东晓南路锦绣星城锦逸街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 27",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区东晓南路锦绣星城锦逸街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路锦绣星城锦逸街1号"
+    },
+    {
+      "place_name": "广州市海珠区素社街盛华幼儿园",
+      "original_address": "海珠区前进路159号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 28",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区前进路159号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路159号"
+    },
+    {
+      "place_name": "广州市海珠区为明幼儿园",
+      "original_address": "海珠区盛景家园盛宏街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 29",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区盛景家园盛宏街2号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区盛景家园盛宏街2号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街昌盛幼儿园",
+      "original_address": "海珠区宝岗路昌盛南街1-4号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 30",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区宝岗路昌盛南街1-4号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗路昌盛南街1-4号首层"
+    },
+    {
+      "place_name": "广州市海珠区海幢街康体幼儿园",
+      "original_address": "海珠区贵德街1-3号二楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 31",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区贵德街1-3号二楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区贵德街1-3号二楼"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街金太阳幼儿园",
+      "original_address": "海珠区瑞宝南路瑞祥新村十巷一号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 32",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区瑞宝南路瑞祥新村十巷一号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区瑞宝南路瑞祥新村十巷一号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街新星幼儿园",
+      "original_address": "海珠区燕子岗南路12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 33",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区燕子岗南路12号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区燕子岗南路12号"
+    },
+    {
+      "place_name": "广州市海珠区凤阳街童心幼儿园",
+      "original_address": "海珠区龙潭村东约书院横街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 34",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区龙潭村东约书院横街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区龙潭村东约书院横街5号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街瑞宝幼儿园",
+      "original_address": "海珠区瑞宝南路南约东宁大街一号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 35",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区瑞宝南路南约东宁大街一号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区瑞宝南路南约东宁大街一号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街名苑幼儿园",
+      "original_address": "海珠区南洲路南洲名苑怡居街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 36",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南洲路南洲名苑怡居街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路南洲名苑怡居街1号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街华艺幼儿园",
+      "original_address": "海珠区广州大道南和辉花园和辉街31号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 37",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区广州大道南和辉花园和辉街31号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南和辉花园和辉街31号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街穗华幼儿园南洲北园区",
+      "original_address": "海珠区广州大道南南洲花园燕安一街38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 38",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区广州大道南南洲花园燕安一街38号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广州大道南南洲花园燕安一街38号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街穗华幼儿园瑞城园区",
+      "original_address": "海珠区东晓南路瑞宝花园宝成街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 39",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区东晓南路瑞宝花园宝成街4号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东晓南路瑞宝花园宝成街4号"
+    },
+    {
+      "place_name": "广州市海珠区龙凤街龙凤幼儿园",
+      "original_address": "海珠区荔福路凤凰四街45-46号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 40",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区荔福路凤凰四街45-46号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区荔福路凤凰四街45-46号"
+    },
+    {
+      "place_name": "广州市海珠区华洲街土华幼儿园",
+      "original_address": "海珠区土华紫气右四巷29号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 41",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区土华紫气右四巷29号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区土华紫气右四巷29号"
+    },
+    {
+      "place_name": "广州市海珠区琶洲幼儿园新雅园区",
+      "original_address": "海珠区新港东路黄埔村口6号自编3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 42",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港东路黄埔村口6号自编3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路黄埔村口6号自编3号"
+    },
+    {
+      "place_name": "广州市海珠区琶洲幼儿园江海园区",
+      "original_address": "海珠区赤岗西路328号自编18栋二楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 43",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区赤岗西路328号自编18栋二楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗西路328号自编18栋二楼"
+    },
+    {
+      "place_name": "广州市海珠区石溪幼儿园",
+      "original_address": "海珠区瑞宝街石溪南社街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 44",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区瑞宝街石溪南社街2号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区瑞宝街石溪南社街2号"
+    },
+    {
+      "place_name": "广州市海珠区赤岗街阳光幼儿园",
+      "original_address": "海珠区下渡路下渡大街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 45",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区下渡路下渡大街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区下渡路下渡大街1号"
+    },
+    {
+      "place_name": "广州市海珠区金苗幼儿园愉景南园区",
+      "original_address": "海珠区新港西路212号(愉景南园内)",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 46",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路212号（愉景南园内）",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路212号（愉景南园内）"
+    },
+    {
+      "place_name": "广州市海珠区金苗幼儿园富力现代园区",
+      "original_address": "海珠区革新路现代四街19号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 47",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区革新路现代四街19号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区革新路现代四街19号"
+    },
+    {
+      "place_name": "广州市海珠区南洲街金彩虹幼儿园",
+      "original_address": "海珠区江海街红卫新村中华东六巷1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 48",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区江海街红卫新村中华东六巷1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江海街红卫新村中华东六巷1号"
+    },
+    {
+      "place_name": "广州市海珠区琶洲街新洲幼儿园",
+      "original_address": "海珠区黄埔村宾日大街一巷11号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 49",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区黄埔村宾日大街一巷11号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区黄埔村宾日大街一巷11号之一"
+    },
+    {
+      "place_name": "广州市海珠区官洲街海晏幼儿园",
+      "original_address": "海珠区赤沙路47号三楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 50",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区赤沙路47号三楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤沙路47号三楼"
+    },
+    {
+      "place_name": "广州市海珠区新港街美加幼儿园",
+      "original_address": "海珠区怡乐路四巷18号之一至四1-2楼",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 51",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区怡乐路四巷18号之一至四1-2楼",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡乐路四巷18号之一至四1-2楼"
+    },
+    {
+      "place_name": "广州市海珠区官洲街华立幼儿园",
+      "original_address": "海珠区新滘东路赤沙村茶岗（坊里巷）院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 52",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新滘东路赤沙村茶岗（坊里巷）院内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新滘东路赤沙村茶岗（坊里巷）院内"
+    },
+    {
+      "place_name": "广州市海珠区南石头街天海庭幼儿园",
+      "original_address": "海珠区燕子岗路天海街26号、康体街28号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 53",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区燕子岗路天海街26号、康体街28号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区燕子岗路天海街26号、康体街28号"
+    },
+    {
+      "place_name": "广州市海珠区南石头街探星幼儿园",
+      "original_address": "海珠区广纸路广纸东二街33号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 54",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区广纸路广纸东二街33号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广纸路广纸东二街33号之一"
+    },
+    {
+      "place_name": "广州市海珠区乐陶幼儿园",
+      "original_address": "海珠区逸景路293号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 55",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区逸景路293号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区逸景路293号"
+    },
+    {
+      "place_name": "广州市海珠区南华西街天汇幼儿园",
+      "original_address": "海珠区鳌洲内街23号之二101、之三之四101房、201房",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 56",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区鳌洲内街23号之二101、之三之四101房、201房",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区鳌洲内街23号之二101、之三之四101房、201房"
+    },
+    {
+      "place_name": "广州市海珠区沙园街乐森幼儿园",
+      "original_address": "海珠区工业大道北175、177号101房、201房、301房",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 57",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区工业大道北175、177号101房、201房、301房",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道北175、177号101房、201房、301房"
+    },
+    {
+      "place_name": "广州市海珠区合美紫龙府幼儿园",
+      "original_address": "海珠区艺洲路园湖街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 58",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区艺洲路园湖街4号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区艺洲路园湖街4号"
+    },
+    {
+      "place_name": "广州市海珠区海幢街宝欣幼儿园",
+      "original_address": "海珠区南华中路353号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 59",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南华中路353号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南华中路353号"
+    },
+    {
+      "place_name": "广州市海珠区青青幼儿园",
+      "original_address": "海珠区新港西路152号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 60",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路152号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路152号"
+    },
+    {
+      "place_name": "广州市海珠区瑞宝街尚东峰景幼儿园",
+      "original_address": "海珠区瑞宝街峰景东街8号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 61",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区瑞宝街峰景东街8号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区瑞宝街峰景东街8号"
+    },
+    {
+      "place_name": "广州市海珠区滨江街绿赐幼儿园",
+      "original_address": "海珠区纺织路133、137-139、141号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 62",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区纺织路133、137-139、141号首层",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区纺织路133、137-139、141号首层"
+    },
+    {
+      "place_name": "广州市海珠区新田幼儿园有限公司",
+      "original_address": "海珠区新港中路375号自编39号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 63",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港中路375号自编39号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港中路375号自编39号"
+    },
+    {
+      "place_name": "广州市海珠区笑笑美育幼儿园有限公司",
+      "original_address": "海珠区广纸北一路106号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010103/10782749.xls | 2026年广州市海珠区公民办幼儿园一览表.xls | sheet 民办幼儿园 | row 64",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区广纸北一路106号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广纸北一路106号"
+    },
+    {
+      "place_name": "广州市海珠区华怡小学",
+      "original_address": "海珠区赤岗东路203号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 3",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区赤岗东路203号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗东路203号"
+    },
+    {
+      "place_name": "广州市海珠区海珠小学",
+      "original_address": "海珠区石榴岗路15号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 4",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路15号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路15号"
+    },
+    {
+      "place_name": "广州市海珠区东风村第二小学",
+      "original_address": "海珠区东风村上涌东约新一巷18号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 5",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区东风村上涌东约新一巷18号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区东风村上涌东约新一巷18号"
+    },
+    {
+      "place_name": "广州市海珠区龙华学校",
+      "original_address": "海珠区新滘南路龙潭西横街14巷6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 6",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新滘南路龙潭西横街14巷6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新滘南路龙潭西横街14巷6号"
+    },
+    {
+      "place_name": "广州市海珠区金雁宏天学校",
+      "original_address": "海珠区南洲中路沥滘迎祥坊1号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 7",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南洲中路沥滘迎祥坊1号之一",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲中路沥滘迎祥坊1号之一"
+    },
+    {
+      "place_name": "广州市海珠区康乐小学",
+      "original_address": "海珠区新港西路康乐中约南新街99号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 8",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路康乐中约南新街99号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路康乐中约南新街99号"
+    },
+    {
+      "place_name": "广州市海珠区龙涛小学",
+      "original_address": "海珠区石榴岗路14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 9",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路14号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路14号"
+    },
+    {
+      "place_name": "广州市海珠区奥通小学",
+      "original_address": "海珠区南石头西路兴隆大街42号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 10",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南石头西路兴隆大街42号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南石头西路兴隆大街42号"
+    },
+    {
+      "place_name": "广州市海珠区华光小学",
+      "original_address": "海珠区仑头村仑头路78号之三",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 11",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区仑头村仑头路78号之三",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区仑头村仑头路78号之三"
+    },
+    {
+      "place_name": "广州市海珠区名门珠江小学",
+      "original_address": "海珠区新港东路南园中街27号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 12",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港东路南园中街27号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路南园中街27号"
+    },
+    {
+      "place_name": "广州市海珠区龙海小学",
+      "original_address": "海珠区江海街碧映路8号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 13",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区江海街碧映路8号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江海街碧映路8号"
+    },
+    {
+      "place_name": "广州市海珠区贝赛思学校",
+      "original_address": "海珠区鹭江南约大街19巷1号之6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 14",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区鹭江南约大街19巷1号之6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区鹭江南约大街19巷1号之6号"
+    },
+    {
+      "place_name": "广州市海珠区春蕾实验小学",
+      "original_address": "海珠区石榴岗路七星岗29号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 15",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路七星岗29号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路七星岗29号"
+    },
+    {
+      "place_name": "广州市海珠区春晖学校",
+      "original_address": "海珠区新港西路立新街凤岗10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 16",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新港西路立新街凤岗10号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路立新街凤岗10号"
+    },
+    {
+      "place_name": "广州市海珠区春华小学",
+      "original_address": "海珠区南洲路88号之33",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 17",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "小学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南洲路88号之33",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路88号之33"
+    },
+    {
+      "place_name": "广州市海珠区华洲实验学校",
+      "original_address": "海珠区华洲路96号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 18",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "九年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区华洲路96号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区华洲路96号"
+    },
+    {
+      "place_name": "广州市海珠区育华学校",
+      "original_address": "海珠区石榴岗七星岗1号之9",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 19",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "九年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区石榴岗七星岗1号之9",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗七星岗1号之9"
+    },
+    {
+      "place_name": "广州市海珠区华立学校（大沙校区）",
+      "original_address": "海珠区南洲路1002号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 20",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "九年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区南洲路1002号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路1002号"
+    },
+    {
+      "place_name": "广州市海珠区华立学校（赤沙校区）",
+      "original_address": "海珠区新滘镇赤沙村茶岗（坊里巷）院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 21",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "九年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区新滘镇赤沙村茶岗（坊里巷）院内",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新滘镇赤沙村茶岗（坊里巷）院内"
+    },
+    {
+      "place_name": "广州市海珠区华海双语学校",
+      "original_address": "海珠区逸景路289、291号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 22",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "九年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区逸景路289、291号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区逸景路289、291号"
+    },
+    {
+      "place_name": "广州市为明学校",
+      "original_address": "海珠区沙渡路131号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 23",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "十二年一贯制学校",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区沙渡路131号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区沙渡路131号"
+    },
+    {
+      "place_name": "广州市海珠区康乐中学",
+      "original_address": "海珠区工业大道尾大干围38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 24",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区工业大道尾大干围38号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道尾大干围38号"
+    },
+    {
+      "place_name": "广州市海珠中学",
+      "original_address": "海珠区石榴岗路15号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 25",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "完全中学",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区石榴岗路15号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区石榴岗路15号"
+    },
+    {
+      "place_name": "广州市海华高级中学",
+      "original_address": "海珠区华洲街华洲陆145、159号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 26",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "高中",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区华洲街华洲陆145、159号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区华洲街华洲陆145、159号"
+    },
+    {
+      "place_name": "广州市培才高级中学",
+      "original_address": "海珠区燕子岗路燕岗街20号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/attachment/8/8010/8010093/10782748.xlsx | 2026年广州市海珠区民办中小学办学许可信息一览表.xlsx | sheet 民办中小学 | row 27",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "高中",
+        "school_nature": "民办"
+      },
+      "normalized_address": "广州市海珠区燕子岗路燕岗街20号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区燕子岗路燕岗街20号"
+    },
+    {
+      "place_name": "广州市第五中学",
+      "original_address": "广州市海珠区南村路32号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南村路32号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南村路32号"
+    },
+    {
+      "place_name": "广州市第六中学",
+      "original_address": "广州市海珠区新港西路179号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 3",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港西路179号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港西路179号"
+    },
+    {
+      "place_name": "广州市第二十六中学",
+      "original_address": "广州市海珠区小港路119号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 4",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区小港路119号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区小港路119号"
+    },
+    {
+      "place_name": "广州市南武第二实验学校",
+      "original_address": "广州市海珠区同福西路278号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 5",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区同福西路278号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区同福西路278号"
+    },
+    {
+      "place_name": "广州市第四十一中学东校区",
+      "original_address": "广州市海珠区广纸北二路116号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 6 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区广纸北二路116号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区广纸北二路116号"
+    },
+    {
+      "place_name": "广州市第四十一中学校本部",
+      "original_address": "广州市海珠区工业大道北101号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 6 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区工业大道北101号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区工业大道北101号"
+    },
+    {
+      "place_name": "广州市海珠外国语实验中学",
+      "original_address": "广州市海珠区前进路121号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 7",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区前进路121号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区前进路121号"
+    },
+    {
+      "place_name": "广州市南武中学岭画校区",
+      "original_address": "广州市海珠区江南西路玫瑰二街12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 8 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南西路玫瑰二街12号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南西路玫瑰二街12号"
+    },
+    {
+      "place_name": "广州市南武中学杏园校区",
+      "original_address": "广州市海珠区江南西路杏园大街81号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 8 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南西路杏园大街81号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南西路杏园大街81号"
+    },
+    {
+      "place_name": "广州市五中滨江学校远安校区",
+      "original_address": "广州市海珠区远安路80号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 9 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区远安路80号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区远安路80号"
+    },
+    {
+      "place_name": "广州市五中滨江学校怡趣校区",
+      "original_address": "广州市海珠区怡趣街78号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 9 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡趣街78号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡趣街78号"
+    },
+    {
+      "place_name": "广州市五中东晓学校",
+      "original_address": "广州市海珠区南洲北路颐景直街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 10",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲北路颐景直街1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲北路颐景直街1号"
+    },
+    {
+      "place_name": "广州市第九十七中学初中部",
+      "original_address": "广州市海珠区晓港东横街12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 11",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区晓港东横街12号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区晓港东横街12号"
+    },
+    {
+      "place_name": "广州市海珠外国语实验中学附属学校",
+      "original_address": "广州市工业大道中保利花园保康路源溪街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 12",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市工业大道中保利花园保康路源溪街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市工业大道中保利花园保康路源溪街5号"
+    },
+    {
+      "place_name": "广州市九十七中晓园学校",
+      "original_address": "广州市海珠区江南大道南跃进五巷1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 13",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江南大道南跃进五巷1号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江南大道南跃进五巷1号"
+    },
+    {
+      "place_name": "广州市九十七中蓝天学校",
+      "original_address": "广州市海珠区泰沙路235号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 14",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区泰沙路235号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区泰沙路235号"
+    },
+    {
+      "place_name": "广州市江南外国语学校北校区",
+      "original_address": "广州市海珠区宝岗大道466号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 15 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道466号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道466号"
+    },
+    {
+      "place_name": "广州市江南外国语学校南校区",
+      "original_address": "广州市海珠区宝岗大道730号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 15 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区宝岗大道730号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区宝岗大道730号"
+    },
+    {
+      "place_name": "广州市景中实验中学",
+      "original_address": "广州市海珠区赤岗一街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 16",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区赤岗一街5号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区赤岗一街5号"
+    },
+    {
+      "place_name": "广州市聚德中学",
+      "original_address": "广州市海珠区江海街聚德路9号、11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 17",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区江海街聚德路9号、11号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区江海街聚德路9号、11号"
+    },
+    {
+      "place_name": "广州市绿翠现代实验学校东校区",
+      "original_address": "广州市海珠区滨江东路810号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 18 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区滨江东路810号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区滨江东路810号"
+    },
+    {
+      "place_name": "广州市绿翠现代实验学校西校区",
+      "original_address": "广州市海珠区怡乐路52号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 18 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡乐路52号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡乐路52号"
+    },
+    {
+      "place_name": "广州市海珠区劬劳中学",
+      "original_address": "广州市海珠区南洲路74号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 19",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲路74号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路74号"
+    },
+    {
+      "place_name": "广州市新滘中学贵荣校区",
+      "original_address": "广州市海珠区官洲街仑头路30号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 20 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区官洲街仑头路30号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区官洲街仑头路30号"
+    },
+    {
+      "place_name": "广州市新滘中学土华校区",
+      "original_address": "广州市海珠区华州街道华洲路698号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 20 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区华州街道华洲路698号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区华州街道华洲路698号"
+    },
+    {
+      "place_name": "广州市海珠区黄埔中学",
+      "original_address": "广州市海珠区黄埔村华佗里6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 21",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区黄埔村华佗里6号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区黄埔村华佗里6号"
+    },
+    {
+      "place_name": "广州市执信中学琶洲实验学校",
+      "original_address": "广州市海珠区新港东路1171号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 22",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区新港东路1171号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区新港东路1171号"
+    },
+    {
+      "place_name": "广州市五中附属初级中学",
+      "original_address": "广州市海珠区翠宝路158号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 23",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区翠宝路158号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区翠宝路158号"
+    },
+    {
+      "place_name": "广州市海珠区南武文润学校",
+      "original_address": "广州市海珠区南洲路中怡街21号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 24",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区南洲路中怡街21号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区南洲路中怡街21号"
+    },
+    {
+      "place_name": "广州市南武实验学校",
+      "original_address": "广州市东晓路东晓横街188号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 25",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市东晓路东晓横街188号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市东晓路东晓横街188号"
+    },
+    {
+      "place_name": "广州市海珠区六中珠江中学逸景校区",
+      "original_address": "广州市广州大道南逸景路芳盛街60号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 26 | address 1",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市广州大道南逸景路芳盛街60号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市广州大道南逸景路芳盛街60号"
+    },
+    {
+      "place_name": "广州市海珠区六中珠江中学万胜围校区",
+      "original_address": "广州市海珠区杨青路3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 26 | address 2",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区杨青路3号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区杨青路3号"
+    },
+    {
+      "place_name": "广州市南武中学附属学校",
+      "original_address": "广州市海珠区怡安路199号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 27",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区怡安路199号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区怡安路199号"
+    },
+    {
+      "place_name": "广东实验中学琶洲学校",
+      "original_address": "广州市海珠区奋勉街66号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.haizhu.gov.cn/gzjg/qzf/hzqjyj/zsgz/content/mpost_10249080.html | 2025年广州市海珠区初中招生问答.html | table_index 3 | row 28",
+      "attributes": {
+        "administrative_unit": "海珠区",
+        "school_type": "初中",
+        "school_nature": "公办"
+      },
+      "normalized_address": "广州市海珠区奋勉街66号",
+      "normalization_status": "complete",
+      "normalization_reason": "",
+      "map_address": "",
+      "map_status": "skipped",
+      "map_reason": "政府信息地址完整，按规则跳过地图服务",
+      "map_poi_type": "",
+      "map_poi_typecode": "",
+      "final_address": "广州市海珠区奋勉街66号"
+    }
+  ],
+  "metrics": {
+    "item_count": 249,
+    "map_request_count": 0,
+    "source_counts": {
+      "government_information": 249
+    },
+    "normalization_status_counts": {
+      "complete": 249
+    },
+    "map_status_counts": {
+      "skipped": 249
+    },
+    "final_address_count": 249
+  }
+}

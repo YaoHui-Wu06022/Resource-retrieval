@@ -1,0 +1,864 @@
+{
+  "schema_version": "1.0",
+  "stage": "basic_education_extraction_plan",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "从化区",
+    "adcode": "440117",
+    "level": "district"
+  },
+  "source_manifest": "sources.json",
+  "items": [
+    {
+      "source_title": "2025年广州市从化区基础教育名录（小学）",
+      "publisher": "广州市从化区教育局",
+      "publication_date": "2025-01-13",
+      "landing_page_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073399.html",
+      "content_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073399.html",
+      "covered_school_types": [
+        "primary_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2025年广州市从化区基础教育名录（小学）.html",
+          "format": "html",
+          "size_bytes": 232117,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 73,
+              "column_count": 8,
+              "preview_rows": [
+                [
+                  "序号",
+                  "单位名称",
+                  "办学类型",
+                  "办学性质",
+                  "所在镇街",
+                  "地址",
+                  "联系电话",
+                  "邮政编码"
+                ],
+                [
+                  "1",
+                  "广州市从化区流溪小学",
+                  "小学",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街城内路84号",
+                  "020-87960091",
+                  "510900"
+                ],
+                [
+                  "2",
+                  "广州市从化区河滨小学",
+                  "小学",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街城中路2号",
+                  "020-87964051",
+                  "510900"
+                ],
+                [
+                  "3",
+                  "广州市从化区西宁小学",
+                  "小学",
+                  "公办",
+                  "城郊街道",
+                  "广州市从化区城郊街新城西路135号",
+                  "020-87912390",
+                  "510920"
+                ],
+                [
+                  "4",
+                  "广州市从化区雅居乐小学",
+                  "小学",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街尚景路39号",
+                  "020-37987828",
+                  "510925"
+                ],
+                [
+                  "5",
+                  "广州南方学院附属小学",
+                  "小学",
+                  "公办",
+                  "太平镇",
+                  "广州市从化区太平镇珠江国际城国际城大道128号",
+                  "020-62161610",
+                  "510980"
+                ],
+                [
+                  "6",
+                  "广东外语外贸大学从化实验小学",
+                  "小学",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街御景山水大道林荫大街4号",
+                  "020-62162191",
+                  "510925"
+                ],
+                [
+                  "7",
+                  "华南师范大学附属从化实验小学",
+                  "小学",
+                  "公办",
+                  "鳌头镇",
+                  "广州市从化区鳌头镇城鳌大道西合景花蔓苑小区华聚一路116号",
+                  "020-66363933",
+                  "510940"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "li",
+              "classes": [
+                "t-li"
+              ],
+              "count": 8,
+              "preview": [
+                "无障碍版",
+                "长者助手",
+                "English"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "h_li"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化 About Conghua",
+                "政务公开 Govemment Affairs",
+                "政务服务 E-services"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "h_a"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化",
+                "政务公开",
+                "政务服务"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "button-rotate",
+                "item"
+              ],
+              "count": 6,
+              "preview": [
+                "信易贷 扫一扫 加入信易贷平台",
+                "互联网+督查 扫一扫 添加“互联网+督查”小程序",
+                "穗好办 扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "footer_a"
+              ],
+              "count": 5,
+              "preview": [
+                "网站地图",
+                "隐私声明",
+                "免责声明"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "item-hover"
+              ],
+              "count": 5,
+              "preview": [
+                "扫一扫 加入信易贷平台",
+                "扫一扫 添加“互联网+督查”小程序",
+                "扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "content"
+              ],
+              "count": 4,
+              "preview": [
+                "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录",
+                "AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金",
+                "首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "btn"
+              ],
+              "count": 3,
+              "preview": [
+                "【 返回顶部 】 【 打印页面 】 【 关闭本页 】 浏览次数： -",
+                "互联网+督查",
+                "智能问答"
+              ]
+            }
+          ],
+          "text_preview": "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录 AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金 首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies 您当前所在位置： 首页 > 政务公开 > 重点领域信息公开 > 教育信息 【区教育局】2025年广州市从化区基础教育名录（小学） （2025年1月份） 来源： 本网 发布时间： 2025-01-13 09:20 序 号 单位名称 办学 类型 办学 性质 所在镇街 地址 联系电话 邮政编码 1 广州市从化区流溪小学 小学 公办 街口街道 广州市从化区街口街城内路84号 020-87960091 510900 2 广州市从化区河滨小学 小学 公办 街口街道 广州市从化区街口街城中路2号 020-87964051 510900 3 广州市从化区西宁小学 小学 公办 城郊街道 广州市从化区城郊街新城西路135号 020-87912390 510920 4 广州市从化区雅居乐小学 小学 公办 江埔街道 广州市从化区江埔街尚景路39号 020-37987828 510925 5 广州南方学院附属小学 小学 公办 太平镇 广州市从化区太平镇珠江国际城国际城大道128号 020-62161610 510980 6 广东外语外贸大学从化实验小学 小学 公办 江埔街道 广州市从化区江埔街御景山水大道林荫大街4号 020-62162191 51"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "kind": "table",
+          "file": "2025年广州市从化区基础教育名录（小学）.html",
+          "location": {"table_index": 1},
+          "data_start_row": 2,
+          "place_name_columns": [2],
+          "original_address_column": 6,
+          "school_type_column": 3,
+          "school_nature_column": 4,
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "2025年广州市从化区基础教育名录（中学）",
+      "publisher": "广州市从化区教育局",
+      "publication_date": "2025-01-13",
+      "landing_page_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073398.html",
+      "content_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073398.html",
+      "covered_school_types": [
+        "junior_high_school",
+        "senior_high_school",
+        "nine_year_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2025年广州市从化区基础教育名录（中学）.html",
+          "format": "html",
+          "size_bytes": 104762,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 28,
+              "column_count": 8,
+              "preview_rows": [
+                [
+                  "序号",
+                  "单位名称",
+                  "办学类型",
+                  "办学性质",
+                  "所在镇街",
+                  "地址",
+                  "联系电话",
+                  "邮政编码"
+                ],
+                [
+                  "1",
+                  "广州大学附属中学从化实验学校",
+                  "九年一贯制学校",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街凤鸣南三街108号",
+                  "020-87894102",
+                  "510925"
+                ],
+                [
+                  "2",
+                  "广州市从化区第七中学",
+                  "初级中学",
+                  "公办",
+                  "城郊街道",
+                  "广州市从化区城郊街向阳大道66号",
+                  "020-87958900",
+                  "510920"
+                ],
+                [
+                  "3",
+                  "广州市从化区从化中学",
+                  "完全中学",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街城内路239号",
+                  "020-87910732",
+                  "510900"
+                ],
+                [
+                  "4",
+                  "广州市从化区第二中学",
+                  "完全中学",
+                  "公办",
+                  "城郊街道",
+                  "广州市从化区城郊街环城路33号",
+                  "020-37910013",
+                  "510900"
+                ],
+                [
+                  "5",
+                  "广州市从化区第三中学",
+                  "完全中学",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街大江路19号",
+                  "020-87980453",
+                  "510925"
+                ],
+                [
+                  "6",
+                  "广州市从化区第四中学",
+                  "完全中学",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街教育路23号",
+                  "020-87936529",
+                  "510900"
+                ],
+                [
+                  "7",
+                  "广州市从化区第五中学",
+                  "完全中学",
+                  "公办",
+                  "城郊街道",
+                  "广州市从化区城郊街从城大道839号",
+                  "020-87912458",
+                  "510920"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "li",
+              "classes": [
+                "t-li"
+              ],
+              "count": 8,
+              "preview": [
+                "无障碍版",
+                "长者助手",
+                "English"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "h_li"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化 About Conghua",
+                "政务公开 Govemment Affairs",
+                "政务服务 E-services"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "h_a"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化",
+                "政务公开",
+                "政务服务"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "button-rotate",
+                "item"
+              ],
+              "count": 6,
+              "preview": [
+                "信易贷 扫一扫 加入信易贷平台",
+                "互联网+督查 扫一扫 添加“互联网+督查”小程序",
+                "穗好办 扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "footer_a"
+              ],
+              "count": 5,
+              "preview": [
+                "网站地图",
+                "隐私声明",
+                "免责声明"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "item-hover"
+              ],
+              "count": 5,
+              "preview": [
+                "扫一扫 加入信易贷平台",
+                "扫一扫 添加“互联网+督查”小程序",
+                "扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "content"
+              ],
+              "count": 4,
+              "preview": [
+                "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录",
+                "AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金",
+                "首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "btn"
+              ],
+              "count": 3,
+              "preview": [
+                "【 返回顶部 】 【 打印页面 】 【 关闭本页 】 浏览次数： -",
+                "互联网+督查",
+                "智能问答"
+              ]
+            }
+          ],
+          "text_preview": "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录 AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金 首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies 您当前所在位置： 首页 > 政务公开 > 重点领域信息公开 > 教育信息 【区教育局】2025年广州市从化区基础教育名录（中学） （2025年1月份） 来源： 本网 发布时间： 2025-01-13 09:12 序 号 单位名称 办学类型 办学 性质 所在镇街 地址 联系 电话 邮政 编码 1 广州大学附属中学从化实验学校 九年一贯制学校 公办 江埔街道 广州市从化区江埔街凤鸣南三街108号 020-87894102 510925 2 广州市从化区第七中学 初级中学 公办 城郊街道 广州市从化区城郊街向阳大道66号 020-87958900 510920 3 广州市从化区从化中学 完全中学 公办 街口街道 广州市从化区街口街城内路239号 020-87910732 510900 4 广州市从化区第二中学 完全中学 公办 城郊街道 广州市从化区城郊街环城路33号 020-37910013 510900 5 广州市从化区第三中学 完全中学 公办 江埔街道 广州市从化区江埔街大江路19号 020-87980453 510925 6 广州市从化区第四中学 完全中学 公办 街口街道 广州市从化区街口街教育路23号 020-87936"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "kind": "table",
+          "file": "2025年广州市从化区基础教育名录（中学）.html",
+          "location": {"table_index": 1},
+          "data_start_row": 2,
+          "place_name_columns": [2],
+          "original_address_column": 6,
+          "school_type_column": 3,
+          "school_nature_column": 4,
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "2025年广州市从化区基础教育名录（幼儿园）",
+      "publisher": "广州市从化区教育局",
+      "publication_date": "2025-01-13",
+      "landing_page_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073403.html",
+      "content_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073403.html",
+      "covered_school_types": [
+        "kindergarten"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2025年广州市从化区基础教育名录（幼儿园）.html",
+          "format": "html",
+          "size_bytes": 355106,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 116,
+              "column_count": 8,
+              "preview_rows": [
+                [
+                  "序号",
+                  "单位名称",
+                  "办学类型",
+                  "办学性质",
+                  "所在镇街",
+                  "地址",
+                  "联系电话",
+                  "邮政编码"
+                ],
+                [
+                  "1",
+                  "广州市从化区幼儿园",
+                  "幼儿园",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街教育路6号",
+                  "020-87922569",
+                  "510900"
+                ],
+                [
+                  "2",
+                  "广州市从化区第二幼儿园",
+                  "幼儿园",
+                  "公办",
+                  "街口街道",
+                  "广州市从化区街口街凤仪东路2-1号",
+                  "020-87960431",
+                  "510900"
+                ],
+                [
+                  "3",
+                  "广州市从化区第三幼儿园",
+                  "幼儿园",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街从化大道南188号",
+                  "020-37918001",
+                  "510925"
+                ],
+                [
+                  "4",
+                  "广州市从化区联星幼儿园",
+                  "幼儿园",
+                  "集体",
+                  "江埔街道",
+                  "广州市从化区江埔街河东龙井路103号",
+                  "020-87983318",
+                  "510925"
+                ],
+                [
+                  "5",
+                  "广州市从化区禾仓幼儿园",
+                  "幼儿园",
+                  "集体",
+                  "江埔街道",
+                  "广州市从化区江埔街七星路279号",
+                  "",
+                  "510925"
+                ],
+                [
+                  "6",
+                  "广州市从化区山水城幼儿园",
+                  "幼儿园",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街御景山水大道林荫大街6号",
+                  "020-62162218",
+                  "510925"
+                ],
+                [
+                  "7",
+                  "广州市从化区江埔街御湖城幼儿园",
+                  "幼儿园",
+                  "公办",
+                  "江埔街道",
+                  "广州市从化区江埔街灌村路金泉山庄金泉路2号",
+                  "020-61829836",
+                  "510925"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "li",
+              "classes": [
+                "t-li"
+              ],
+              "count": 8,
+              "preview": [
+                "无障碍版",
+                "长者助手",
+                "English"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "h_li"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化 About Conghua",
+                "政务公开 Govemment Affairs",
+                "政务服务 E-services"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "h_a"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化",
+                "政务公开",
+                "政务服务"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "button-rotate",
+                "item"
+              ],
+              "count": 6,
+              "preview": [
+                "信易贷 扫一扫 加入信易贷平台",
+                "互联网+督查 扫一扫 添加“互联网+督查”小程序",
+                "穗好办 扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "footer_a"
+              ],
+              "count": 5,
+              "preview": [
+                "网站地图",
+                "隐私声明",
+                "免责声明"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "item-hover"
+              ],
+              "count": 5,
+              "preview": [
+                "扫一扫 加入信易贷平台",
+                "扫一扫 添加“互联网+督查”小程序",
+                "扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "content"
+              ],
+              "count": 4,
+              "preview": [
+                "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录",
+                "AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金",
+                "首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "btn"
+              ],
+              "count": 3,
+              "preview": [
+                "【 返回顶部 】 【 打印页面 】 【 关闭本页 】 浏览次数： -",
+                "互联网+督查",
+                "智能问答"
+              ]
+            }
+          ],
+          "text_preview": "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录 AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金 首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies 您当前所在位置： 首页 > 政务公开 > 重点领域信息公开 > 教育信息 【区教育局】2025年广州市从化区基础教育名录（幼儿园） （2025年1月份） 来源： 本网 发布时间： 2025-01-13 09:48 序 号 单位名称 办学 类型 办学 性质 所在镇街 地址 联系电话 邮政编码 1 广州市从化区幼儿园 幼儿园 公办 街口街道 广州市从化区街口街教育路6号 020-87922569 510900 2 广州市从化区第二幼儿园 幼儿园 公办 街口街道 广州市从化区街口街凤仪东路2-1号 020-87960431 510900 3 广州市从化区第三幼儿园 幼儿园 公办 江埔街道 广州市从化区江埔街从化大道南188号 020-37918001 510925 4 广州市从化区联星幼儿园 幼儿园 集体 江埔街道 广州市从化区江埔街河东龙井路103号 020-87983318 510925 5 广州市从化区禾仓幼儿园 幼儿园 集体 江埔街道 广州市从化区江埔街七星路279号 510925 6 广州市从化区山水城幼儿园 幼儿园 公办 江埔街道 广州市从化区江埔街御景山水大道林荫大街6号 020-62162218 510925 7"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "kind": "table",
+          "file": "2025年广州市从化区基础教育名录（幼儿园）.html",
+          "location": {"table_index": 1},
+          "data_start_row": 2,
+          "place_name_columns": [2],
+          "original_address_column": 6,
+          "school_type_column": 3,
+          "school_nature_column": 4,
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    },
+    {
+      "source_title": "2025年广州市从化区基础教育名录（特殊学校）",
+      "publisher": "广州市从化区教育局",
+      "publication_date": "2025-01-13",
+      "landing_page_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073404.html",
+      "content_url": "https://www.conghua.gov.cn/zwgk/zdlyxxgk/jyxx/content/post_10073404.html",
+      "covered_school_types": [
+        "special_education_school"
+      ],
+      "contains_address": true,
+      "files": [
+        {
+          "file": "2025年广州市从化区基础教育名录（特殊学校）.html",
+          "format": "html",
+          "size_bytes": 31374,
+          "inspection_status": "ready",
+          "structures": [
+            {
+              "kind": "table",
+              "location": {
+                "table_index": 1
+              },
+              "row_count": 2,
+              "column_count": 8,
+              "preview_rows": [
+                [
+                  "序号",
+                  "单位名称",
+                  "办学类型",
+                  "办学性质",
+                  "所在镇街",
+                  "地址",
+                  "联系电话",
+                  "邮政编码"
+                ],
+                [
+                  "1",
+                  "广州市从化区启智学校",
+                  "培智学校",
+                  "公办",
+                  "温泉镇",
+                  "广州市从化区温泉镇新教路80号",
+                  "020-37506802",
+                  "510976"
+                ]
+              ]
+            }
+          ],
+          "repeated_blocks": [
+            {
+              "tag": "li",
+              "classes": [
+                "t-li"
+              ],
+              "count": 8,
+              "preview": [
+                "无障碍版",
+                "长者助手",
+                "English"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "h_li"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化 About Conghua",
+                "政务公开 Govemment Affairs",
+                "政务服务 E-services"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "h_a"
+              ],
+              "count": 6,
+              "preview": [
+                "魅力从化",
+                "政务公开",
+                "政务服务"
+              ]
+            },
+            {
+              "tag": "li",
+              "classes": [
+                "button-rotate",
+                "item"
+              ],
+              "count": 6,
+              "preview": [
+                "信易贷 扫一扫 加入信易贷平台",
+                "互联网+督查 扫一扫 添加“互联网+督查”小程序",
+                "穗好办 扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "a",
+              "classes": [
+                "footer_a"
+              ],
+              "count": 5,
+              "preview": [
+                "网站地图",
+                "隐私声明",
+                "免责声明"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "item-hover"
+              ],
+              "count": 5,
+              "preview": [
+                "扫一扫 加入信易贷平台",
+                "扫一扫 添加“互联网+督查”小程序",
+                "扫一扫 添加 “穗好办” 小程序"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "content"
+              ],
+              "count": 4,
+              "preview": [
+                "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录",
+                "AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金",
+                "首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies"
+              ]
+            },
+            {
+              "tag": "div",
+              "classes": [
+                "btn"
+              ],
+              "count": 3,
+              "preview": [
+                "【 返回顶部 】 【 打印页面 】 【 关闭本页 】 浏览次数： -",
+                "互联网+督查",
+                "智能问答"
+              ]
+            }
+          ],
+          "text_preview": "今天是 ，欢迎访问广州市从化区政府网 繁体版 无障碍版 长者助手 English 网站支持IPV6 手机版 中国广州从化 关注 · 手机版 官方微博 官方微信 广州从化政府网 政务应用 智能问答 登录 AI语音搜索 搜索热词： 便民服务 医保 招商引资 招考 公积金 首页 Home 魅力从化 About Conghua 政务公开 Govemment Affairs 政务服务 E-services 互动交流 communication 营商环境 Business & Investment in conghua 工作机构 Govemment Agencies 您当前所在位置： 首页 > 政务公开 > 重点领域信息公开 > 教育信息 【区教育局】2025年广州市从化区基础教育名录（特殊学校） （2025年1月份） 来源： 本网 发布时间： 2025-01-13 10:06 序号 单位名称 办学 类型 办学 性质 所在镇街 地址 联系电话 邮政编码 1 广州市从化区启智学校 培智学校 公办 温泉镇 广州市从化区温泉镇新教路80号 020-37506802 510976 【 返回顶部 】 【 打印页面 】 【 关闭本页 】 浏览次数： - 扫一扫在手机打开当前页 网站地图 隐私声明 免责声明 联系方式 收藏本站 版权所有：广州市从化区人民政府 主办：广州市从化区人民政府 承办：广州市从化区政务服务和数据管理局 您是第 位访客 网站标识码：4401840001 ICP备案号： 粤ICP备17151643号-1 粤公网安备 44011702000052号 点击关闭 信易贷 扫一扫 加入信易贷平台 互联网+督查 扫一扫 添加“互联网+督查”小程序 穗好办 扫一扫 添加 “穗好办” 小程序 扫一扫 下载“穗好办”app 我要办 智能问答 粤省事 扫一扫 “粤省事”小程序 返回顶部"
+        }
+      ],
+      "extraction_rules": [
+        {
+          "kind": "table",
+          "file": "2025年广州市从化区基础教育名录（特殊学校）.html",
+          "location": {"table_index": 1},
+          "data_start_row": 2,
+          "place_name_columns": [2],
+          "original_address_column": 6,
+          "school_type_column": 3,
+          "school_nature_column": 4,
+          "approved": true
+        }
+      ],
+      "review_status": "ready"
+    }
+  ],
+  "inspection_summary": {
+    "source_count": 4,
+    "file_count": 4,
+    "suggested_rule_count": 0,
+    "status_counts": {
+      "ready": 4
+    },
+    "error_count": 0
+  }
+}

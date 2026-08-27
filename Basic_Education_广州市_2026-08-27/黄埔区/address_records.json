@@ -1,0 +1,1724 @@
+{
+  "schema_version": "1.0",
+  "stage": "address_records",
+  "city": "广州市",
+  "items": [
+    {
+      "place_name": "广州市黄埔区育蕾幼儿园",
+      "original_address": "广州市黄埔区黄埔东路188号大院27号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 3",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区育蕾幼儿园（金碧分园）",
+      "original_address": "广州市黄埔区骏雅北街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 4",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区育蕾幼儿园（金港分园）",
+      "original_address": "广州市黄埔区荔香路38号大院22号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 5",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州开发区第一幼儿园（西区园）",
+      "original_address": "广州市黄埔区夏港街青年路东园六街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 6",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州开发区第一幼儿园（中心园）",
+      "original_address": "广州市黄埔区萝岗街开萝大道33号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 7",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州开发区第二幼儿园（西区园）",
+      "original_address": "广州市黄埔区创业路普晖五街48号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 8",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州开发区第二幼儿园（中心园）",
+      "original_address": "广州市黄埔区贤江路128号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 9",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区东荟幼儿园",
+      "original_address": "广州市黄埔区开泰大道212号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 10",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区龙光幼儿园",
+      "original_address": "广州市黄埔区广汕路科景路7号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 11",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区天鹿幼儿园",
+      "original_address": "广州市黄埔区天鹿南路天鹿花园二街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 12",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区香雪山幼儿园",
+      "original_address": "广州市黄埔区开创大道香雪二路",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 13",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区香雪幼儿园",
+      "original_address": "广州市黄埔区萝岗街政园路23号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 14",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区玉城幼儿园",
+      "original_address": "广州市黄埔区云埔五路31号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 15",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区玉城幼儿园（南园区）",
+      "original_address": "广州市黄埔区云埔街云埔四路77-79号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 16",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "北京师范大学广州实验学校附属幼儿园",
+      "original_address": "广州市黄埔区长岭街北师大慧岭路",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 17",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州科学城第一幼儿园",
+      "original_address": "广州市黄埔区联和街道黄陂一路",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 18",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区凤凰湖幼儿园",
+      "original_address": "广州市黄埔区龙湖街德铭路23号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 19",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区九龙中心幼儿园",
+      "original_address": "广州市黄埔区新龙镇镇龙大道531号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 20",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区怡蕾幼儿园",
+      "original_address": "广州市黄埔区大沙街道瑞东新街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 21",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州幼儿师范高等专科学校附属黄埔幼儿园",
+      "original_address": "广州市黄埔区开源大道刘村新村内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 22",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广州知识城第一实验幼儿园",
+      "original_address": "广州市黄埔区龙湖街九龙新城九龙大道以东",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 23",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "教育部门办园"
+      }
+    },
+    {
+      "place_name": "广东工程职业技术学院附属黄埔区泓贝贝幼儿园",
+      "original_address": "广州市黄埔区黄埔东路与丹水坑交接万科尚城翠宇五街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 24",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "事业单位办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔职业技术学校附属东港幼儿园",
+      "original_address": "广州市黄埔区广新路850号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 25",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "事业单位办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔姬堂实验幼儿园",
+      "original_address": "广州市黄埔区姬堂长德街21号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 26",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区南村幼儿园",
+      "original_address": "广州市黄埔区云埔街道新南街三号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 27",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区儿童福利会幼儿园",
+      "original_address": "广州市黄埔区荔园小区荔香二街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 28",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区茅岗幼儿园",
+      "original_address": "广州市黄埔区蟹山西路8号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 29",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区南岗幼儿园",
+      "original_address": "广州市黄埔区南岗路7号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 30",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区黄陂幼儿园",
+      "original_address": "广州市黄埔区广汕路氹北街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 31",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔长洲幼儿园",
+      "original_address": "广州市黄埔区长洲街永耀坊直街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 32",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区夏园幼儿园",
+      "original_address": "广州市黄埔区穗东街夏园学校路11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 33",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔深井幼儿园",
+      "original_address": "广州市黄埔区深井中约上街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 34",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区黄埔街怡园幼儿园",
+      "original_address": "广州市黄埔区怡园东街30栋首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 35",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔榕村幼儿园",
+      "original_address": "广州市黄埔区云埔街榕华路6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 36",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "集体办园"
+      }
+    },
+    {
+      "place_name": "广东省电力幼儿园",
+      "original_address": "广州市黄埔区黄埔东路3375号大院之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 37",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区文船幼儿园",
+      "original_address": "广州市黄埔区红山街红山二路23号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 38",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州黄埔造船厂幼儿园",
+      "original_address": "广州市黄埔区长洲街黄船二街9号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 39",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区岭头幼儿园",
+      "original_address": "广州市黄埔区长岭街道长岭路61号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 40",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区海虹幼儿园",
+      "original_address": "广州市黄埔区长洲海虹路3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 41",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团第一幼儿园",
+      "original_address": "广州市黄埔区香雪大道西349号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 42",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团第二幼儿园（总园）",
+      "original_address": "广州市黄埔区沐兰四街5号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 43",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团第二幼儿园（北园区）",
+      "original_address": "广州市黄埔区萝岗街道开创大道以南、新阳东路以北地段",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 44",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团云曜幼儿园",
+      "original_address": "广州市黄埔区云埔街道云峰原著云曜一街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 45",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团瑚璟幼儿园",
+      "original_address": "广州市黄埔区龙湖街瑚璟一街10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 46",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团盛凯幼儿园（中心园区）",
+      "original_address": "广州市黄埔区盛凯一街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 47",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团盛凯幼儿园（中南园区）",
+      "original_address": "广州市黄埔区笔村中南大街富力悦禧花园2街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 48",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团美誉幼儿园",
+      "original_address": "广州市黄埔区中新广州知识城美誉二街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 49",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区广钢华标幼儿园",
+      "original_address": "广州市黄埔区御境大街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 50",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区广钢科城山庄幼儿园",
+      "original_address": "广州市黄埔区峻泰路1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 51",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区广钢雍景湾幼儿园",
+      "original_address": "广州市黄埔区中新知识城雍德南二街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 52",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区广钢和苑幼儿园",
+      "original_address": "广州市黄埔区萝穗南二街二号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 53",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区广钢和苑第二幼儿园",
+      "original_address": "广州市黄埔区和苑小区萝悦南三街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 54",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市华南师大教育黄埔区华贝幼儿园",
+      "original_address": "广州市黄埔区石化路166号大院内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 55",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团创新幼儿园",
+      "original_address": "广州市黄埔区幸福悦东一街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 56",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团新东幼儿园",
+      "original_address": "广州市黄埔区榕悦三街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 57",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团凤语幼儿园",
+      "original_address": "广州市黄埔区绿地凤语湾凤语街 41号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 58",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团永顺幼儿园",
+      "original_address": "广州市黄埔区逸璟环街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 59",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团禾岭幼儿园（北园区）",
+      "original_address": "广州市黄埔区禾岭路和禾丰二路交界处",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 60",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才人才教育工作集团禾岭幼儿园（东园区）",
+      "original_address": "广州市黄埔区永和街新丰路与红旗路交界处",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 61",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市华南师大教育黄埔区华弘幼儿园",
+      "original_address": "广州市黄埔区丰乐北路128号之九",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 62",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区启航幼儿园",
+      "original_address": "广州市黄埔区康大龙祥汇小区汤兴二路227号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 63",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市达康经济发展有限公司幼儿园",
+      "original_address": "广州市黄埔区广本路一号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 64",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团大沙北幼儿园（埔东园区）",
+      "original_address": "广州市黄埔街道黄埔东路489号大院21号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 65",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团大沙北幼儿园（中心园区）",
+      "original_address": "广州市黄埔区丰乐北路泰景花园泰景中街91号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 66",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团荔红幼儿园（中心园区）",
+      "original_address": "广州市黄埔区开创大道星樾西一街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 67",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团荔红幼儿园（南园区）",
+      "original_address": "广州市黄埔区萝岗街道星樾下街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 68",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团荔红幼儿园（培玉园区）",
+      "original_address": "广州市黄埔区长泰路培山街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 69",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团长岭幼儿园（中心园区）",
+      "original_address": "广州开发区长岭路地块编号YH-A3-2（A）",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 70",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团长岭幼儿园（广华园区）",
+      "original_address": "广州市黄埔区九龙大道红卫村时代印记小区A28栋印记北一街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 71",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团天虹幼儿园（中心园区）",
+      "original_address": "广州市黄埔区天虹街34号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 72",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团天虹幼儿园（荔香园区）",
+      "original_address": "广州市黄埔区荔香路41号大院17号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 73",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团天虹幼儿园（镇东园区）",
+      "original_address": "广州市黄埔区三多路159号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 74",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团天虹幼儿园（玉源园区）",
+      "original_address": "广州市黄埔区开源大道以北玉岩路以西",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 75",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团新知幼儿园（中心园区）",
+      "original_address": "广州市黄埔区创新大道与知识大道辅路交叉口东南260米",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 76",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团新知幼儿园（开源园区）",
+      "original_address": "广州市黄埔区杉禾田一街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 77",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团新知幼儿园（平安园区）",
+      "original_address": "广州市黄埔区新龙镇尚景大街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 78",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团新知幼儿园（腾龙园区）",
+      "original_address": "广州市黄埔区中心知识城南凯德中新里花园小区四街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 79",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（中心园区）",
+      "original_address": "广州市黄埔区鱼珠街道知贤大街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 80",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（校前园区）",
+      "original_address": "广州市黄埔区沙步社区校前路28号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 81",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（宏明园区）",
+      "original_address": "广州市黄埔区云埔街笔村广园快速路以南、东鹏大道以西",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 82",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（荔源园区）",
+      "original_address": "广州市黄埔区云埔街道韶兰街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 83",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（燕山园区）",
+      "original_address": "广州市黄埔区长岭街道星畔大街11号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 84",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团知贤幼儿园（瑞和园区）",
+      "original_address": "广州市黄埔区兰翠南环街 20 号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 85",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团岗南幼儿园",
+      "original_address": "广州市黄埔区鱼珠街道茅岗环村大街13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 86",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团景西幼儿园（中心园区）",
+      "original_address": "广州市黄埔区永顺大道62号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 87",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团景西幼儿园（永新园区）",
+      "original_address": "广州市黄埔区长岭居长岭路以北岭头新村以东",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 88",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团港前幼儿园",
+      "original_address": "广州市黄埔区丰乐南路28号悦涛雅苑小区内",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 89",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团金峰幼儿园",
+      "original_address": "广州市黄埔区开创大道万科城尚山一街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 90",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区文碧幼儿园",
+      "original_address": "广州市黄埔区中山大道东金碧世纪花园北3街4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 91",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团广新幼儿园",
+      "original_address": "广州市黄埔区石化路与广新路交界处西北角",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 92",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团联华幼儿园",
+      "original_address": "广州黄埔区联华街黄陂新村东二街以北",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 93",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "华南师范大学附属黄埔实验学校幼儿园",
+      "original_address": "黄埔区开台大道以北科丰路以西",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 94",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区文沙幼儿园",
+      "original_address": "广州市黄埔区大沙地东599号大院—39号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 95",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区文乐幼儿园",
+      "original_address": "广州市黄埔区丰乐南路438号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 96",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区文创幼儿园",
+      "original_address": "广市黄埔区开创大道北保利林语山庄林语路2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 97",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团文东幼儿园",
+      "original_address": "广州市黄埔区黄埔东路龙头路23号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 98",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团文禧幼儿园",
+      "original_address": "广州市黄埔区长岭街道岭兴路坦禧大街16号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 99",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州开发区人才教育工作集团文知幼儿园",
+      "original_address": "广州市黄埔区龙湖街道知识三路",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 100",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "国有企业办园"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区格墩美幼儿园",
+      "original_address": "广州市黄埔区开发大道451号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 101",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔丰乐幼儿园",
+      "original_address": "广州市黄埔区丰乐中路77号大院12栋",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 102",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区蓝天实验幼儿园",
+      "original_address": "广州市黄埔区红山三路150号1-5栋",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 103",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔横沙实验幼儿园",
+      "original_address": "广州市黄埔区大沙街横沙社区环村路新街68号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 104",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔岭南幼儿园",
+      "original_address": "广州市黄埔区茅岗井爱新村企岭街南二巷31号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 105",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区爱特城瑞兴幼儿园",
+      "original_address": "广州市黄埔区文宝街19号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 106",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区东荟加拿达幼儿园",
+      "original_address": "广州市黄埔区万荟二街65号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 107",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区金梦加拿达幼儿园",
+      "original_address": "广州市黄埔区金梦环街72号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 108",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区科城心悦幼儿园",
+      "original_address": "广州巿黄埔区峻泰路105号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 109",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区里享家幼儿园",
+      "original_address": "广州市黄埔区永和街新业路21号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 110",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区岭南林语瑞兴幼儿园",
+      "original_address": "广州市黄埔区林悦一街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 111",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区培恩幼儿园",
+      "original_address": "广州市黄埔区永和街井泉一路4号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 112",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区泊语湾伟才幼儿园",
+      "original_address": "广州市黄埔区中新知识城泊语街5号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 113",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区荣达春树里幼儿园",
+      "original_address": "广州市黄埔区春树二街3号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 114",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区山景城加拿达幼儿园",
+      "original_address": "广州市黄埔区瞰山大街12号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 115",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区新城幼儿园",
+      "original_address": "广州市黄埔区白泥街88号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 116",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区新都荟实验幼儿园",
+      "original_address": "广州市黄埔区南岗路笔岗街142号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 117",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区幸福誉伟才幼儿园",
+      "original_address": "广州市黄埔区九龙大道福里街16号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 118",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区学府里加拿达幼儿园",
+      "original_address": "广州市黄埔区鱼珠街道蟹山路48号奎文街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 119",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区珠江嘉园瑞兴幼儿园",
+      "original_address": "广州市黄埔区永和街摇田河大街63号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 120",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔雅苑海韵实验幼儿园",
+      "original_address": "广州市黄埔区黄埔东路715号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 121",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔鱼木实验幼儿园",
+      "original_address": "广州市黄埔区鱼珠北街192号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 122",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔鱼珠幼儿园",
+      "original_address": "广州市黄埔区丰乐北路横路2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 123",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区诺亚舟雅筑幼儿园",
+      "original_address": "广州市黄埔区开源大道816号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 124",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区山畔新星幼儿园",
+      "original_address": "广州市黄埔区开创大道科翔路口126号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 125",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区雅居乐佳兆业幼儿园",
+      "original_address": "广州市黄埔区盛凯三街2号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 126",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区童真联合幼儿园",
+      "original_address": "广州市黄埔区联和街木棉新村59号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 127",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔锦田幼儿园",
+      "original_address": "广州市黄埔区茅岗路88号大院内19号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 128",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区国光幼儿园",
+      "original_address": "广州市黄埔区茅岗村路自编32号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 129",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区红太阳幼儿园",
+      "original_address": "广州市黄埔区萝岗街三级地62号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 130",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区雅居乐中泰天境幼儿园",
+      "original_address": "广州市黄埔区天境南路二街2号101",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 131",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区阳光宝贝幼儿园",
+      "original_address": "广州市黄埔区九龙镇山龙村均秧地街八巷38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 132",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区昱星实验幼儿园",
+      "original_address": "广州市黄埔区永和街永岗树吓新街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 133",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区雅居乐富春居幼儿园",
+      "original_address": "广州市黄埔区广汕路华侨路17号雅居乐富春居悦榕路16号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 134",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区童话林幼儿园",
+      "original_address": "广州市黄埔区红山街红山二路119号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 135",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区东区实验幼儿园",
+      "original_address": "广州市黄埔区云埔街沧头村环村东街6号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 136",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区康贝世幼儿园",
+      "original_address": "广州市黄埔区丰乐南路88号大院14号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 137",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区沙元幼儿园",
+      "original_address": "广州市黄埔区联达路6号3号楼101",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 138",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔黄金港湾幼儿园",
+      "original_address": "广州市黄埔区港湾路西二街10号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 139",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区博雅幼儿园",
+      "original_address": "广州市黄埔区永和街道新庄社区甘中经济社祥顺街38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 140",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区百高宏康幼儿园",
+      "original_address": "广州市黄埔区春晖四街38号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 141",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区华源幼儿园",
+      "original_address": "广州市黄埔区开创大道北颐心路一号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 142",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区小天使幼儿园",
+      "original_address": "广州开发区丰夏一街11、13号首层",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 143",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区德馨幼儿园",
+      "original_address": "广州市黄埔区双井东路2号108号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 144",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区云埔街东晖幼儿园",
+      "original_address": "广州市黄埔区云埔街建益路13号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 145",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区伟佳幼儿园",
+      "original_address": "广州市黄埔区广汕公路南黄陂路段146号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 146",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区康怡幼儿园",
+      "original_address": "广州市黄埔区云埔街东鸿大街南康新村一街一号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 147",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州黄埔区南苑幼儿园有限公司",
+      "original_address": "广州市黄埔区黄埔东路2532号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 148",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州黄埔区童荟堡幼儿园有限公司",
+      "original_address": "广州市黄埔区庙头路7号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 149",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市和真幼儿园有限公司",
+      "original_address": "广州市黄埔区沧联二路自编二号之一",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 150",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区韶华幼儿园",
+      "original_address": "广州市黄埔区惠联路51号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 151",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区中黄科学城幼儿园有限公司",
+      "original_address": "广州市黄埔区开泰大道601号125、227、315房",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 152",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州奕佳幼儿园有限公司",
+      "original_address": "广州市黄埔区东晖广场沿河路奕佳街1号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 153",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市拓赋森林幼儿园有限公司",
+      "original_address": "广州市黄埔区广汕四路16号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 154",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区布岭乐雅顿幼儿园有限公司",
+      "original_address": "广州市黄埔区永和街道禾丰布岭三街64号",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 155",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "广州市黄埔区金色童年幼儿园有限公司",
+      "original_address": "广州市黄埔区萝岗荔红一路8号2栋",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 156",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    },
+    {
+      "place_name": "蒙特梭利幼儿园（广州）有限公司",
+      "original_address": "广州市黄埔区开创大道北山香路2号168房218房318房",
+      "source_nature": "government_information",
+      "source_reference": "https://www.hp.gov.cn/attachment/7/7782/7782081/10175673.xls | 黄埔区在册幼儿园名单一览表.xls | sheet Sheet1 | row 157",
+      "attributes": {
+        "administrative_unit": "黄埔区",
+        "school_type": "幼儿园",
+        "school_nature": "民办"
+      }
+    }
+  ],
+  "metrics": {
+    "source_count": 1,
+    "reviewed_source_count": 1,
+    "approved_rule_count": 1,
+    "item_count": 155,
+    "missing_address_count": 0,
+    "missing_school_type_count": 0,
+    "missing_school_nature_count": 0,
+    "duplicate_count": 0,
+    "error_count": 0
+  },
+  "errors": []
+}

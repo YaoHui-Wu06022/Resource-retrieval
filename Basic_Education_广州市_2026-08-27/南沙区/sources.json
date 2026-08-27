@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "南沙区",
+    "adcode": "440115",
+    "level": "district"
+  },
+  "status": "completed",
+  "school_type_coverage": {
+    "幼儿园": "covered",
+    "小学": "covered",
+    "初中": "covered",
+    "高中": "covered",
+    "特殊教育学校": "covered",
+    "中等职业学校": "covered"
+  },
+  "sources": [
+    {
+      "source_title": "2025年南沙区中小学一览表",
+      "publisher": "广州市南沙区教育局",
+      "publication_date": "2025-11-17",
+      "landing_page_url": "https://www.gzns.gov.cn/gzfw/sqzlrx/xxylb/content/post_10553670.html",
+      "content_url": "https://www.gzns.gov.cn/attachment/7/7932/7932010/10553670.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": [
+        "primary_school",
+        "junior_high_school",
+        "senior_high_school",
+        "nine_year_school",
+        "twelve_year_school",
+        "complete_secondary_school"
+      ],
+      "contains_address": true,
+      "local_files": [
+        "2025年南沙区中小学一览表.xlsx"
+      ]
+    },
+    {
+      "source_title": "2024年广州市南沙区幼儿园一览表",
+      "publisher": "广州市南沙区教育局",
+      "publication_date": "2024-04-30",
+      "landing_page_url": "https://www.gzns.gov.cn/gzfw/sqzlrx/xxylb/",
+      "content_url": "https://www.gzns.gov.cn/attachment/7/7845/7845257/9713199.pdf",
+      "source_format": "pdf",
+      "covered_school_types": ["kindergarten"],
+      "contains_address": true,
+      "local_files": ["2024年广州市南沙区幼儿园一览表.pdf"]
+    }
+  ]
+}

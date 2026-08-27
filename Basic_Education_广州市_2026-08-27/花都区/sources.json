@@ -1,0 +1,89 @@
+{
+  "schema_version": "1.0",
+  "city": "广州市",
+  "administrative_unit": {
+    "name": "花都区",
+    "adcode": "440114",
+    "level": "district"
+  },
+  "status": "completed",
+  "sources": [
+    {
+      "source_title": "2026年花都区属中职学校一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-25",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10826430.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8026/8026984/10826430.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": ["secondary_vocational_school"],
+      "contains_address": true,
+      "local_files": ["2026年花都区属中职学校一览表.xlsx"]
+    },
+    {
+      "source_title": "2026年花都区特殊学校一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-15",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10818656.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8024/8024625/10818656.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": ["special_education_school"],
+      "contains_address": true,
+      "local_files": ["2026年花都区特殊学校一览表.xlsx"]
+    },
+    {
+      "source_title": "2026年花都区民办幼儿园信息一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-15",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10821735.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8025/8025435/10821735.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": ["kindergarten"],
+      "contains_address": true,
+      "local_files": ["2026年花都区民办幼儿园信息一览表.xlsx"]
+    },
+    {
+      "source_title": "2026年花都区公办幼儿园信息一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-15",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10821732.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8025/8025433/10821732.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": ["kindergarten"],
+      "contains_address": true,
+      "local_files": ["2026年花都区公办幼儿园信息一览表.xlsx"]
+    },
+    {
+      "source_title": "2026年花都区民办中小学一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-12",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10809693.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8021/8021768/10809693.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": [
+        "primary_school",
+        "junior_high_school",
+        "senior_high_school"
+      ],
+      "contains_address": true,
+      "local_files": ["2026年花都区民办中小学一览表.xlsx"]
+    },
+    {
+      "source_title": "2026年花都区公办中小学校一览表",
+      "publisher": "广州市花都区教育局",
+      "publication_date": "2026-05-12",
+      "landing_page_url": "https://www.huadu.gov.cn/zwfw/jyly/xxyl/content/post_10814206.html",
+      "content_url": "https://www.huadu.gov.cn/attachment/8/8050/8050363/10814206.xlsx",
+      "source_format": "xlsx",
+      "covered_school_types": [
+        "primary_school",
+        "junior_high_school",
+        "senior_high_school",
+        "nine_year_school",
+        "twelve_year_school",
+        "complete_secondary_school"
+      ],
+      "contains_address": true,
+      "local_files": ["2026年花都区公办中小学校一览表.xlsx"]
+    }
+  ]
+}
