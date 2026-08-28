@@ -1,17 +1,17 @@
-# 逐校检索结果格式
+# 单校结果文件规范
 
 仅在写入或审查 `school_results/<school_identifier>.json` 时读取本文件。
 
 ## 文件规则
 
 - 一个文件只保存一所学校的结果。
-- 文件名必须是基础名单中的学校标识码，例如 `4144010558.json`。
+- 文件名必须是 `city_universities.json` 中的学校标识码，例如 `4144010558.json`。
 - 文件顶层直接保存单所学校对象，不使用 `items` 包装。
 - 不填写城市、学校名称、完整学校对象、`schema_version` 或 `stage`。
 
 ## 正常处理
 
-学校未被明确证明合并或停止独立办学时，使用：
+负责该校的 Agent 未依据官方证据确认学校已合并或停止独立办学时，使用：
 
 ```json
 {
@@ -32,7 +32,7 @@
 
 ## 跳过处理
 
-同次搜索已用明确证据确认学校合并或停止独立办学时，使用：
+负责该校的 Agent 在同次搜索中已用明确官方证据确认学校合并或停止独立办学时，使用：
 
 ```json
 {
@@ -54,4 +54,4 @@
 
 ## 汇总边界
 
-子 Agent 只写自己负责学校的独立文件，不创建或修改 `university_retrieval_results.json`。主 Agent 使用固定合并脚本生成共享汇总文件，并以脚本校验结果为准。
+子 Agent 只写自己负责学校的独立文件，不创建或修改 `university_retrieval_results.json`。主 Agent 使用 `scripts/merge_university_results.py` 生成共享汇总文件，并以脚本校验结果为准。

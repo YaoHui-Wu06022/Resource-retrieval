@@ -20,6 +20,7 @@ from source_readers import (  # noqa: E402
     load_source_tables,
     normalize_text,
 )
+from query_city_core.city import validate_city_context  # noqa: E402
 
 
 PLACE_HEADERS = ('学校名称', '幼儿园名称', '园所名称', '机构名称', '校名')
@@ -412,6 +413,7 @@ def build_extraction_plan(
 ) -> tuple[dict[str, Any], int]:
     """检查来源清单并生成提取计划。"""
     source_manifest = read_json_object(input_path)
+    city_context = validate_city_context(source_manifest.get('city_context'))
     sources = source_manifest.get('sources')
     if not isinstance(sources, list):
         raise ValueError('来源清单必须包含 sources 数组')
@@ -460,9 +462,8 @@ def build_extraction_plan(
             'review_status': 'pending',
         })
     extraction_plan = {
-        'schema_version': '1.0',
         'stage': 'basic_education_extraction_plan',
-        'city': normalize_text(source_manifest.get('city')),
+        'city_context': city_context,
         'administrative_unit': source_manifest.get('administrative_unit') or {},
         'source_manifest': Path(
             os.path.relpath(input_path, output_path.parent.resolve())
@@ -1044,13 +1045,14 @@ def extract_school_records(plan_path: Path) -> tuple[dict[str, Any], int]:
                 )
     records, duplicate_count = deduplicate_school_records(records)
     address_payload = {
-        'schema_version': '1.0',
         'stage': (
             'address_records'
             if not error_messages
             else 'address_records_incomplete'
         ),
-        'city': normalize_text(extraction_plan.get('city')),
+        'city_context': validate_city_context(
+            extraction_plan.get('city_context')
+        ),
         'items': records,
         'metrics': {
             'source_count': len(source_plans),

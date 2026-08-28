@@ -72,3 +72,4 @@
 
 - 本工作区的 Python 脚本、测试和依赖检查统一使用 Conda 环境 `py3.10`。
 - 非交互命令统一写为 `conda run -n py3.10 python ...`
+- `query-city-core 0.1.0` 已以 editable 模式安装

@@ -1,0 +1,6 @@
+
+[excel]
+openpyxl>=3.1
+
+[web]
+playwright>=1.40

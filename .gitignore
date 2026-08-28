@@ -1,7 +1,2 @@
 .env
-__pycache__/
-*.py[cod]
-.pytest_cache/
-.playwright-cli/
-tmp/
-~$*
+output/

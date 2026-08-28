@@ -44,7 +44,13 @@ class VisionReaderTest(unittest.TestCase):
             plan_path = source_dir / 'extraction_plan.json'
             plan_path.write_text(json.dumps({
                 'stage': 'basic_education_extraction_plan',
-                'city': '广州市',
+                'city_context': {
+                    'stage': 'city_context',
+                    'input_city': '广州市',
+                    'city_name': '广州市',
+                    'province_name': '广东省',
+                    'subdivisions': [],
+                },
                 'administrative_unit': {'name': '测试区'},
                 'source_manifest': 'sources.json',
                 'items': [{

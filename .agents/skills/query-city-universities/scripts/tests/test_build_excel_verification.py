@@ -37,6 +37,7 @@ def build_address_record(
     source_reference,
     campus_name='',
     map_status=None,
+    final_address_source='',
 ):
     """构造测试使用的公共地址记录。"""
     return {
@@ -64,6 +65,7 @@ def build_address_record(
         'map_poi_type': '',
         'map_poi_typecode': '',
         'final_address': final_address,
+        'final_address_source': final_address_source,
     }
 
 
@@ -130,7 +132,7 @@ class FinalWorkbookTests(unittest.TestCase):
         )
 
     def test_output_rows_show_address_acquisition_method(self):
-        """最终行应区分官网提取与地图兜底地址。"""
+        """最终行应区分官网提取与高德地图地址。"""
         output_rows = build_output_rows([
             build_address_record(
                 2000,
@@ -140,14 +142,14 @@ class FinalWorkbookTests(unittest.TestCase):
             ),
             build_address_record(
                 2001,
-                '兜底大学',
+                '地图大学',
                 '广州市白云区示例路2号',
-                'https://fallback.example.edu.cn/',
-                map_status='fallback',
+                'https://map.example.edu.cn/',
+                final_address_source='map',
             ),
         ])
 
-        self.assertEqual([row[7] for row in output_rows], ['官网提取', '地图兜底'])
+        self.assertEqual([row[7] for row in output_rows], ['官网提取', '高德地图'])
         self.assertEqual([row[8] for row in output_rows], [date.today().isoformat()] * 2)
 
     def test_map_same_detail_removes_unlabeled_duplicate(self):
@@ -177,12 +179,13 @@ class FinalWorkbookTests(unittest.TestCase):
 
         self.assertEqual(workbook.sheetnames, [SHEET_NAME])
         self.assertEqual([cell.value for cell in worksheet[1]], OUTPUT_HEADER)
+        self.assertEqual(OUTPUT_HEADER[6], '地址')
         self.assertNotIn('学校标识码', OUTPUT_HEADER)
         self.assertNotIn('所在地', OUTPUT_HEADER)
         self.assertNotIn('校区名称', OUTPUT_HEADER)
 
-    def test_workbook_has_centered_non_wrapping_cells(self):
-        """最终工作簿全部居中且不缩进、不自动换行。"""
+    def test_workbook_centers_cells_and_wraps_only_address_data(self):
+        """最终工作簿全部居中，数据行仅地址列自动换行。"""
         output_rows = build_output_rows([
             build_address_record(
                 2000,
@@ -199,16 +202,25 @@ class FinalWorkbookTests(unittest.TestCase):
             for cell in row:
                 self.assertEqual(cell.alignment.horizontal, 'center')
                 self.assertEqual(cell.alignment.vertical, 'center')
-                self.assertFalse(cell.alignment.wrap_text)
+                if cell.row == 1 or cell.column == 7:
+                    self.assertTrue(cell.alignment.wrap_text)
+                else:
+                    self.assertFalse(cell.alignment.wrap_text)
                 self.assertIn(cell.alignment.indent, {None, 0, 0.0})
+        self.assertIsNone(worksheet.row_dimensions[2].height)
         self.assertIsNotNone(worksheet['J2'].hyperlink)
 
     def test_main_writes_processed_records(self):
         """命令入口直接把公共处理结果写入最终工作簿。"""
         payload = {
-            'schema_version': '1.0',
             'stage': 'processed_address_records',
-            'city': '广州市',
+            'city_context': {
+                'stage': 'city_context',
+                'input_city': '广州市',
+                'city_name': '广州市',
+                'province_name': '广东省',
+                'subdivisions': [],
+            },
             'items': [
                 build_address_record(
                     2011,
@@ -253,7 +265,17 @@ class FinalWorkbookTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             input_path = Path(directory) / 'invalid.json'
             input_path.write_text(
-                json.dumps({'stage': 'address_records', 'city': '广州市', 'items': []}),
+                json.dumps({
+                    'stage': 'address_records',
+                    'city_context': {
+                        'stage': 'city_context',
+                        'input_city': '广州市',
+                        'city_name': '广州市',
+                        'province_name': '广东省',
+                        'subdivisions': [],
+                    },
+                    'items': [],
+                }),
                 encoding='utf-8',
             )
             with self.assertRaisesRegex(ValueError, 'processed_address_records'):

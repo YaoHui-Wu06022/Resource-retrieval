@@ -1,0 +1,3 @@
+[console_scripts]
+query-city-process-addresses = query_city_core.address.process:main
+query-city-resolve-city = query_city_core.city:main

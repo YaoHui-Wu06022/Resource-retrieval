@@ -25,6 +25,7 @@ def build_address_record(
     place_name='示例学校',
     final_address='广州市测试区测试路1号',
     map_status='skipped',
+    final_address_source='',
     publication_date='2026-08-01',
     school_type='小学',
     school_nature='公办',
@@ -45,6 +46,7 @@ def build_address_record(
         },
         'final_address': final_address,
         'map_status': map_status,
+        'final_address_source': final_address_source,
     }
 
 
@@ -69,12 +71,12 @@ class BuildExcelTests(unittest.TestCase):
                 '甲区', [build_address_record('乙区')]
             )
 
-    def test_build_school_output_records_marks_map_fallback(self):
-        """地图兜底记录必须展示对应的地址获取方式。"""
+    def test_build_school_output_records_marks_map_address(self):
+        """高德地址记录必须展示对应的地址获取方式。"""
         records = BUILD_EXCEL.build_school_output_records(
-            '测试区', [build_address_record('测试区', map_status='fallback')]
+            '测试区', [build_address_record('测试区', final_address_source='map')]
         )
-        self.assertEqual(records[0]['address_acquisition_method'], '地图兜底')
+        self.assertEqual(records[0]['address_acquisition_method'], '高德地图')
 
     def test_build_school_output_records_merges_name_variants(self):
         """同址同校的校区别名应合并学校类型。"""

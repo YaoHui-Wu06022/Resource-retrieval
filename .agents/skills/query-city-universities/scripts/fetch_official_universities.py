@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""为高校官网地址证据补充校区语义并保持旧输出兼容。"""
+"""为高校官网地址证据补充校区语义。"""
 
 import argparse
 import json
@@ -10,11 +10,7 @@ from pathlib import Path
 from urllib.parse import urldefrag, urlparse
 
 
-COMPONENTS_DIR = Path(__file__).resolve().parents[3] / 'components'
-if str(COMPONENTS_DIR) not in sys.path:
-    sys.path.insert(0, str(COMPONENTS_DIR))
-
-from fetch_official_page import (
+from query_city_core.fetch_official_page import (
     fetch_official_page,
     normalize_domain,
     normalize_lines,
@@ -137,7 +133,7 @@ def split_inline_campus_fields(value):
 
 
 def build_address_candidates(address_evidence, page_title=''):
-    """把公共地址证据转换为高校工作流兼容候选。"""
+    """把公共地址证据转换为结构化地址候选。"""
     page_campuses = extract_title_campus_names(page_title)
     title_campus = page_campuses[0] if page_campuses else ''
     title_core = re.sub(r'(?:校区|校园)$', '', title_campus).rsplit('校区', 1)[-1]
@@ -304,7 +300,6 @@ def build_university_result(common_result):
             hints.extend(extract_campus_link_names(link['text']))
     warnings = list(common_result.get('warnings') or [])
     return {
-        'schema_version': '1.0',
         'stage': 'address_candidates',
         'requested_url': common_result['requested_url'],
         'final_url': common_result.get('final_url') or '',
@@ -323,7 +318,7 @@ def fetch_university_page(url, official_domains):
     """抓取高校官网并补充高校专用地址语义。"""
     common_result = fetch_official_page(
         url, official_domains,
-        extra_address_labels=('校址', '校区', '校园', '办学地点', '法定住所'),
+        extra_address_labels=('校址', '校区', '校园', '办学地点'),
     )
     return build_university_result(common_result)
 

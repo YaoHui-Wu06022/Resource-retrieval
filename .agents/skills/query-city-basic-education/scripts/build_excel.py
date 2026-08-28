@@ -14,6 +14,8 @@ import openpyxl
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.utils import get_column_letter
 
+from query_city_core.city import validate_city_context
+
 
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
@@ -71,8 +73,10 @@ def load_processed_address_records(input_path):
         raise ValueError(f'{input_path} 顶层必须是对象')
     if address_payload.get('stage') != 'processed_address_records':
         raise ValueError(f'{input_path} 阶段必须是 processed_address_records')
-    if not str(address_payload.get('city') or '').strip():
-        raise ValueError(f'{input_path} 缺少 city')
+    try:
+        validate_city_context(address_payload.get('city_context'))
+    except ValueError as exc:
+        raise ValueError(f'{input_path} 的城市上下文无效：{exc}') from exc
     if not isinstance(address_payload.get('items'), list):
         raise ValueError(f'{input_path} 的 items 必须是数组')
     return address_payload
@@ -94,7 +98,7 @@ def collect_administrative_unit_payloads(input_dir):
         if not administrative_unit_dir.is_dir() or not processed_records_path.is_file():
             continue
         address_payload = load_processed_address_records(processed_records_path)
-        payload_city = str(address_payload['city']).strip()
+        payload_city = address_payload['city_context']['city_name']
         if city_name and payload_city != city_name:
             raise ValueError('各行政单位处理结果的 city 不一致')
         city_name = payload_city
@@ -224,8 +228,8 @@ def build_school_output_records(
             ).strip() or date.today().isoformat(),
             'final_address': final_address,
             'address_acquisition_method': (
-                '地图兜底'
-                if address_record.get('map_status') == 'fallback'
+                '高德地图'
+                if address_record.get('final_address_source') == 'map'
                 else '政府资料'
             ),
             'source_reference': source_reference,
@@ -358,7 +362,7 @@ def verify_worksheet(worksheet, expected_records):
             if not str(worksheet.cell(row_index, column_index).value or '').strip():
                 raise ValueError(f'{worksheet.title}工作表存在空的必填字段')
         acquisition_method = worksheet.cell(row_index, 7).value
-        if acquisition_method not in {'政府资料', '地图兜底'}:
+        if acquisition_method not in {'政府资料', '高德地图'}:
             raise ValueError(f'{worksheet.title}的地址获取方式不正确')
         source_cell = worksheet.cell(row_index, 9)
         expected_source = format_source_reference(
