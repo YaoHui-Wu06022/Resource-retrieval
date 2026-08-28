@@ -96,6 +96,72 @@
 
 跨记录同址去重和最终输出筛选由各业务层在公共处理完成后负责。例如，高校业务使用 `build_university_address_post.py` 比较同校地图地址，再由 `build_excel.py` 过滤空地址并排序写入工作簿。
 
+## 基础教育：行政单位来源
+
+每个直接下级行政单位由 Agent 写入一份 `government_source.json`，再由 `query-city-basic-education/scripts/build_school_address.py inspect` 校验并生成提取计划。该文件不另设顶层 `city`。
+
+### `government_source.json` 顶层字段
+
+| 字段名 | 类型 | 写入方 | 说明 |
+| --- | --- | --- | --- |
+| `stage` | string | Agent 写入，脚本校验 | 固定为 `basic_education_government_source`。 |
+| `city_context` | object | 主 Agent 传入，子 Agent 原样写入 | 完整城市上下文；字段与“城市上下文”章节一致。 |
+| `administrative_unit` | object | 主 Agent 传入，子 Agent 原样写入 | 当前行政单位；必须原样等于 `city_context.subdivisions` 中的一项。 |
+| `processing_status` | string | Agent 判断并写入，脚本校验 | `completed`、`partial`、`no_official_source` 或 `source_unusable`。 |
+| `school_type_coverage` | object | Agent 判断并写入，脚本校验 | 各学校类型的官方名录覆盖状态。 |
+| `items` | array | Agent 写入，脚本检查和读取 | 已采用的政府名录来源。 |
+
+`school_type_coverage` 至少包含 `幼儿园`、`小学`、`初中` 和 `高中`。政府来源出现的其他非高校类型按原文增加。每个值固定为 `covered`、`partial`、`no_official_source` 或 `source_unusable`。
+
+四类必查学校与 `processing_status` 的关系固定为：
+
+| `processing_status` | `items` | 四类必查学校的覆盖状态 |
+| --- | --- | --- |
+| `completed` | 非空 | 全部为 `covered`。 |
+| `partial` | 非空 | 至少一类不是 `covered`。 |
+| `no_official_source` | 空 | 全部为 `no_official_source`。 |
+| `source_unusable` | 空 | 至少一类为 `source_unusable`，其余只能为 `source_unusable` 或 `no_official_source`。 |
+
+### `government_source.json.items` 记录字段
+
+下列字段由负责该行政单位来源检索的 Agent 根据实际采用的政府页面、正文或附件写入；提取脚本不替 Agent 判断来源是否合格。
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| `source_title` | string | 来源标题。 |
+| `publisher` | string | 发布部门。 |
+| `publication_date` | string | 发布或更新日期；无法确认时为空字符串。 |
+| `landing_page_url` | string | 说明来源的政府页面 URL。 |
+| `content_url` | string | 实际包含学校名录的正文或附件 URL。 |
+| `covered_school_types` | array | 该来源实际覆盖的学校类型。 |
+| `contains_address` | boolean | 该来源是否提供学校地址。 |
+| `local_files` | array | 相对于当前行政单位目录的原始文件名；至少一项。 |
+| `derived_files` | array | 可选；由视觉处理等步骤生成的派生文件名。 |
+
+### 基础教育提取计划
+
+`build_school_address.py inspect` 生成的 `extraction_plan.json` 继续原样传递 `city_context` 和 `administrative_unit`，并使用下列字段定位其来源文件：
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| `government_source_file` | string | `government_source.json` 相对于 `extraction_plan.json` 所在目录的路径。 |
+
+### 基础教育 `address_records.metrics`
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| `source_count` | integer | 提取计划中的政府来源数。 |
+| `reviewed_source_count` | integer | `review_status` 为 `ready` 的来源数。 |
+| `skipped_source_count` | integer | 因无视觉能力且满足跳过条件的来源数。 |
+| `approved_rule_count` | integer | 实际执行的已批准提取规则数。 |
+| `item_count` | integer | 去重后的公共地址记录数。 |
+| `original_address_count` | integer | `original_address` 非空的记录数。 |
+| `missing_original_address_count` | integer | `original_address` 为空、将按 `place_name` 查询地图的记录数。 |
+| `missing_school_type_count` | integer | `attributes.school_type` 为空的记录数。 |
+| `missing_school_nature_count` | integer | `attributes.school_nature` 为空的记录数。 |
+| `duplicate_count` | integer | 按“学校名称 + 原始地址”完全相等合并的记录数；合并后保留发布日期最新的记录。 |
+| `error_count` | integer | 提取计划复核或规则执行错误数。 |
+
 ## 高校：城市名单筛选
 
 由 `query-city-universities/scripts/filter_universities.py` 执行，是城市上下文进入高校 skill 的首个阶段。
@@ -200,7 +266,7 @@
 
 ## 官网页面地址证据
 
-由 `query_city_core.fetch_official_page.fetch_official_page()` 生成。输入为已确认的 `url` 与 `official_domains`；输出不含 `schema_version`。
+由 `query_city_core.fetch_official_page.fetch_official_page()` 生成。输入为已确认的 `url` 与 `official_domains`。
 
 | 字段名 | 类型 | 说明 |
 | --- | --- | --- |
@@ -217,7 +283,7 @@
 
 ## 高校官网地址候选
 
-由 `query-city-universities/scripts/fetch_official_universities.py` 的 `fetch_university_page()` 生成。输出不含 `schema_version`。
+由 `query-city-universities/scripts/fetch_official_universities.py` 的 `fetch_university_page()` 生成。
 
 | 字段名 | 类型 | 说明 |
 | --- | --- | --- |

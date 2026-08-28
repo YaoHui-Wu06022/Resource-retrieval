@@ -2,7 +2,12 @@
 
 import unittest
 
-from query_city_core.excel_style import build_table_workbook
+from openpyxl import Workbook
+
+from query_city_core.excel_style import (
+    build_table_workbook,
+    populate_table_worksheet,
+)
 
 
 class TableWorkbookTests(unittest.TestCase):
@@ -48,5 +53,30 @@ class TableWorkbookTests(unittest.TestCase):
             self.assertFalse(sheet['A2'].alignment.wrap_text)
             self.assertTrue(sheet['B2'].alignment.wrap_text)
             self.assertIsNone(sheet.row_dimensions[2].height)
+        finally:
+            workbook.close()
+
+    def test_populates_multiple_worksheets_with_the_same_style(self):
+        workbook = Workbook()
+        try:
+            populate_table_worksheet(
+                workbook.active,
+                '总表',
+                ('名称', '地址'),
+                [('甲', '甲路1号')],
+                (20, 24),
+            )
+            populate_table_worksheet(
+                workbook.create_sheet(),
+                '分表',
+                ('名称', '地址'),
+                [('乙', '乙路2号')],
+                (20, 24),
+            )
+            self.assertEqual(workbook.sheetnames, ['总表', '分表'])
+            for sheet in workbook.worksheets:
+                self.assertEqual(sheet['A1'].fill.fgColor.rgb[-6:], '1F4E78')
+                self.assertTrue(sheet['B2'].alignment.wrap_text)
+                self.assertEqual(sheet.freeze_panes, 'A2')
         finally:
             workbook.close()

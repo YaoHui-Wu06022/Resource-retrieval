@@ -132,7 +132,7 @@ class FinalWorkbookTests(unittest.TestCase):
         )
 
     def test_output_rows_show_address_acquisition_method(self):
-        """最终行应区分官网提取与高德地图地址。"""
+        """最终行应区分官网提取和地图信息。"""
         output_rows = build_output_rows([
             build_address_record(
                 2000,
@@ -149,7 +149,7 @@ class FinalWorkbookTests(unittest.TestCase):
             ),
         ])
 
-        self.assertEqual([row[7] for row in output_rows], ['官网提取', '高德地图'])
+        self.assertEqual([row[7] for row in output_rows], ['官网提取', '地图信息'])
         self.assertEqual([row[8] for row in output_rows], [date.today().isoformat()] * 2)
 
     def test_map_same_detail_removes_unlabeled_duplicate(self):

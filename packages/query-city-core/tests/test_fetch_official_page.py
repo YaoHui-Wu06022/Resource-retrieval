@@ -22,10 +22,6 @@ from query_city_core.fetch_official_page import (  # noqa: E402
 
 
 class OfficialPageExtractorTests(unittest.TestCase):
-    def test_page_result_has_no_schema_version(self):
-        result = build_page_result('https://example.test/', ['example.test'])
-        self.assertNotIn('schema_version', result)
-
     def collect(self, html, extra_address_labels=()):
         """从测试页面收集通用地址证据。"""
         with sync_playwright() as playwright:

@@ -262,7 +262,7 @@ def collect_official_page_data(page, extra_address_labels=()):
 
 def build_page_result(requested_url, domains, **values):
     """生成字段稳定的通用官网抓取结果。"""
-    result = {'schema_version': '2.0', 'stage': 'official_page_address_evidence',
+    result = {'stage': 'official_page_address_evidence',
               'requested_url': requested_url, 'final_url': '', 'http_status': None,
               'page_status': 'error', 'title': '', 'official_domains': domains,
               'address_evidence': [], 'links': [], 'warnings': []}

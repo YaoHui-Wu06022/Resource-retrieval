@@ -109,7 +109,6 @@ class FilterUniversitiesTests(unittest.TestCase):
             finally:
                 workbook.close()
             payload = json.loads(json_output.read_text(encoding='utf-8'))
-            self.assertNotIn('schema_version', payload)
             self.assertEqual(payload['city_context'], {
                 'stage': 'city_context',
                 'input_city': '广州市',

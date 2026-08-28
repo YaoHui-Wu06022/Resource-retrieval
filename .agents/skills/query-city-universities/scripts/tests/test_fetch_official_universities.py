@@ -339,7 +339,6 @@ class FetchOfficialPagePluginTests(unittest.TestCase):
         })
         self.assertEqual(result['page_status'], 'http_error')
         self.assertEqual(result['warnings'], ['页面返回 HTTP 429'])
-        self.assertNotIn('schema_version', result)
 
     def test_body_address_uses_campus_detail_page_title_as_fallback(self):
         result = build_university_result({

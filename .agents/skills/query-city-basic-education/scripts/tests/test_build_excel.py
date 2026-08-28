@@ -233,6 +233,13 @@ class BuildExcelTests(unittest.TestCase):
                     [cell.value for cell in worksheet[1]],
                     BUILD_EXCEL.OUTPUT_HEADER,
                 )
+                self.assertEqual(BUILD_EXCEL.OUTPUT_HEADER[5], '地址')
+                self.assertEqual(
+                    worksheet['A1'].fill.fgColor.rgb[-6:], '1F4E78'
+                )
+                self.assertTrue(worksheet.cell(2, 6).alignment.wrap_text)
+                self.assertFalse(worksheet.cell(2, 5).alignment.wrap_text)
+                self.assertIsNone(worksheet.row_dimensions[2].height)
                 self.assertEqual(worksheet.cell(2, 1).value, 1)
                 self.assertEqual(worksheet.cell(2, 2).value, '测试区')
                 self.assertEqual(worksheet.cell(2, 7).value, '政府资料')

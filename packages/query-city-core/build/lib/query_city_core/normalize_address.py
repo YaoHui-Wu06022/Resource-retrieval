@@ -264,7 +264,6 @@ def normalize_address_payload(input_payload, city_prefixes):
         for address_record in normalized_records
     )
     return {
-        'schema_version': '1.0',
         'stage': 'normalized_address_records',
         'city': city,
         'items': normalized_records,

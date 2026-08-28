@@ -28,8 +28,10 @@ HEADER_ALIGNMENT = Alignment(
 )
 
 
-def build_table_workbook(sheet_name, headers, rows, column_widths):
-    """构建带统一格式的单表工作簿。"""
+def populate_table_worksheet(
+    sheet, sheet_name, headers, rows, column_widths
+):
+    """向工作表写入查询结果并应用统一格式。"""
     headers = tuple(headers)
     column_widths = tuple(column_widths)
     if not headers:
@@ -37,8 +39,6 @@ def build_table_workbook(sheet_name, headers, rows, column_widths):
     if len(column_widths) != len(headers):
         raise ValueError('列宽数量必须与表头列数一致')
 
-    workbook = Workbook()
-    sheet = workbook.active
     sheet.title = sheet_name
     sheet.sheet_view.showGridLines = False
     sheet.append(headers)
@@ -50,9 +50,7 @@ def build_table_workbook(sheet_name, headers, rows, column_widths):
 
     last_column = get_column_letter(len(headers))
     wrapped_columns = {
-        index
-        for index, header in enumerate(headers, 1)
-        if header == '地址'
+        index for index, header in enumerate(headers, 1) if header == '地址'
     }
     sheet.auto_filter.ref = f'A1:{last_column}{sheet.max_row}'
     sheet.freeze_panes = 'A2'
@@ -81,4 +79,17 @@ def build_table_workbook(sheet_name, headers, rows, column_widths):
         if not wrapped_columns:
             sheet.row_dimensions[row[0].row].height = 22
 
+    return sheet
+
+
+def build_table_workbook(sheet_name, headers, rows, column_widths):
+    """构建带统一格式的单表工作簿。"""
+    workbook = Workbook()
+    populate_table_worksheet(
+        workbook.active,
+        sheet_name,
+        headers,
+        rows,
+        column_widths,
+    )
     return workbook

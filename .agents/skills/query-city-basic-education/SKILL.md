@@ -9,7 +9,7 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 
 - 若用户尚未确认 Python 环境或解释器，先询问；已经确认则不要重复询问。
 - 全程使用同一环境，要求安装 `beautifulsoup4`、`lxml`、`pandas`、`openpyxl`、`xlrd` 和 `PyMuPDF`；读取 Word 还需要 LibreOffice。
-- 共享运行库必须已安装且版本与 `requirements.txt` 一致；本地开发时从 `packages/query-city-core` 以 editable 模式安装，分发时安装固定版本的 wheel 或 Git tag。
+- 共享运行库必须已安装且版本与 `requirements.txt` 一致；
 - 城市查询和地址处理从进程环境或工作区 `.env` 读取 `AMAP_KEY`。
 - 缺少依赖、地图密钥或公共组件时停止并说明缺项，不自行安装，也不另写临时脚本复制固定逻辑。
 
@@ -24,8 +24,8 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 | 用途 | 调用 |
 | --- | --- |
 | 标准化城市并取得下级行政单位 | `python -m query_city_core.city` |
-| 检查来源并生成提取计划 | `scripts/build_school_records.py inspect` |
-| 按已复核计划提取学校 | `scripts/build_school_records.py extract` |
+| 检查来源并生成提取计划 | `scripts/build_school_address.py inspect` |
+| 按已复核计划提取学校 | `scripts/build_school_address.py extract` |
 | 规范化地址与地图兜底 | `python -m query_city_core.address.process` |
 | 生成区级和城市工作簿 | `scripts/build_excel.py` |
 
@@ -35,7 +35,7 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 
 - 每个行政单位交给一个子 Agent；并发名额不足时分批派发，不得遗漏或重复处理。
 - 子 Agent 不再向下委派，只能写入自己的行政单位目录。
-- 子 Agent 负责来源检索、下载、`sources.json`、提取计划复核、学校提取和地址处理。
+- 子 Agent 负责来源检索、下载、`government_source.json`、提取计划复核、学校提取和地址处理。
 - 主 Agent 负责城市标准化、任务分发、逐区结果验收和最终工作簿，不让子 Agent 写城市总表。
 
 ## 1. 取得行政单位
@@ -46,7 +46,9 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 python -m query_city_core.city --city <用户城市>
 ```
 
-从输出读取标准城市名和 `subdivisions`。主 Agent 按每个 `subdivisions[].name` 创建同名目录，并把完整行政单位对象、标准城市名、执行日期和该目录分配给对应子 Agent。不得增删、合并、改名或继续查询更低一级行政单位。
+从输出读取标准城市名和 `subdivisions`。
+
+主 Agent 按每个 `subdivisions[].name` 创建同名目录，并把完整行政单位对象、标准城市名、执行日期和该目录分配给对应子 Agent。不得增删、合并、改名或继续查询更低一级行政单位。
 
 ## 2. 检索并保存政府来源
 
@@ -54,19 +56,19 @@ python -m query_city_core.city --city <用户城市>
 
 必须分别检索幼儿园、小学、初中和高中。政府来源还列出一贯制学校、完全中学、特殊教育、中等职业教育、职业高级中学、技工院校、专门学校或其他非高校类型时，一并纳入，不按固定类型排除。
 
-先检索当年和上一年；没有合格来源或仍有覆盖缺口时，才扩大到再前一年。候选按官方性、时效性和信息量选择，不因格式不同改变优先级。不得使用地图、百科、媒体、自媒体、择校网站或第三方学校数据库作为名录来源。
+先检索当年和去年；没有合格来源或仍有覆盖缺口时，才扩大到前年。候选按官方性、时效性和信息量选择，不因格式不同改变优先级。不得使用地图、百科、媒体、自媒体、择校网站或第三方学校数据库作为名录来源。
 
 入选后立即把原始 HTML、Excel、Word、PDF 或图片保存到行政单位目录。分页 HTML 保存全部名录页；附件保留原文件名和格式，不下载没有学校清单的通知附件。
 
-写入 `sources.json` 前读取 [行政单位来源结果格式](references/source-manifest-format.md)。每个行政单位必须记录幼儿园、小学、初中和高中的覆盖状态；未找到资料也要写明状态，不得静默结束。
+写入 `government_source.json` 前读取 [政府来源结果格式](references/government-source-format.md)。每个行政单位必须记录幼儿园、小学、初中和高中的覆盖状态；未找到资料也要写明状态，不得静默结束。
 
 ## 3. 检查并复核提取计划
 
 运行：
 
 ```text
-scripts/build_school_records.py inspect \
-  --input <行政单位目录>/sources.json \
+scripts/build_school_address.py inspect \
+  --input <行政单位目录>/government_source.json \
   --output <行政单位目录>/extraction_plan.json
 ```
 
@@ -79,7 +81,7 @@ scripts/build_school_records.py inspect \
 运行：
 
 ```text
-scripts/build_school_records.py extract \
+scripts/build_school_address.py extract \
   --plan <行政单位目录>/extraction_plan.json \
   --output <行政单位目录>/address_records.json
 ```
@@ -112,12 +114,12 @@ scripts/build_excel.py \
 
 脚本在各行政单位目录生成一份区级工作簿，并生成包含“学校信息”总表和各行政单位分表的城市工作簿。只输出最终地址非空的记录；去重、学校类型顺序、区内排序、总表按区拼接和展示格式均以脚本结果为准，不由 Agent 手工调整。
 
-最终列固定为：序号、行政单位、学校名称、学校类型、办学性质、最终地址、地址获取方式、发布日期、信息来源。
+最终列固定为：序号、行政单位、学校名称、学校类型、办学性质、地址、地址获取方式、发布日期、信息来源。
 
 ## 完成检查
 
 - `subdivisions` 中每个行政单位都有子 Agent 返回结果或明确的无来源状态，无遗漏和重复目录。
-- 幼儿园、小学、初中和高中均完成独立检索，覆盖缺口已写入 `sources.json`。
+- 幼儿园、小学、初中和高中均完成独立检索，覆盖缺口已写入 `government_source.json`。
 - 每个进入汇总的行政单位都有合法的 `address_records.json` 和 `processed_address_records.json`。
 - 城市总表行数等于各行政单位分表行数之和，所有输出行的最终地址非空。
 - 最终工作簿可以打开，工作表和九列字段符合脚本约定。

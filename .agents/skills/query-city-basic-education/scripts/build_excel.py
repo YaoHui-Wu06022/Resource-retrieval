@@ -6,15 +6,15 @@ import argparse
 import json
 import re
 import sys
+from copy import copy
 from datetime import date
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
 import openpyxl
-from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
-from openpyxl.utils import get_column_letter
 
 from query_city_core.city import validate_city_context
+from query_city_core.excel_style import populate_table_worksheet
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -28,7 +28,7 @@ OUTPUT_HEADER = [
     '学校名称',
     '学校类型',
     '办学性质',
-    '最终地址',
+    '地址',
     '地址获取方式',
     '发布日期',
     '信息来源',
@@ -281,57 +281,22 @@ def format_source_reference(source_reference):
 
 
 def populate_worksheet(worksheet, sheet_name, output_records):
-    """向一张工作表写入学校记录并应用固定显示格式。"""
-    worksheet.title = sheet_name
-    worksheet.append(OUTPUT_HEADER)
-    for output_row in build_worksheet_rows(output_records):
-        worksheet.append(output_row)
-
-    header_fill = PatternFill('solid', fgColor='4472C4')
-    header_font = Font(bold=True, color='FFFFFF')
-    thin_side = Side(style='thin', color='D9D9D9')
-    cell_border = Border(
-        left=thin_side,
-        right=thin_side,
-        top=thin_side,
-        bottom=thin_side,
+    """使用公共样式写入一张学校工作表并添加来源链接。"""
+    populate_table_worksheet(
+        worksheet,
+        sheet_name,
+        OUTPUT_HEADER,
+        build_worksheet_rows(output_records),
+        COLUMN_WIDTHS,
     )
-    centered = Alignment(
-        horizontal='center',
-        vertical='center',
-        wrap_text=False,
-        indent=0,
-    )
-    for column_index, column_width in enumerate(COLUMN_WIDTHS, start=1):
-        worksheet.column_dimensions[get_column_letter(column_index)].width = (
-            column_width
-        )
-    worksheet.row_dimensions[1].height = 24
-    for row_index in range(2, worksheet.max_row + 1):
-        worksheet.row_dimensions[row_index].height = 22
-    for cell in worksheet[1]:
-        cell.fill = header_fill
-        cell.font = header_font
-    for row in worksheet.iter_rows(
-        min_row=1,
-        max_row=worksheet.max_row,
-        min_col=1,
-        max_col=len(OUTPUT_HEADER),
-    ):
-        for cell in row:
-            cell.alignment = centered
-            cell.border = cell_border
     for source_cell in worksheet['I'][1:]:
         source_url = extract_source_url(source_cell.value)
         if source_url:
             source_cell.hyperlink = source_url
-            source_cell.style = 'Hyperlink'
-            source_cell.alignment = centered
-            source_cell.border = cell_border
-    worksheet.freeze_panes = 'A2'
-    worksheet.auto_filter.ref = (
-        f'A1:{get_column_letter(len(OUTPUT_HEADER))}{worksheet.max_row}'
-    )
+            hyperlink_font = copy(source_cell.font)
+            hyperlink_font.color = '0563C1'
+            hyperlink_font.underline = 'single'
+            source_cell.font = hyperlink_font
 
 
 def build_workbook(sheet_records):
@@ -353,6 +318,8 @@ def verify_worksheet(worksheet, expected_records):
         raise ValueError(f'{worksheet.title}工作表字段不正确')
     if worksheet.max_row - 1 != len(expected_records):
         raise ValueError(f'{worksheet.title}工作表记录数不正确')
+    if worksheet.sheet_view.showGridLines:
+        raise ValueError(f'{worksheet.title}工作表未关闭网格线')
     for sequence, row_index in enumerate(
         range(2, worksheet.max_row + 1), start=1
     ):
@@ -372,19 +339,20 @@ def verify_worksheet(worksheet, expected_records):
             raise ValueError(f'{worksheet.title}的信息来源展示格式不正确')
         if not source_cell.hyperlink:
             raise ValueError(f'{worksheet.title}的信息来源没有可点击链接')
-    for row in worksheet.iter_rows(
+    for row_index, row in enumerate(worksheet.iter_rows(
         min_row=1,
         max_row=worksheet.max_row,
         min_col=1,
         max_col=len(OUTPUT_HEADER),
-    ):
-        for cell in row:
+    ), start=1):
+        for column_index, cell in enumerate(row, start=1):
             if cell.alignment.horizontal != 'center':
                 raise ValueError(f'{worksheet.title}存在未居中的单元格')
             if cell.alignment.vertical != 'center':
                 raise ValueError(f'{worksheet.title}存在未垂直居中的单元格')
-            if cell.alignment.wrap_text:
-                raise ValueError(f'{worksheet.title}不得开启自动换行')
+            expected_wrap = row_index == 1 or column_index == 6
+            if bool(cell.alignment.wrap_text) != expected_wrap:
+                raise ValueError(f'{worksheet.title}的自动换行格式不正确')
             if cell.alignment.indent not in {None, 0, 0.0}:
                 raise ValueError(f'{worksheet.title}不得设置缩进')
 

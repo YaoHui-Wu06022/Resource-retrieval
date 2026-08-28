@@ -12,7 +12,7 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from source_readers import detect_source_format, load_source_tables  # noqa: E402
-from build_school_records import extract_school_records  # noqa: E402
+from extract_school_records import extract_school_records  # noqa: E402
 
 
 class VisionReaderTest(unittest.TestCase):
@@ -40,7 +40,9 @@ class VisionReaderTest(unittest.TestCase):
         """无视觉能力时应允许显式跳过纯图像来源。"""
         with tempfile.TemporaryDirectory() as temporary_dir:
             source_dir = Path(temporary_dir)
-            (source_dir / 'sources.json').write_text('{}', encoding='utf-8')
+            (source_dir / 'government_source.json').write_text(
+                '{}', encoding='utf-8'
+            )
             plan_path = source_dir / 'extraction_plan.json'
             plan_path.write_text(json.dumps({
                 'stage': 'basic_education_extraction_plan',
@@ -52,7 +54,7 @@ class VisionReaderTest(unittest.TestCase):
                     'subdivisions': [],
                 },
                 'administrative_unit': {'name': '测试区'},
-                'source_manifest': 'sources.json',
+                'government_source_file': 'government_source.json',
                 'items': [{
                     'source_title': '扫描名录',
                     'review_status': 'skipped',
@@ -68,6 +70,10 @@ class VisionReaderTest(unittest.TestCase):
             self.assertEqual(exit_code, 0)
             self.assertEqual(payload['stage'], 'address_records')
             self.assertEqual(payload['metrics']['skipped_source_count'], 1)
+            self.assertEqual(payload['metrics']['original_address_count'], 0)
+            self.assertEqual(
+                payload['metrics']['missing_original_address_count'], 0
+            )
 
 
 if __name__ == '__main__':

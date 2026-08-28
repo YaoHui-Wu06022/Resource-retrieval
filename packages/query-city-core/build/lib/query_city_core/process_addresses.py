@@ -145,7 +145,6 @@ def resolve_address_payload(
         processed_records.append(processed_record)
         map_request_count += item_map_request_count
     return {
-        'schema_version': '1.0',
         'stage': 'processed_address_records',
         'city': city,
         'items': processed_records,

@@ -96,7 +96,7 @@ def build_output_rows(address_records):
             str(attributes.get('school_tag') or '').strip(),
             str(attributes.get('school_nature') or '').strip(),
             str(address_record['final_address']).strip(),
-            ('高德地图' if address_record.get('final_address_source') == 'map'
+            ('地图信息' if address_record.get('final_address_source') == 'map'
              else '官网提取'),
             query_date,
             str(address_record['source_reference']).strip(),
@@ -171,7 +171,7 @@ def verify_workbook(workbook_path, expected_row_count):
             if not str(worksheet.cell(row_index, 7).value or '').strip():
                 raise ValueError('最终工作簿存在空地址')
             acquisition_method = worksheet.cell(row_index, 8).value
-            if acquisition_method not in {'官网提取', '高德地图'}:
+            if acquisition_method not in {'官网提取', '地图信息'}:
                 raise ValueError('最终工作簿存在无效地址获取方式')
             query_date = worksheet.cell(row_index, 9).value
             if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', str(query_date or '')):
