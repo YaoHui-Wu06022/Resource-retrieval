@@ -8,9 +8,9 @@ from source_readers import normalize_text
 
 
 EXPLICIT_CAMPUS_LABEL = (
-    r'(?:校本部|初中部|小学部|高中部|总校|分校|总园|'
+    r'(?:校本部|中学部|初中部|小学部|高中部|总校|分校|总园|'
     r'校本部(?:初中部|小学部|高中部)|'
-    r'[^\s：:（）()号]{1,20}(?:校区|园区|教学点))'
+    r'[^\s：:（）()号；;，,。.、/／]{1,20}(?:校区|园区|教学点))'
 )
 CAMPUS_PREFIX_PATTERN = re.compile(
     rf'(?P<campus>{EXPLICIT_CAMPUS_LABEL})[：:]\s*'
@@ -30,6 +30,29 @@ GRADE_NOTE_PATTERN = re.compile(
 CHINESE_NAME_SPACE_PATTERN = re.compile(
     r'(?<=[\u3400-\u9fff（）])\s+(?=[\u3400-\u9fff（）])'
 )
+SCHOOL_TYPE_LABEL_PATTERN = re.compile(
+    r'^[▪•·\-—\s]*(?:学校)?(?:类别|类型|办学层次)\s*[：:]\s*'
+)
+STANDARD_SCHOOL_TYPES = {
+    '幼儿园',
+    '小学',
+    '初中',
+    '高中',
+    '完全中学',
+    '特殊教育学校',
+    '中等职业学校',
+    '职业高级中学',
+    '技工院校',
+    '成人中等学校',
+    '专门学校',
+}
+SCHOOL_TYPE_STAGES = {
+    '完全中学': ('初中', '高中'),
+    '九年一贯制学校': ('小学', '初中'),
+    '十二年一贯制学校': ('小学', '初中', '高中'),
+    '十五年一贯制学校': ('幼儿园', '小学', '初中', '高中'),
+}
+BASIC_SCHOOL_STAGES = ('幼儿园', '小学', '初中', '高中')
 
 
 def normalize_school_type_part(school_type_part: str) -> str:
@@ -46,11 +69,8 @@ def normalize_school_type_part(school_type_part: str) -> str:
         (r'中等职业|中职|中等专业', '中等职业学校'),
         (r'特殊教育|培智', '特殊教育学校'),
         (r'技师学院|技工学校', '技工院校'),
-        (r'专门学校', '专门学校'),
         (r'成人中等', '成人中等学校'),
         (r'完全中学|完中', '完全中学'),
-        (r'幼儿园', '幼儿园'),
-        (r'小学', '小学'),
         (r'初级中学|初中', '初中'),
         (r'高级中学|普通高中|高中', '高中'),
     )
@@ -66,18 +86,41 @@ def normalize_school_type_part(school_type_part: str) -> str:
 
 def normalize_school_type(school_type_text: Any) -> str:
     """规范官方学校类型并保留无法识别的原文。"""
-    normalized_text = re.sub(
-        r'[（(].*?[）)]', '', normalize_text(school_type_text)
+    normalized_text = SCHOOL_TYPE_LABEL_PATTERN.sub(
+        '', normalize_text(school_type_text)
     )
+    parenthesized_parts = re.findall(r'[（(](.*?)[）)]', normalized_text)
+    for parenthesized_part in reversed(parenthesized_parts):
+        normalized_part = normalize_school_type_part(parenthesized_part)
+        if (
+            normalized_part in STANDARD_SCHOOL_TYPES
+            or re.fullmatch(r'.+年一贯制学校', normalized_part)
+        ):
+            return normalized_part
+    normalized_text = re.sub(r'[（(].*?[）)]', '', normalized_text)
     school_type_parts = [
         school_type_part
         for school_type_part in re.split(r'[、，,;/；]+', normalized_text)
         if normalize_text(school_type_part)
     ]
-    return '、'.join(
+    return '、'.join(dict.fromkeys(
         normalize_school_type_part(school_type_part)
         for school_type_part in school_type_parts
+    ))
+
+
+def infer_school_type_from_stage_name(place_name: Any) -> str:
+    """从明确的小学部、初中部或高中部名称取得单条记录学段。"""
+    stage_match = re.search(
+        r'(小学部|中学部|初中部|高中部)$',
+        normalize_place_name_text(place_name),
     )
+    return {
+        '小学部': '小学',
+        '中学部': '初中',
+        '初中部': '初中',
+        '高中部': '高中',
+    }.get(stage_match.group(1) if stage_match else '', '')
 
 
 def normalize_school_nature(school_nature_text: Any) -> str:
@@ -88,6 +131,36 @@ def normalize_school_nature(school_nature_text: Any) -> str:
     if '民办' in normalized_nature:
         return '民办'
     return normalized_nature
+
+
+def merge_school_types(current_type: str, incoming_type: str) -> str:
+    """按学段去重合并学校类型，保留官方类型标签。"""
+    school_types = list(dict.fromkeys(
+        school_type
+        for school_type in f'{current_type}、{incoming_type}'.split('、')
+        if school_type
+    ))
+    retained = []
+    for index, school_type in enumerate(school_types):
+        type_stages = school_type_stages(school_type)
+        other_stages = {
+            stage
+            for other_index, other_type in enumerate(school_types)
+            if other_index != index
+            for stage in school_type_stages(other_type)
+        }
+        if type_stages and set(type_stages).issubset(other_stages):
+            continue
+        retained.append(school_type)
+    return '、'.join(retained)
+
+
+def school_type_stages(school_type: str) -> tuple[str, ...]:
+    """返回学校类型覆盖的学段；不可拆解的官方类型返回空元组。"""
+    return SCHOOL_TYPE_STAGES.get(
+        school_type,
+        (school_type,) if school_type in BASIC_SCHOOL_STAGES else (),
+    )
 
 
 def resolve_publication_date(publication_date: Any) -> str:
@@ -103,7 +176,7 @@ def normalize_place_name_text(place_name: Any) -> str:
 def append_campus_name(place_name: str, campus_name: str) -> str:
     """把明确校区名称拼接到学校名称。"""
     place_name = normalize_text(place_name)
-    campus_name = normalize_text(campus_name)
+    campus_name = normalize_text(campus_name).strip('；;，,。.、/／ ')
     return place_name if campus_name in place_name else place_name + campus_name
 
 
@@ -117,22 +190,38 @@ def split_explicit_campus_addresses(
         if normalize_text(address_line)
     ]
     lines = []
+    locations = []
     for line in raw_lines:
         parts = [
             normalize_text(address_part)
             for address_part in re.split(r'[/／]', line)
         ]
-        if len(parts) > 1 and all(CAMPUS_SUFFIX_PATTERN.fullmatch(part) for part in parts):
-            lines.extend(parts)
-        else:
+        matched_parts = [
+            part for part in parts
+            if CAMPUS_SUFFIX_PATTERN.fullmatch(part)
+        ]
+        if len(parts) <= 1 or not matched_parts:
             lines.append(line)
-    locations = []
+            continue
+        for part in parts:
+            suffix_match = CAMPUS_SUFFIX_PATTERN.fullmatch(part)
+            if suffix_match:
+                locations.append((
+                    append_campus_name(
+                        place_name, suffix_match.group('campus')
+                    ),
+                    suffix_match.group('address'),
+                ))
+            else:
+                locations.append((place_name, part))
     for line in lines:
         matches = list(CAMPUS_PREFIX_PATTERN.finditer(line))
         if matches and matches[0].start() == 0:
             for index, match in enumerate(matches):
                 end = matches[index + 1].start() if index + 1 < len(matches) else len(line)
-                address = GRADE_NOTE_PATTERN.sub('', line[match.end():end]).strip()
+                address = GRADE_NOTE_PATTERN.sub(
+                    '', line[match.end():end]
+                ).strip('；;，,。.、/／ ')
                 if not address:
                     return [(place_name, original_address)]
                 locations.append((
@@ -161,7 +250,9 @@ def split_explicit_campus_addresses(
         ):
             locations.extend((
                 append_campus_name(place_name, match.group('campus')),
-                match.group('address'),
+                normalize_text(match.group('address')).strip(
+                    '；;，,。.、/／ '
+                ),
             ) for match in suffix_segments)
             continue
         suffix_match = CAMPUS_SUFFIX_PATTERN.fullmatch(line)
@@ -192,18 +283,13 @@ def deduplicate_school_records(
         current_record = unique_records[record_index]
         current_type = current_record['attributes']['school_type']
         incoming_type = school_record['attributes']['school_type']
-        school_types = [
-            school_type
-            for school_type in (current_type + '、' + incoming_type).split('、')
-            if school_type
-        ]
         if (
             school_record['attributes'].get('publication_date', '')
             > current_record['attributes'].get('publication_date', '')
         ):
             current_record = school_record
             unique_records[record_index] = current_record
-        current_record['attributes']['school_type'] = '、'.join(
-            dict.fromkeys(school_types)
+        current_record['attributes']['school_type'] = merge_school_types(
+            current_type, incoming_type
         )
     return unique_records, len(school_records) - len(unique_records)

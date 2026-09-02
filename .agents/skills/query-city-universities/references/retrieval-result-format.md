@@ -4,14 +4,12 @@
 
 ## 文件规则
 
-- 一个文件只保存一所学校的结果。
-- 文件名必须是 `city_universities.json` 中的学校标识码，例如 `4144010558.json`。
-- 文件顶层直接保存单所学校对象，不使用 `items` 包装。
-- 不填写城市、学校名称、完整学校对象或 `stage`。
+- 一文件一校；文件名 = `city_universities.json` 中的学校标识码（如 `4144010558.json`）。
+- 顶层直接保存单校对象，不用 `items` 包装；不填城市、学校名称、完整学校对象或 `stage`。
 
-## 正常处理
+## 正常处理（completed）
 
-负责该校的 Agent 未依据官方证据确认学校已合并或停止独立办学时，使用：
+未依官方证据确认学校合并或停止独立办学时，使用：
 
 ```json
 {
@@ -21,18 +19,15 @@
 }
 ```
 
-`pages` 按访问顺序保存每次 `fetch_official_universities.py` 返回的完整原始页面对象，不得重建、删改或只摘录候选字段。
+`pages` 按访问顺序保存每次 `fetch_official_universities.py` 返回的完整原始页面对象，原样保留，不重建、删改或只摘录候选字段。
 
-- 至少保存一个页面。
-- 通常最多三页。
-- 符合校区详情扩展条件时最多六页。
-- 页面访问失败但未确认学校合并或停止独立办学时，仍为 `completed`，并保留失败页面。
+- 至少 1 页；通常 ≤ 3 页；页面出现多校区汇总线索（≥ 2 个校区提示或校区链接）且尚无地址时，运行器自动把预算放宽到 ≤ 6 页，同一校区详情只补抓一次。
+- 页面访问失败但未确认合并/停办时仍为 `completed`，并保留失败页。
+- 只允许 `school_identifier`、`processing_status`、`pages` 三个字段。
 
-除 `school_identifier`、`processing_status` 和 `pages` 外，不得增加其他字段。
+## 跳过处理（skipped）
 
-## 跳过处理
-
-负责该校的 Agent 在同次搜索中已用明确官方证据确认学校合并或停止独立办学时，使用：
+同次搜索已用明确官方证据确认学校合并或停止独立办学时，使用：
 
 ```json
 {
@@ -43,15 +38,27 @@
 }
 ```
 
-`skip_reason` 只能是：
+- `skip_reason` 只能是 `merged` 或 `ceased_independent_operation`；`skip_reference` 必须是支持判断的 HTTP(S) 官方证据页面。
+- 跳过结果不填 `pages`，不进地图服务；只允许上述 4 个字段。
 
-- `merged`
-- `ceased_independent_operation`
+## 无官网处理（no_official_site）
 
-`skip_reference` 必须是支持判断的 HTTP(S) 官方证据页面。跳过结果不填写 `pages`，也不进入地图服务。
+域名确认阶段确认学校没有归属明确的独立官网（例如新设校），或官网域名不可达且无同次搜索官方候选时，使用：
 
-除 `school_identifier`、`processing_status`、`skip_reason` 和 `skip_reference` 外，不得增加其他字段。
+```json
+{
+  "school_identifier": "4144010000",
+  "processing_status": "no_official_site",
+  "evidence_url": "https://example.gov.cn/official-record",
+  "reason": "2026 年新设，未找到归属明确的独立官网"
+}
+```
+
+- `evidence_url` 必须是支持该判断的官方证据页；`reason` 说明无官网或不可达的具体原因。
+- 不填 `pages`，直接进入地址处理；地图按学校名称尝试 POI 兜底，无法救回时进入「异常校」。
+- 只允许上述 4 个字段。
 
 ## 汇总边界
 
-子 Agent 只写自己负责学校的独立文件，不创建或修改 `university_retrieval_results.json`。主 Agent 使用 `scripts/merge_university_results.py` 生成共享汇总文件，并以脚本校验结果为准。
+- 批量抓取由 `scripts/run_university_fetch.py` 统一写入 `school_results/<学校标识码>.json`，`no_official_site` 结果由同一运行器直接写出；主 Agent 不手工改写。
+- 共享汇总文件只由 `scripts/merge_university_results.py` 生成，以脚本校验结果为准。

@@ -1,3 +1,3 @@
-"""Shared runtime for the query-city skill family."""
+"""查询城市类 Skill 共享的公共运行能力。"""
 
 __version__ = "0.1.0"

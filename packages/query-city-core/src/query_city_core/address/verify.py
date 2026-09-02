@@ -10,9 +10,12 @@ from ..amap_client import (
     normalize_amap_value,
 )
 from .common import (
+    MISSING_ADMIN_REASON,
+    PLACE_NAME_SUFFIXES,
     build_map_result_record,
     compact_address,
-    extract_address_components,
+    extract_admin_unit_components,
+    strip_city_prefix,
 )
 from .normalize import normalize_address_value
 
@@ -27,7 +30,9 @@ DISTINCTIVE_ANCHOR_PATTERN = re.compile(
     r'大学城|职教园|大学园|高教园区|高校园区|教育园区|科教城'
 )
 NAMED_PLACE_PATTERN = re.compile(
-    r'([\u4e00-\u9fffA-Za-z0-9·\-]{1,20}(?:校区|校园|分院|分行|支行|分部))'
+    r'([\u4e00-\u9fffA-Za-z0-9·\-]{1,20}(?:'
+    + '|'.join(PLACE_NAME_SUFFIXES)
+    + r'))'
 )
 ADMIN_SUFFIX_PATTERN = re.compile(
     r'(?:特别行政区|维吾尔自治区|壮族自治区|回族自治区|自治区|自治州|地区|盟|省|市|区|县|旗)$'
@@ -38,6 +43,11 @@ AUXILIARY_POI_PATTERN = re.compile(
     r'公交车站|地铁站|停车场|出入口|通行设施|收费站|服务区'
 )
 NAME_FORMAT_PATTERN = re.compile(r'[\s()（）\[\]【】{}《》<>·\-—–_]')
+CAMPUS_NEW_MODIFIER_PATTERN = re.compile(r'新(?=校区|校园)')
+GOVERNMENT_SPECIFIC_LOCATION_PATTERN = re.compile(
+    r'小区|花园|花苑|苑|新村|社区|村|里|路|街|巷|大道|公路|弄|段|号|栋|座|楼|'
+    r'园|校区|院区|工业区|产业园'
+)
 
 
 def normalize_admin_name(value):
@@ -58,7 +68,11 @@ def classify_road_relation(source_road, map_road):
         return 'equal'
     source_base = re.sub(r'(?:辅路|[东南西北中])$', '', source_name)
     map_base = re.sub(r'(?:辅路|[东南西北中])$', '', map_name)
-    return 'partial' if source_base == map_base else 'conflict'
+    if source_base == map_base:
+        return 'partial'
+    if source_name.endswith(map_name) or map_name.endswith(source_name):
+        return 'suffix'
+    return 'conflict'
 
 
 def normalize_house_number(value):
@@ -95,16 +109,12 @@ def build_source_components(address_record, city):
     normalized_address = str(
         address_record.get('normalized_address') or ''
     ).strip()
-    detail = (
-        normalized_address[len(city):]
-        if normalized_address.startswith(city)
-        else normalized_address
-    )
-    district, location = extract_address_components(detail)
+    detail = strip_city_prefix(normalized_address, city)
+    admin_unit, location = extract_admin_unit_components(detail)
     return {
         'province': '',
         'city': city,
-        'district': district,
+        'admin_unit': admin_unit,
         'detail': location,
         'road': extract_road_name(location),
         'number': extract_house_number(location),
@@ -127,14 +137,14 @@ def build_map_components(map_candidate, source_components):
     address = normalize_amap_value(map_candidate.get('formatted_address'))
     province = normalize_amap_value(map_candidate.get('province'))
     city = normalize_amap_value(map_candidate.get('city'))
-    district = normalize_amap_value(map_candidate.get('district'))
+    admin_unit = normalize_amap_value(map_candidate.get('district'))
     if not city and source_components.get('city') in MUNICIPALITIES:
         city = province
-    detail = extract_map_address_detail(address, (province, city, district))
+    detail = extract_map_address_detail(address, (province, city, admin_unit))
     return {
         'province': province,
         'city': city,
-        'district': district,
+        'admin_unit': admin_unit,
         'street': normalize_amap_value(
             map_candidate.get('street')
         ) or extract_road_name(detail),
@@ -146,10 +156,10 @@ def build_map_components(map_candidate, source_components):
 
 
 def compare_admin_components(source, map_components):
-    """比较双方明确提供的城市和区县并返回缺失信息。"""
+    """比较双方明确提供的城市和下级行政区并返回缺失信息。"""
     missing = []
-    labels = {'city': '城市', 'district': '区县'}
-    for field in ('city', 'district'):
+    labels = {'city': '城市', 'admin_unit': '下级行政区'}
+    for field in ('city', 'admin_unit'):
         source_value = str(source.get(field) or '')
         map_value = str(map_components.get(field) or '')
         if source_value and map_value:
@@ -179,6 +189,8 @@ def judge_address_match(source_address, source, map_components):
         road_relation = classify_road_relation(source_road, map_road)
         if road_relation == 'conflict':
             return 'conflict', f'道路冲突：规范地址“{source_road}”，地图“{map_road}”'
+        if road_relation == 'suffix':
+            missing.append('道路简称')
         if road_relation == 'partial':
             missing.append('道路方位或辅路信息不完整')
         else:
@@ -195,6 +207,8 @@ def judge_address_match(source_address, source, map_components):
         missing.append('地图门牌号')
 
     if missing:
+        if missing == ['道路简称'] and source_number and map_number:
+            return 'partial', f'道路简称：规范地址“{source_road}”，地图“{map_road}”'
         return 'partial', '无明确冲突，但以下规范地址组件未获地图支持：' + '、'.join(missing)
     map_address = map_components.get('address') or ''
     if compact_address(source_address) == compact_address(map_address):
@@ -217,12 +231,12 @@ def choose_map_result(address_record, city, map_candidates):
     judged_candidates = []
     for map_candidate in map_candidates:
         map_components = build_map_components(map_candidate, source_components)
-        map_status, map_reason = judge_address_match(
+        map_match_status, map_reason = judge_address_match(
             source_address, source_components, map_components
         )
         judged_candidates.append({
             'map_address': map_components['address'],
-            'map_status': map_status,
+            'map_match_status': map_match_status,
             'map_reason': map_reason,
             'map_poi_type': '',
             'map_poi_typecode': '',
@@ -231,7 +245,7 @@ def choose_map_result(address_record, city, map_candidates):
         return None
     return min(
         judged_candidates,
-        key=lambda map_candidate: STATUS_PRIORITY[map_candidate['map_status']],
+        key=lambda map_candidate: STATUS_PRIORITY[map_candidate['map_match_status']],
     )
 
 
@@ -250,12 +264,8 @@ def normalize_map_address(address, city_context, target_administrative_unit=''):
 def address_detail_score(address, city):
     """按道路、门牌和剩余位置文本衡量地址的具体程度。"""
     normalized_address = compact_address(address)
-    detail = (
-        normalized_address[len(city):]
-        if normalized_address.startswith(city)
-        else normalized_address
-    )
-    _, location = extract_address_components(detail)
+    detail = strip_city_prefix(normalized_address, city)
+    _, location = extract_admin_unit_components(detail)
     return (
         bool(extract_road_name(location)),
         bool(extract_house_number(location)),
@@ -269,14 +279,24 @@ def has_detailed_address(address_record, city):
     return bool(source_components['road'] or source_components['number'])
 
 
+def has_government_specific_location(address_record, city):
+    """判断政府资料地址是否已给出小区、楼栋等具体地点。"""
+    source_components = build_source_components(address_record, city)
+    return bool(
+        GOVERNMENT_SPECIFIC_LOCATION_PATTERN.search(
+            source_components['detail']
+        )
+    )
+
+
 def choose_final_address(address_record, map_result, city):
     """在不冲突的前提下保留道路、门牌等信息更完整的一方。"""
     official_address = str(address_record.get('normalized_address') or '').strip()
     map_address = str(map_result.get('map_address') or '').strip()
-    map_status = map_result.get('map_status')
+    map_match_status = map_result.get('map_match_status')
     if not map_address:
         return official_address, 'official', '地图未提供可用地址'
-    if map_status == 'conflict':
+    if map_match_status == 'conflict':
         return official_address, 'official', '地址组件冲突，保留来源地址'
     if address_detail_score(map_address, city) > address_detail_score(
         official_address, city
@@ -295,7 +315,7 @@ def verify_map_address(
     """按完整来源地址查询地理编码并比较地址组件。"""
     processed_record = build_map_result_record(address_record)
     if not api_key:
-        processed_record.update(map_status='error', map_reason='未配置 AMAP_KEY')
+        processed_record.update(map_match_status='error', map_reason='未配置 AMAP_KEY')
         return processed_record, 0
     map_candidates, error_reason = fetch_geocodes(
         address_record['normalized_address'],
@@ -304,14 +324,14 @@ def verify_map_address(
         rate_limiter,
     )
     if error_reason:
-        processed_record.update(map_status='error', map_reason=error_reason)
+        processed_record.update(map_match_status='error', map_reason=error_reason)
         return processed_record, 1
     selected_candidate = choose_map_result(
         address_record, city_context['city_name'], map_candidates
     )
     if not selected_candidate:
         processed_record.update(
-            map_status='not_found',
+            map_match_status='not_found',
             map_reason='高德服务正常但未找到结果',
         )
         return processed_record, 1
@@ -329,19 +349,24 @@ def normalize_place_name(value):
     return NAME_FORMAT_PATTERN.sub('', str(value or '')).strip()
 
 
+def normalize_campus_name_for_match(value):
+    """比较地点名称时忽略校区核心词前直接修饰的“新”字。"""
+    return CAMPUS_NEW_MODIFIER_PATTERN.sub('', normalize_place_name(value))
+
+
 def build_poi_address(poi, city_context, target_administrative_unit=''):
-    """将 POI 的区县和详细地址整理为规范地址。"""
-    district = normalize_amap_value(poi.get('adname'))
+    """将 POI 的下级行政区和详细地址整理为规范地址。"""
+    admin_unit = normalize_amap_value(poi.get('adname'))
     detail = normalize_amap_value(poi.get('address'))
     city = city_context['city_name']
     if not detail:
         return ''
     if detail.startswith(city):
         raw_address = detail
-    elif district and detail.startswith(district):
+    elif admin_unit and detail.startswith(admin_unit):
         raw_address = f'{city}{detail}'
     else:
-        raw_address = f'{city}{district}{detail}'
+        raw_address = f'{city}{admin_unit}{detail}'
     return normalize_map_address(
         raw_address,
         city_context,
@@ -357,7 +382,9 @@ def build_poi_candidate(
 ):
     """筛选名称、城市和地址均可确认的 POI 候选。"""
     poi_name = normalize_amap_value(poi.get('name'))
-    if normalize_place_name(place_name) != normalize_place_name(poi_name):
+    if normalize_campus_name_for_match(
+        place_name
+    ) != normalize_campus_name_for_match(poi_name):
         return None
     if normalize_place_name(normalize_amap_value(poi.get('cityname'))) != (
         normalize_place_name(city_context['city_name'])
@@ -417,30 +444,39 @@ def resolve_poi_address(
     """按学校或校区名称查询唯一匹配的 POI 地址。"""
     processed_record = build_map_result_record(address_record)
     if not api_key:
-        processed_record.update(map_status='error', map_reason='未配置 AMAP_KEY')
+        processed_record.update(map_match_status='error', map_reason='未配置 AMAP_KEY')
         return processed_record, 0
-    map_pois, error_reason = fetch_pois(
-        address_record['place_name'], city_context['city_name'], api_key, rate_limiter
-    )
-    if error_reason:
-        processed_record.update(map_status='error', map_reason=error_reason)
-        return processed_record, 1
     target_administrative_unit = (
         address_record.get('attributes') or {}
     ).get('administrative_unit')
-    candidate, map_status, map_reason = select_poi_candidate(
-        address_record['place_name'],
-        city_context,
-        map_pois,
-        target_administrative_unit,
-    )
-    processed_record.update(map_status=map_status, map_reason=map_reason)
+    place_names = [address_record['place_name']]
+    campus_name = str(
+        (address_record.get('attributes') or {}).get('campus_name') or ''
+    ).strip()
+    if campus_name and campus_name not in place_names:
+        place_names.append(campus_name)
+    request_count = 0
+    candidate = None
+    map_match_status = ''
+    map_reason = ''
+    for place_name in place_names:
+        map_pois, error_reason = fetch_pois(
+            place_name, city_context['city_name'], api_key, rate_limiter
+        )
+        request_count += 1
+        if error_reason:
+            processed_record.update(map_match_status='error', map_reason=error_reason)
+            return processed_record, request_count
+        candidate, map_match_status, map_reason = select_poi_candidate(
+            place_name, city_context, map_pois, target_administrative_unit
+        )
+        if candidate:
+            break
+    processed_record.update(map_match_status=map_match_status, map_reason=map_reason)
     if not candidate:
-        return processed_record, 1
-    processed_record.update(
-        candidate,
-    )
-    return processed_record, 1
+        return processed_record, request_count
+    processed_record.update(candidate)
+    return processed_record, request_count
 
 
 def resolve_map_address(
@@ -460,24 +496,57 @@ def resolve_map_address(
         city_context['city_name'],
     )
 
-    if (
-        source_nature == 'government_information'
-        and official_address
-        and detailed_address
-    ):
-        processed_record = build_map_result_record(address_record)
+    if source_nature == 'government_information' and official_address:
+        if detailed_address:
+            processed_record, request_count = verify_map_address(
+                address_record,
+                city_context,
+                api_key,
+                rate_limiter,
+                fetch_geocodes,
+            )
+            processed_record.update(
+                final_address=official_address,
+                final_address_source='official',
+                final_address_reason='政府资料地址，地图仅用于匹配验证',
+            )
+            return processed_record, request_count
+        if has_government_specific_location(
+            address_record, city_context['city_name']
+        ):
+            processed_record = build_map_result_record(address_record)
+            processed_record.update(
+                map_match_status='skipped',
+                map_reason='政府资料地址缺少可验证道路或门牌组件',
+                final_address=official_address,
+                final_address_source='official',
+                final_address_reason='政府资料地址',
+            )
+            return processed_record, 0
+        processed_record, request_count = resolve_poi_address(
+            address_record,
+            city_context,
+            api_key,
+            rate_limiter,
+            fetch_pois,
+        )
+        if processed_record['map_match_status'] == 'poi_match':
+            processed_record.update(
+                final_address=processed_record['map_address'],
+                final_address_source='map',
+                final_address_reason='政府资料地址不完整，按学校名称补充地图地址',
+            )
+            return processed_record, request_count
         processed_record.update(
-            map_status='skipped',
-            map_reason='政府资料已提供地址，跳过高德查询',
             final_address=official_address,
             final_address_source='official',
             final_address_reason='政府资料地址',
         )
-        return processed_record, 0
+        return processed_record, request_count
 
     if (
         source_nature == 'web_search'
-        and normalization_status == 'complete'
+        and normalization_status in {'complete', 'partial'}
         and detailed_address
     ):
         processed_record, request_count = verify_map_address(
@@ -492,6 +561,17 @@ def resolve_map_address(
             processed_record,
             city_context['city_name'],
         )
+        if (
+            normalization_status == 'partial'
+            and address_record.get('normalization_reason') == MISSING_ADMIN_REASON
+            and processed_record.get('map_match_status') in {'consistent', 'partial'}
+            and processed_record.get('map_address')
+        ):
+            processed_record['map_match_status'] = 'partial'
+            processed_record['map_reason'] = '地图补充下级行政区'
+            final_address = processed_record['map_address']
+            final_source = 'map'
+            final_reason = '地图补充来源地址缺少的下级行政区'
         processed_record.update(
             final_address=final_address,
             final_address_source=final_source,
@@ -507,17 +587,36 @@ def resolve_map_address(
             rate_limiter,
             fetch_pois,
         )
-        if processed_record['map_status'] == 'poi_match':
+        if processed_record['map_match_status'] == 'poi_match':
             processed_record.update(
                 final_address=processed_record['map_address'],
                 final_address_source='map',
                 final_address_reason='POI 名称匹配地址',
             )
+        elif (
+            normalization_status == 'complete'
+            and official_address
+            and processed_record['map_match_status'] in {'not_found', 'ambiguous'}
+        ):
+            processed_record.update(
+                final_address=official_address,
+                final_address_source='official',
+                final_address_reason=(
+                    '官网地址缺少可验证道路或门牌，地图未确认，保留来源地址'
+                ),
+            )
         return processed_record, request_count
 
     processed_record = build_map_result_record(address_record)
+    normalization_reason = str(
+        address_record.get('normalization_reason') or ''
+    ).strip()
     processed_record.update(
-        map_status='skipped',
-        map_reason=f'{source_nature} 的 {normalization_status} 地址不调用高德',
+        map_match_status='skipped',
+        map_reason=(
+            normalization_reason
+            if normalization_reason
+            else f'{source_nature} 的 {normalization_status} 地址不调用高德'
+        ),
     )
     return processed_record, 0

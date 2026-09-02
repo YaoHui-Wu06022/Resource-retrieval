@@ -71,5 +71,21 @@
 ## 5. Python 运行环境
 
 - 本工作区的 Python 脚本、测试和依赖检查统一使用 Conda 环境 `py3.10`。
-- 非交互命令统一写为 `conda run -n py3.10 python ...`
-- `query-city-core 0.1.0` 已以 editable 模式安装
+- 非交互命令统一写为 `conda run --no-capture-output -n py3.10 python ...`，不要省略 `--no-capture-output`。
+- `query-city-core 0.1.0` 已以 editable 模式安装。
+
+Windows 中文控制台默认 GBK（cp936），`conda run` 捕获子进程输出后按 GBK 回显，遇到 UTF-8 中文会报 `UnicodeEncodeError: 'gbk' codec ...` 或出现乱码。规避方式：
+
+- 一律使用 `conda run --no-capture-output`，让 Python 直接继承 stdout，绕开 conda 的二次回显（实测中文输出正常）。
+- 需要保留中文输出供后续读取时，先设 `$env:PYTHONIOENCODING='utf-8'`，并把 stdout 重定向到 UTF-8 文件（`... | Out-File -Encoding utf8`），读取用 `Get-Content -Encoding UTF8`；不要依赖控制台回显。
+- `conda run ... python -c` 的参数必须是单行（conda 不支持参数内含换行）；多行逻辑写成脚本文件，或用单行分号写法。
+
+不经 conda run、直接运行 Python（例如直接使用环境解释器）时同样存在编码问题：
+
+- 启动时加 UTF-8 模式参数：`python -X utf8 script.py`；
+- 或先设 `$env:PYTHONIOENCODING='utf-8'`；
+- 两者任选其一即可，否则中文 stdout 会按 GBK 输出成乱码（实测）。
+
+## 6. 补充需求
+
+- 在开发过程中，在每个层级下需要写一份md用于记录该层级下各文件实现的功能和修改记录

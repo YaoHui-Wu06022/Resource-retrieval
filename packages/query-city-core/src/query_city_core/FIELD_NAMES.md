@@ -44,6 +44,7 @@
 | `original_address` | string | 来源页面或资料中的原始地址文本；允许为空字符串。 |
 | `normalized_address` | string | 基于 `city_context` 规范化后的地址；没有可用地址时为空字符串。 |
 | `normalization_status` | string | `complete`、`partial`、`empty`、`invalid` 或 `conflict`。 |
+| `resolved_city` | string | 地址原文或地图解析出的实际归属城市；无法判断时为空。 |
 | `source_nature` | string | `web_search` 表示学校官网页面信息；`government_information` 表示政府公开资料。 |
 | `source_reference` | string | 实际取得该地址或地点线索的来源定位。 |
 | `attributes` | object | 场景业务字段；如存在 `administrative_unit`，POI 结果必须与其区县一致。 |
@@ -55,7 +56,7 @@
 | 字段名 | 类型 | 说明 |
 | --- | --- | --- |
 | `map_address` | string | 高德返回并按 `city_context` 规范化后的地址；未取得时为空字符串。 |
-| `map_status` | string | `skipped`、`consistent`、`partial`、`conflict`、`poi_match`、`not_found`、`ambiguous` 或 `error`。 |
+| `map_match_status` | string | `skipped`、`consistent`、`partial`、`conflict`、`poi_match`、`not_found`、`ambiguous` 或 `error`。 |
 | `map_reason` | string | 地图查询、候选比较或跳过原因。 |
 | `map_poi_type` | string | POI 查询命中时的高德 `type`；地理编码或未命中时为空字符串。 |
 | `map_poi_typecode` | string | POI 查询命中时的高德 `typecode`；地理编码或未命中时为空字符串。 |
@@ -67,11 +68,13 @@
 
 | 来源与地址状态 | 高德查询 | 最终地址 |
 | --- | --- | --- |
-| `government_information` 且有道路或门牌等实际地址 | 不调用 | 直接采用政府资料地址。 |
+| `government_information` 且有道路或门牌等实际地址 | 执行地图匹配验证 | 仍采用政府资料地址；地图仅用于一致性核验。 |
 | `government_information` 且只有学校/校区名称、区县或空地址 | POI | 仅唯一名称匹配、城市和区县条件均满足时采用地图地址。 |
 | `web_search` 且有完整的道路或门牌地址 | 地理编码 | 市、区县、道路、门牌等双方均有的组件出现冲突时保留官网地址；无冲突时采用道路、门牌和位置文本更详细的一方。 |
 | `web_search` 且只有学校/校区名称、区县或空地址 | POI | 仅唯一名称匹配、城市和区县条件均满足时采用地图地址。 |
 | `web_search` 且道路地址不完整、无效或跨城市冲突 | 不调用 | 不生成最终地址。 |
+
+官网或政府详情页抓取结果可附带 `access_attempts` 数组；每项记录 `method`、`url`、`final_url`、`http_status`、`success`、`error` 和 `elapsed_ms`，用于区分访问失败与没有官方来源。
 
 ### 公共地址处理职责与边界
 
@@ -94,7 +97,7 @@
 - 不删除 `final_address` 为空的记录；空地址及其失败状态继续保留在 `processed_address_records.json` 中。
 - 不负责最终工作簿的字段选择、排序、连续编号或空地址过滤。
 
-跨记录同址去重和最终输出筛选由各业务层在公共处理完成后负责。例如，高校业务使用 `build_university_address_post.py` 比较同校地图地址，再由 `build_excel.py` 过滤空地址并排序写入工作簿。
+跨记录同址去重和最终输出筛选由各业务层在公共处理完成后负责。例如，高校业务使用 `build_university_address.py` 的 `postprocess_university_address_records` 比较同校地图地址，再由 `build_excel.py` 过滤空地址并排序写入工作簿。
 
 ## 基础教育：行政单位来源
 
@@ -136,6 +139,7 @@
 | `covered_school_types` | array | 该来源实际覆盖的学校类型。 |
 | `contains_address` | boolean | 该来源是否提供学校地址。 |
 | `local_files` | array | 相对于当前行政单位目录的原始文件名；至少一项。 |
+| `local_file_urls` | object | 可选；键为 `local_files` 中的详情页文件名，值为该文件实际对应的政府网址。 |
 | `derived_files` | array | 可选；由视觉处理等步骤生成的派生文件名。 |
 
 ### 基础教育提取计划
@@ -230,6 +234,8 @@
 
 ### `address_records.metrics`
 
+公共处理结果还包含 `normalization_status_counts`、`map_match_status_counts`、`resolved_city_counts`、`missing_admin_geocode_count` 和 `out_of_city_address_count`。
+
 | 字段名 | 类型 | 说明 |
 | --- | --- | --- |
 | `city_university_count` | integer | 城市高校名录中的学校数。 |
@@ -252,7 +258,6 @@
 | `supervising_authority` | string | 主管部门。 |
 | `location_city` | string | 所在地。 |
 | `education_level` | string | 办学层次。 |
-| `source_remark` | string | 教育部名单的备注。 |
 | `school_tag` | string | `985`、`211` 或空字符串。 |
 | `school_nature` | string | `公办`、`民办`、`中外合作`、`境外机构` 或 `待核验`。 |
 
@@ -280,6 +285,7 @@
 | `address_evidence` | array | 从页面提取的地址证据。 |
 | `links` | array | 页面链接，记录 `text` 与 `url`。 |
 | `warnings` | array | 抓取或提取告警文本。 |
+| `access_attempts` | array | 各访问模式的尝试记录，包含方式、状态、错误、耗时和是否成功。 |
 
 ## 高校官网地址候选
 
@@ -304,3 +310,4 @@
 | `extraction_method` | string | 地址证据的提取方式。 |
 | `source_region` | string | 证据所在页面区域。 |
 | `visible` | boolean | 证据在页面中是否可见。 |
+

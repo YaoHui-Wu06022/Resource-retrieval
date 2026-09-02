@@ -1,1 +1,3 @@
+# 锁定共享运行库；其余脚本依赖（beautifulsoup4/lxml/pandas/openpyxl/xlrd/PyMuPDF）
+# 及 LibreOffice 按 SKILL.md「输入与运行条件」安装，不在此文件重复锁定。
 query-city-core==0.1.0

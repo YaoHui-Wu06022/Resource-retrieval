@@ -24,12 +24,14 @@ def build_address_record(
     administrative_unit,
     place_name='示例学校',
     final_address='广州市测试区测试路1号',
-    map_status='skipped',
+    map_match_status='skipped',
     final_address_source='',
     publication_date='2026-08-01',
     school_type='小学',
     school_nature='公办',
     source_reference=None,
+    map_reason='',
+    normalization_reason='',
 ):
     """构造一条公共地址处理结果。"""
     return {
@@ -45,7 +47,9 @@ def build_address_record(
             'publication_date': publication_date,
         },
         'final_address': final_address,
-        'map_status': map_status,
+        'map_match_status': map_match_status,
+        'map_reason': map_reason,
+        'normalization_reason': normalization_reason,
         'final_address_source': final_address_source,
     }
 
@@ -233,23 +237,24 @@ class BuildExcelTests(unittest.TestCase):
                     [cell.value for cell in worksheet[1]],
                     BUILD_EXCEL.OUTPUT_HEADER,
                 )
-                self.assertEqual(BUILD_EXCEL.OUTPUT_HEADER[5], '地址')
+                self.assertEqual(BUILD_EXCEL.OUTPUT_HEADER[6], '地址')
                 self.assertEqual(
                     worksheet['A1'].fill.fgColor.rgb[-6:], '1F4E78'
                 )
-                self.assertTrue(worksheet.cell(2, 6).alignment.wrap_text)
+                self.assertTrue(worksheet.cell(2, 7).alignment.wrap_text)
                 self.assertFalse(worksheet.cell(2, 5).alignment.wrap_text)
                 self.assertIsNone(worksheet.row_dimensions[2].height)
                 self.assertEqual(worksheet.cell(2, 1).value, 1)
                 self.assertEqual(worksheet.cell(2, 2).value, '测试区')
-                self.assertEqual(worksheet.cell(2, 7).value, '政府资料')
-                self.assertEqual(worksheet.cell(2, 8).value, '2026-08-01')
+                self.assertEqual(worksheet.cell(2, 8).value, '政府资料')
+                self.assertEqual(worksheet.cell(2, 9).value, '未查询')
+                self.assertEqual(worksheet.cell(2, 6).value, '2026-08-01')
                 self.assertEqual(
-                    worksheet.cell(2, 9).value,
+                    worksheet.cell(2, 10).value,
                     'https://example.gov.cn/list.xlsx | 学校名录.xlsx | row 2',
                 )
                 self.assertEqual(
-                    worksheet.cell(2, 9).hyperlink.target,
+                    worksheet.cell(2, 10).hyperlink.target,
                     'https://example.gov.cn/list.xlsx',
                 )
             finally:
@@ -268,9 +273,89 @@ class BuildExcelTests(unittest.TestCase):
             workbook = openpyxl.load_workbook(output_path, data_only=False)
             try:
                 self.assertEqual(
-                    workbook[BUILD_EXCEL.SHEET_NAME].cell(2, 8).value,
+                    workbook[BUILD_EXCEL.SHEET_NAME].cell(2, 6).value,
                     date.today().isoformat(),
                 )
+            finally:
+                workbook.close()
+
+    def test_build_abnormal_rows_lists_empty_address_schools(self):
+        """最终地址为空的学校应整理为异常校行并保留原因。"""
+        rows = BUILD_EXCEL.build_abnormal_rows(
+            '测试区',
+            [
+                build_address_record(
+                    '测试区',
+                    place_name='无地址小学',
+                    final_address='',
+                    map_match_status='not_found',
+                    map_reason='高德服务正常但未找到结果',
+                ),
+                build_address_record(
+                    '测试区',
+                    place_name='异地幼儿园',
+                    final_address='',
+                    map_match_status='skipped',
+                    normalization_reason='原始地址中的下级行政区不属于目标城市：天河区',
+                ),
+            ],
+        )
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0][2], '无地址小学')
+        self.assertEqual(rows[0][5], '高德服务正常但未找到结果')
+        self.assertEqual(rows[0][6], '未找到')
+        self.assertEqual(rows[1][2], '异地幼儿园')
+        self.assertIn('不属于目标城市', rows[1][5])
+
+    def test_unit_workbook_contains_abnormal_sheet(self):
+        """行政单位工作簿应包含学校信息和异常校两个工作表。"""
+        unit_records = BUILD_EXCEL.build_school_output_records(
+            '测试区',
+            [
+                build_address_record('测试区', place_name='正常小学'),
+                build_address_record(
+                    '测试区',
+                    place_name='无地址小学',
+                    final_address='',
+                    map_match_status='not_found',
+                    map_reason='高德服务正常但未找到结果',
+                ),
+            ],
+        )
+        abnormal_rows = BUILD_EXCEL.build_abnormal_rows(
+            '测试区',
+            [
+                build_address_record('测试区', place_name='正常小学'),
+                build_address_record(
+                    '测试区',
+                    place_name='无地址小学',
+                    final_address='',
+                    map_match_status='not_found',
+                    map_reason='高德服务正常但未找到结果',
+                ),
+            ],
+        )
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            output_path = Path(temporary_dir) / 'unit.xlsx'
+            BUILD_EXCEL.write_workbook(output_path, [
+                (BUILD_EXCEL.SHEET_NAME, unit_records),
+                (BUILD_EXCEL.ABNORMAL_SHEET_NAME, abnormal_rows),
+            ])
+            workbook = openpyxl.load_workbook(output_path, data_only=False)
+            try:
+                self.assertEqual(
+                    workbook.sheetnames,
+                    [BUILD_EXCEL.SHEET_NAME, BUILD_EXCEL.ABNORMAL_SHEET_NAME],
+                )
+                abnormal_sheet = workbook[BUILD_EXCEL.ABNORMAL_SHEET_NAME]
+                self.assertEqual(
+                    [cell.value for cell in abnormal_sheet[1]],
+                    BUILD_EXCEL.ABNORMAL_HEADERS,
+                )
+                self.assertEqual(abnormal_sheet.cell(2, 2).value, '测试区')
+                self.assertEqual(abnormal_sheet.cell(2, 3).value, '无地址小学')
+                self.assertEqual(abnormal_sheet.cell(2, 6).value, '高德服务正常但未找到结果')
+                self.assertEqual(abnormal_sheet.cell(2, 7).value, '未找到')
             finally:
                 workbook.close()
 
@@ -311,3 +396,4 @@ class BuildExcelTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

@@ -11,11 +11,13 @@ from urllib.parse import urldefrag, urlparse
 
 
 from query_city_core.fetch_official_page import (
+    OfficialPageFetcher,
     fetch_official_page,
     normalize_domain,
     normalize_lines,
     is_url_in_domains,
 )
+from query_city_core.io_utils import read_json_payload, write_json_payload
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -43,6 +45,7 @@ GENERIC_CAMPUS_PATTERN = re.compile(
     r'^[一二三四五六七八九十百两\d]+个(?:校区|校园)$|'
     r'^(?:学校|本校)(?:校区|校园)$|'
     r'^图说校区$|'
+    r'^(?:数字校园|智慧校园)$|'
     r'^.+(?:大学|学院)校园$'
 )
 RELATED_LINK_RULES = (
@@ -55,6 +58,38 @@ EXCLUDED_LINK_PATH = re.compile(
     r'\.(?:jpe?g|png|gif|webp|svg|pdf|docx?|xlsx?)$', re.IGNORECASE
 )
 MAX_CAMPUS_HINTS = 30
+DEFAULT_MAX_PAGES_PER_SCHOOL = 3
+EXPANDED_MAX_PAGES_PER_SCHOOL = 6
+
+
+def _normalized_url_key(url):
+    """取得用于去重的规范化 URL。"""
+    return urldefrag(str(url or ''))[0].rstrip('/')
+
+
+def has_usable_address_candidate(page_result):
+    """判断页面结果是否包含非空地址候选。"""
+    return any(
+        str(candidate.get('address_text') or '').strip()
+        for candidate in page_result.get('address_candidates') or []
+    )
+
+
+def has_campus_expansion_signal(page_result):
+    """判断页面是否显示多校区汇总但尚无地址，需要补抓校区详情页。"""
+    if has_usable_address_candidate(page_result):
+        return False
+    campus_hints = [
+        str(hint or '').strip()
+        for hint in page_result.get('campus_hints') or []
+        if str(hint or '').strip() and not str(hint or '').strip().endswith('校本部')
+    ]
+    campus_link_count = sum(
+        1
+        for link in page_result.get('related_links') or []
+        if str(link.get('link_type') or '') == 'campus'
+    )
+    return len(campus_hints) >= 2 or campus_link_count >= 2
 
 
 def extract_campus_names(value):
@@ -132,11 +167,8 @@ def split_inline_campus_fields(value):
     return fields
 
 
-def build_address_candidates(address_evidence, page_title=''):
-    """把公共地址证据转换为结构化地址候选。"""
-    page_campuses = extract_title_campus_names(page_title)
-    title_campus = page_campuses[0] if page_campuses else ''
-    title_core = re.sub(r'(?:校区|校园)$', '', title_campus).rsplit('校区', 1)[-1]
+def expand_address_evidence(address_evidence, title_core=''):
+    """按章程条款、行内校区字段和分组地址展开地址证据。"""
     expanded_evidence = []
     raw_texts = [str(item.get('raw_text') or '') for item in address_evidence]
     for evidence in address_evidence:
@@ -181,74 +213,93 @@ def build_address_candidates(address_evidence, page_title=''):
                 expanded_evidence.append(item)
         else:
             expanded_evidence.append(evidence)
+    return expanded_evidence
+
+
+def build_address_candidate(evidence, title_campus='', title_core=''):
+    """从单条展开后的证据构造地址候选；无有效地址时返回 None。"""
+    address = str(evidence.get('address_text') or '').strip()
+    if not address:
+        return None
+    wrapped_campus = ''
+    left, opening, rest = address.replace('(', '（').replace(')', '）').partition('（')
+    inner, closing, tail = rest.partition('）')
+    wrapped_names = extract_campus_names(left) if opening and closing else []
+    if wrapped_names and re.fullmatch(r'\d{6}', tail.strip()):
+        wrapped_campus = wrapped_names[0]
+        address = inner.strip()
+    raw_text = str(evidence.get('raw_text') or '')
+    first_line = normalize_lines(raw_text).splitlines()[0] if raw_text else ''
+    evidence_campus = extract_evidence_campus(evidence)
+    prefix_names = []
+    for line in (address, first_line if not evidence_campus else ''):
+        prefix, separator, _ = line.replace(':', '：').partition('：')
+        prefix = prefix.strip()
+        prefix_names = (
+            extract_campus_names(prefix)
+            if separator and not re.search(r'\d|号', prefix)
+            else []
+        )
+        if prefix_names:
+            break
+    inline_campus = wrapped_campus or (prefix_names[0] if prefix_names else '')
+    campus = inline_campus or evidence_campus
+    page_campus = (title_campus if not campus and title_campus
+                   and (evidence.get('source_region') == 'body'
+                        or title_core in address) else '')
+    campus = campus or page_campus
+    if inline_campus:
+        address_prefix, address_separator, remainder = address.replace(':', '：').partition('：')
+        if address_separator and inline_campus in extract_campus_names(address_prefix):
+            address = remainder.lstrip()
+        elif address.startswith(inline_campus):
+            remainder = address[len(inline_campus):].lstrip()
+            if remainder.startswith(('：', ':')):
+                address = remainder[1:].lstrip()
+    if campus:
+        normalized = address.replace('(', '（').replace(')', '）').lstrip()
+        if normalized.startswith('（'):
+            note, closing, remainder = normalized[1:].partition('）')
+            if closing and campus in note:
+                address = remainder.strip()
+        address = re.sub(
+            rf'\s*[（(]\s*{re.escape(campus)}\s*[）)]\s*$', '', address
+        )
+        address = re.sub(r'\s+\d{6}$', '', address).strip()
+    if not address:
+        return None
+    return {
+        'campus_hint': campus,
+        'address_text': address,
+        'source_text': raw_text or address,
+        'association_method': ('inline_campus_prefix' if inline_campus else
+                               'page_title' if page_campus else
+                               'dom_context' if campus else 'unmatched'),
+        'extraction_method': evidence.get('extraction_method') or '',
+        'source_region': evidence.get('source_region') or 'body',
+        'visible': bool(evidence.get('visible')),
+    }
+
+
+def build_address_candidates(address_evidence, page_title=''):
+    """把公共地址证据转换为结构化地址候选。"""
+    page_campuses = extract_title_campus_names(page_title)
+    title_campus = page_campuses[0] if page_campuses else ''
+    title_core = re.sub(r'(?:校区|校园)$', '', title_campus).rsplit('校区', 1)[-1]
     candidates = []
     seen = set()
-    for evidence in expanded_evidence:
-        address = str(evidence.get('address_text') or '').strip()
-        if not address:
+    for evidence in expand_address_evidence(address_evidence, title_core):
+        candidate = build_address_candidate(evidence, title_campus, title_core)
+        if candidate is None:
             continue
-        wrapped_campus = ''
-        left, opening, rest = address.replace('(', '（').replace(')', '）').partition('（')
-        inner, closing, tail = rest.partition('）')
-        wrapped_names = extract_campus_names(left) if opening and closing else []
-        if wrapped_names and re.fullmatch(r'\d{6}', tail.strip()):
-            wrapped_campus = wrapped_names[0]
-            address = inner.strip()
-        raw_text = str(evidence.get('raw_text') or '')
-        first_line = normalize_lines(raw_text).splitlines()[0] if raw_text else ''
-        evidence_campus = extract_evidence_campus(evidence)
-        prefix_names = []
-        for line in (address, first_line if not evidence_campus else ''):
-            prefix, separator, _ = line.replace(':', '：').partition('：')
-            prefix = prefix.strip()
-            prefix_names = (
-                extract_campus_names(prefix)
-                if separator and not re.search(r'\d|号', prefix)
-                else []
-            )
-            if prefix_names:
-                break
-        inline_campus = wrapped_campus or (prefix_names[0] if prefix_names else '')
-        campus = inline_campus or evidence_campus
-        page_campus = (title_campus if not campus and title_campus
-                       and (evidence.get('source_region') == 'body'
-                            or title_core in address) else '')
-        campus = campus or page_campus
-        if inline_campus:
-            address_prefix, address_separator, remainder = address.replace(':', '：').partition('：')
-            if address_separator and inline_campus in extract_campus_names(address_prefix):
-                address = remainder.lstrip()
-            elif address.startswith(inline_campus):
-                remainder = address[len(inline_campus):].lstrip()
-                if remainder.startswith(('：', ':')):
-                    address = remainder[1:].lstrip()
-        if campus:
-            normalized = address.replace('(', '（').replace(')', '）').lstrip()
-            if normalized.startswith('（'):
-                note, closing, remainder = normalized[1:].partition('）')
-                if closing and campus in note:
-                    address = remainder.strip()
-            address = re.sub(
-                rf'\s*[（(]\s*{re.escape(campus)}\s*[）)]\s*$', '', address
-            )
-            address = re.sub(r'\s+\d{6}$', '', address).strip()
-        if not address:
-            continue
-        key = (campus, re.sub(r'\s+', '', address))
+        key = (
+            candidate['campus_hint'],
+            re.sub(r'\s+', '', candidate['address_text']),
+        )
         if key in seen:
             continue
         seen.add(key)
-        candidates.append({
-            'campus_hint': campus,
-            'address_text': address,
-            'source_text': raw_text or address,
-            'association_method': ('inline_campus_prefix' if inline_campus else
-                                   'page_title' if page_campus else
-                                   'dom_context' if campus else 'unmatched'),
-            'extraction_method': evidence.get('extraction_method') or '',
-            'source_region': evidence.get('source_region') or 'body',
-            'visible': bool(evidence.get('visible')),
-        })
+        candidates.append(candidate)
     return candidates
 
 
@@ -311,26 +362,254 @@ def build_university_result(common_result):
         'campus_hints': list(dict.fromkeys(hints))[:MAX_CAMPUS_HINTS],
         'related_links': related_links,
         'warnings': warnings,
+        'access_attempts': common_result.get('access_attempts') or [],
     }
 
 
-def fetch_university_page(url, official_domains):
+def fetch_university_page(url, official_domains, fetcher=None, context=None, page=None):
     """抓取高校官网并补充高校专用地址语义。"""
-    common_result = fetch_official_page(
-        url, official_domains,
-        extra_address_labels=('校址', '校区', '校园', '办学地点'),
-    )
+    if fetcher is None:
+        common_result = fetch_official_page(
+            url, official_domains,
+            extra_address_labels=('校址', '校区', '校园', '办学地点'),
+        )
+    else:
+        common_result = fetcher.fetch(
+            url, official_domains,
+            extra_address_labels=('校址', '校区', '校园', '办学地点'),
+            context=context,
+            page=page,
+        )
     return build_university_result(common_result)
 
 
+def build_school_followup_urls(
+    page_result, domains, pending, visited, queued_campuses
+):
+    """把页面返回的相关链接追加为待抓 URL（同域、未访问、未排队）。"""
+    for link in page_result.get('related_links') or []:
+        url = str(link.get('url') or '').strip()
+        campus_names = (
+            extract_campus_link_names(link.get('text'))
+            if str(link.get('link_type') or '') == 'campus'
+            else []
+        )
+        if (
+            url
+            and is_url_in_domains(url, domains)
+            and _normalized_url_key(url) not in visited
+            and (
+                not campus_names
+                or campus_names[0] not in queued_campuses
+            )
+        ):
+            if campus_names:
+                queued_campuses.add(campus_names[0])
+            pending.append(url)
+
+
+def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL):
+    """按固定页面策略抓取一所学校的官网页面。
+
+    先抓 home_url；页面已有非空地址候选即停止。否则依次补抓
+    candidate_urls 与已抓页面返回的同域相关链接，全校最多 max_pages 页。
+    页面访问失败也保留页面对象并计入页数预算。
+    """
+    home_url = str(school_item.get('home_url') or '').strip()
+    official_domains = [
+        normalize_domain(domain)
+        for domain in school_item.get('official_domains') or []
+    ]
+    official_domains = sorted({domain for domain in official_domains if domain})
+    if not home_url or not is_url_in_domains(home_url, official_domains):
+        raise ValueError('school_item 必须包含属于 official_domains 的 home_url')
+
+    pending = [home_url]
+    home_key = _normalized_url_key(home_url)
+    pending.extend(
+        str(url).strip()
+        for url in school_item.get('candidate_urls') or []
+        if is_url_in_domains(str(url).strip(), official_domains)
+        and _normalized_url_key(str(url).strip()) != home_key
+    )
+    visited = set()
+    queued_campuses = set()
+    pages = []
+    effective_max_pages = max_pages
+    campus_expanded = False
+    while pending and len(pages) < effective_max_pages:
+        url = pending.pop(0)
+        url_key = _normalized_url_key(url)
+        if url_key in visited:
+            continue
+        visited.add(url_key)
+        page_result = fetch_page(url, official_domains)
+        pages.append(page_result)
+        if has_usable_address_candidate(page_result):
+            break
+        if not campus_expanded and has_campus_expansion_signal(page_result):
+            campus_expanded = True
+            effective_max_pages = max(
+                effective_max_pages, EXPANDED_MAX_PAGES_PER_SCHOOL
+            )
+        build_school_followup_urls(
+            page_result, official_domains, pending, visited, queued_campuses
+        )
+    if not pages:
+        raise ValueError('school_item 未抓取到任何页面')
+    return pages
+
+
+def run_school_batch(school_items, output_dir, max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL):
+    """按固定策略抓取一个批次学校，并把完整页面对象原子写入单校结果。"""
+    if not isinstance(max_pages, int) or max_pages < 1:
+        raise ValueError('max_pages 必须是大于 0 的整数')
+    output_dir = Path(output_dir).resolve()
+    school_results_dir = output_dir / 'school_results'
+    summaries = []
+    with OfficialPageFetcher() as fetcher:
+        for school_item in school_items:
+            school_identifier = str(
+                school_item.get('school_identifier') or ''
+            ).strip()
+            summary = {
+                'school_identifier': school_identifier,
+                'processing_status': 'completed',
+                'page_count': 0,
+                'has_address_candidate': False,
+                'error': '',
+            }
+            try:
+                if not school_identifier:
+                    raise ValueError('school_item 必须包含 school_identifier')
+                context = fetcher.new_context()
+                try:
+                    page = context.new_page()
+                    pages = fetch_school_pages(
+                        school_item,
+                        lambda url, domains: fetch_university_page(
+                            url,
+                            domains,
+                            fetcher=fetcher,
+                            context=context,
+                            page=page,
+                        ),
+                        max_pages=max_pages,
+                    )
+                finally:
+                    context.close()
+                write_json_payload(
+                    school_results_dir / f'{school_identifier}.json',
+                    {
+                        'school_identifier': school_identifier,
+                        'processing_status': 'completed',
+                        'pages': pages,
+                    },
+                )
+                summary.update({
+                    'page_count': len(pages),
+                    'has_address_candidate': any(
+                        has_usable_address_candidate(page) for page in pages
+                    ),
+                })
+            except Exception as error:
+                summary.update({
+                    'processing_status': 'error',
+                    'error': str(error),
+                })
+            summaries.append(summary)
+    return summaries
+
+
+def run_session(input_stream=sys.stdin, output_stream=sys.stdout):
+    """复用一个 Chromium，按学校复用浏览器上下文逐页抓取。"""
+    with OfficialPageFetcher() as fetcher:
+        school_context = None
+        school_page = None
+        current_school = None
+        try:
+            for line in input_stream:
+                if not line.strip():
+                    continue
+                request = json.loads(line)
+                school_identifier = str(
+                    request.get('school_identifier') or ''
+                ).strip()
+                context = school_context
+                page = school_page
+                owns_context = False
+                if not school_identifier:
+                    # 无学校标识的请求保持每页独立上下文。
+                    context = fetcher.new_context()
+                    page = context.new_page()
+                    owns_context = True
+                elif school_identifier != current_school:
+                    if school_context is not None:
+                        school_context.close()
+                    school_context = fetcher.new_context()
+                    school_page = school_context.new_page()
+                    context = school_context
+                    page = school_page
+                    current_school = school_identifier
+                try:
+                    result = fetch_university_page(
+                        request['url'],
+                        request['official_domains'],
+                        fetcher=fetcher,
+                        context=context,
+                        page=page,
+                    )
+                finally:
+                    if owns_context:
+                        context.close()
+                print(
+                    json.dumps(result, ensure_ascii=False),
+                    file=output_stream,
+                    flush=True,
+                )
+        finally:
+            if school_context is not None:
+                school_context.close()
+
+
 def main():
-    """解析参数并输出单个高校官网页面结果。"""
-    parser = argparse.ArgumentParser(description='抓取高校官网页面并提取地址候选')
-    parser.add_argument('url')
-    parser.add_argument('--official-domain', action='append', required=True)
+    """解析参数并启动官网抓取会话。"""
+    parser = argparse.ArgumentParser(
+        description='抓取高校官网页面并提取地址候选'
+    )
+    parser.add_argument('--session', action='store_true')
+    parser.add_argument('--school-batch', help='批量学校清单 JSON 文件路径')
+    parser.add_argument('--output-dir', help='批量模式下写入 school_results 的运行目录')
+    parser.add_argument(
+        '--max-pages',
+        type=int,
+        default=DEFAULT_MAX_PAGES_PER_SCHOOL,
+        help='每所学校最多抓取页数（默认 3）',
+    )
     args = parser.parse_args()
-    domains = sorted({item for item in map(normalize_domain, args.official_domain) if item})
-    print(json.dumps(fetch_university_page(args.url, domains), ensure_ascii=False))
+    try:
+        if args.school_batch:
+            if not args.output_dir:
+                parser.error('--school-batch 必须配合 --output-dir 使用')
+            batch_payload = read_json_payload(args.school_batch)
+            school_items = batch_payload.get('items')
+            if not isinstance(school_items, list):
+                raise ValueError('批量学校清单 items 必须是数组')
+            summaries = run_school_batch(
+                school_items,
+                args.output_dir,
+                max_pages=args.max_pages,
+            )
+            print(json.dumps({
+                'stage': 'university_fetch_batch',
+                'items': summaries,
+            }, ensure_ascii=False))
+            return
+        if not args.session:
+            parser.error('必须使用 --session 或 --school-batch 启动抓取')
+        run_session()
+    except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError) as error:
+        parser.error(str(error))
 
 
 if __name__ == '__main__':

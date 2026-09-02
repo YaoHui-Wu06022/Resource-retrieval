@@ -1,2 +1,23 @@
 .env
 output/
+
+# Python 缓存与构建产物
+__pycache__/
+*.py[cod]
+.pytest_cache/
+build/
+dist/
+*.egg-info/
+*.whl
+
+# IDE 与编辑器
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# 日志与临时文件
+*.log
+debug.log
+tmp/
+*.tmp

@@ -11,6 +11,7 @@ if str(COMPONENT_DIR) not in sys.path:
 
 from query_city_core.city import read_city_catalog  # noqa: E402
 from query_city_core.address.normalize import (  # noqa: E402
+    detect_city_prefix,
     normalize_address_payload,
     normalize_address_text,
     normalize_address_value,
@@ -28,14 +29,14 @@ def build_record(address, name='测试地点', source='web_search'):
     }
 
 
-def build_city_context(city='广州市', province='广东省'):
+def build_city_context(city='广州市', province='广东省', subdivisions=None):
     """构造地址批次使用的完整城市上下文。"""
     return {
         'stage': 'city_context',
         'input_city': city,
         'city_name': city,
         'province_name': province,
-        'subdivisions': [],
+        'subdivisions': subdivisions or [],
     }
 
 
@@ -174,6 +175,146 @@ class NormalizeAddressTests(unittest.TestCase):
         self.assertEqual(result['normalized_address'], '')
         self.assertEqual(result['normalization_status'], 'conflict')
 
+    def test_district_outside_city_subdivisions_conflicts(self):
+        """区县不在目标城市下级行政区中时按异地排除。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [
+                {'name': '天河区', 'adcode': '440106', 'level': 'district'},
+                {'name': '番禺区', 'adcode': '440113', 'level': 'district'},
+            ],
+        )
+        result = normalize_address_value(
+            '南山区科技园路1号',
+            context,
+        )
+        self.assertEqual(result['normalized_address'], '')
+        self.assertEqual(result['normalization_status'], 'conflict')
+        self.assertIn('不属于目标城市', result['normalization_reason'])
+
+        county_result = normalize_address_value(
+            '博罗县罗阳街道双龙大道1号',
+            context,
+        )
+        self.assertEqual(county_result['normalization_status'], 'conflict')
+
+    def test_district_inside_city_subdivisions_is_complete(self):
+        """区县在目标城市下级行政区中时正常补城市名。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [
+                {'name': '天河区', 'adcode': '440106', 'level': 'district'},
+                {'name': '番禺区', 'adcode': '440113', 'level': 'district'},
+            ],
+        )
+        result = normalize_address_value(
+            '天河区珠江新城华穗路1号',
+            context,
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市天河区珠江新城华穗路1号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+    def test_street_only_without_district_stays_partial_for_map(self):
+        """只有具体道路没有区县的地址保持部分状态交给地图补充。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [
+                {'name': '天河区', 'adcode': '440106', 'level': 'district'},
+            ],
+        )
+        result = normalize_address_value(
+            '黄埔大道西601号',
+            context,
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市黄埔大道西601号',
+        )
+        self.assertEqual(result['normalization_status'], 'partial')
+        self.assertEqual(result['normalization_reason'], '地址缺少下级行政区')
+
+    def test_city_without_district_accepts_street_as_admin_unit(self):
+        """不设区县的城市把街道或镇视为行政区层级。"""
+        context = build_city_context(
+            '东莞市',
+            '广东省',
+            [
+                {'name': '南城街道', 'adcode': '441900004', 'level': 'street'},
+                {'name': '长安镇', 'adcode': '441900109', 'level': 'street'},
+            ],
+        )
+        result = normalize_address_value('南城街道宏图路1号', context)
+        self.assertEqual(
+            result['normalized_address'],
+            '东莞市南城街道宏图路1号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+        town_result = normalize_address_value('长安镇霄边大街1号', context)
+        self.assertEqual(
+            town_result['normalized_address'],
+            '东莞市长安镇霄边大街1号',
+        )
+        self.assertEqual(town_result['normalization_status'], 'complete')
+
+    def test_city_without_district_missing_street_is_partial(self):
+        """不设区县的城市缺少街道或镇时保持部分状态交给地图。"""
+        context = build_city_context(
+            '东莞市',
+            '广东省',
+            [{'name': '南城街道', 'adcode': '441900004', 'level': 'street'}],
+        )
+        street_only = normalize_address_value('南城街道', context)
+        self.assertEqual(street_only['normalization_status'], 'partial')
+        self.assertEqual(
+            street_only['normalization_reason'],
+            '地址缺少行政区之后的具体位置',
+        )
+        road_only = normalize_address_value('宏图路1号', context)
+        self.assertEqual(road_only['normalization_status'], 'partial')
+        self.assertEqual(road_only['normalization_reason'], '地址缺少下级行政区')
+
+    def test_street_without_district_in_districted_city_is_partial(self):
+        """有区县的城市出现街道漏写区县时保持部分状态交给地图。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [{'name': '天河区', 'adcode': '440106', 'level': 'district'}],
+        )
+        result = normalize_address_value(
+            '新港街道新港西路179号',
+            context,
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市新港街道新港西路179号',
+        )
+        self.assertEqual(result['normalization_status'], 'partial')
+        self.assertEqual(result['normalization_reason'], '地址缺少下级行政区')
+
+    def test_short_admin_name_matches_subdivision_prefix(self):
+        """下级行政区简称按目录名称前缀匹配。"""
+        context = build_city_context(
+            '中山市',
+            '广东省',
+            [
+                {'name': '西区街道', 'adcode': '442000005', 'level': 'street'},
+                {'name': '石岐街道', 'adcode': '442000001', 'level': 'street'},
+            ],
+        )
+        result = normalize_address_value('西区富华道1号', context)
+        self.assertEqual(
+            result['normalized_address'],
+            '中山市西区富华道1号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
     def test_campus_label_before_target_unit_is_removed(self):
         """校区标签和城市简称不能遮蔽后续可信区县。"""
         result = normalize_address_value(
@@ -250,6 +391,129 @@ class NormalizeAddressTests(unittest.TestCase):
         result = self.normalize('广州市', '惠州市博罗县双龙大道1号')
         self.assertEqual(result['normalized_address'], '')
         self.assertEqual(result['normalization_status'], 'conflict')
+
+    def test_foreign_city_full_name_without_district_conflicts(self):
+        """外地市全名即使没有区县也按城市归属排除。"""
+        result = self.normalize('广州市', '深圳市科技园南路1号')
+        self.assertEqual(result['normalized_address'], '')
+        self.assertEqual(result['normalization_status'], 'conflict')
+        self.assertEqual(result['resolved_city'], '深圳市')
+
+    def test_foreign_city_short_name_with_district_conflicts(self):
+        """城市简称后接区县时按城市目录识别为异地。"""
+        result = self.normalize('广州市', '深圳南山区科技园路1号')
+        self.assertEqual(result['normalized_address'], '')
+        self.assertEqual(result['normalization_status'], 'conflict')
+        self.assertEqual(result['resolved_city'], '深圳市')
+
+    def test_municipality_short_name_with_district_conflicts(self):
+        """直辖市简称后接区县时识别为异地。"""
+        result = self.normalize('广州市', '上海浦东新区世纪大道1号')
+        self.assertEqual(result['normalized_address'], '')
+        self.assertEqual(result['normalization_status'], 'conflict')
+        self.assertEqual(result['resolved_city'], '上海市')
+
+    def test_foreign_city_campus_name_in_place_name_conflicts(self):
+        """地点名称含异地城市校区时无需地址文本也按异地排除。"""
+        record = build_record('', '广州软件学院江门校区')
+        record['attributes'] = {'campus_name': '江门校区'}
+        result = normalize_address_payload(
+            {
+                'stage': 'address_records',
+                'city_context': build_city_context(),
+                'items': [record],
+            },
+        )
+        item = result['items'][0]
+        self.assertEqual(item['normalized_address'], '')
+        self.assertEqual(item['normalization_status'], 'conflict')
+        self.assertEqual(item['resolved_city'], '江门市')
+        self.assertIn('江门市', item['normalization_reason'])
+
+    def test_target_city_address_overrides_foreign_campus_name(self):
+        """官方地址能落到目标城市时，校区名中的异地简称不得判冲突。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [{'name': '天河区', 'adcode': '440106', 'level': 'district'}],
+        )
+        record = build_record(
+            '天河区东方二路1号', '广州市第一一三中学东方校区'
+        )
+        record['attributes'] = {
+            'administrative_unit': '天河区',
+            'campus_name': '东方校区',
+        }
+        result = normalize_address_payload(
+            {
+                'stage': 'address_records',
+                'city_context': context,
+                'items': [record],
+            },
+        )
+        item = result['items'][0]
+        self.assertEqual(
+            item['normalized_address'], '广州市天河区东方二路1号'
+        )
+        self.assertEqual(item['normalization_status'], 'complete')
+        self.assertEqual(item['resolved_city'], '广州市')
+        self.assertNotIn('异地', item['normalization_reason'])
+
+    def test_partial_target_city_address_overrides_foreign_campus_name(self):
+        """只有目标区县的部分地址也不因校区名中的异地简称判冲突。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            [{'name': '天河区', 'adcode': '440106', 'level': 'district'}],
+        )
+        record = build_record('天河区', '示例学校东方校区')
+        record['attributes'] = {
+            'administrative_unit': '天河区',
+            'campus_name': '东方校区',
+        }
+        result = normalize_address_payload(
+            {
+                'stage': 'address_records',
+                'city_context': context,
+                'items': [record],
+            },
+        )
+        item = result['items'][0]
+        self.assertEqual(item['normalized_address'], '广州市天河区')
+        self.assertEqual(item['normalization_status'], 'partial')
+        self.assertNotIn('异地', item['normalization_reason'])
+
+    def test_target_city_campus_name_is_not_foreign(self):
+        """目标城市校区名与校名中的城市简称不得误判为异地。"""
+        record = build_record('', '中山大学广州校区')
+        record['attributes'] = {'campus_name': '广州校区'}
+        result = normalize_address_payload(
+            {
+                'stage': 'address_records',
+                'city_context': build_city_context(),
+                'items': [record],
+            },
+        )
+        item = result['items'][0]
+        self.assertEqual(item['normalization_status'], 'empty')
+        self.assertNotIn('异地', item['normalization_reason'])
+
+    def test_place_name_with_city_suffix_not_mistaken_for_foreign_city(self):
+        """含地区、市场等城市后缀词的地点不得误判为异地城市。"""
+        result = self.normalize('北京市', '朝阳区常营回族地区朝阳路1号')
+        self.assertEqual(
+            result['normalized_address'],
+            '北京市朝阳区常营回族地区朝阳路1号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+    def test_detect_city_prefix_strips_any_province(self):
+        """外省前缀不应混入返回的城市名称。"""
+        self.assertEqual(
+            detect_city_prefix('湖北省武汉市武昌区珞珈山路1号'),
+            '武汉市',
+        )
+        self.assertEqual(detect_city_prefix('深圳南山区科技园路1号'), '深圳市')
 
     def test_label_postcode_and_contact_are_removed(self):
         """地址标签、邮编和联系方式不进入规范地址。"""

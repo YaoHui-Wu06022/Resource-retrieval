@@ -14,6 +14,7 @@ from source_readers import (
     normalize_text,
 )
 from query_city_core.city import validate_city_context
+from query_city_core.io_utils import read_json_payload
 
 
 PLACE_HEADERS = ('学校名称', '幼儿园名称', '园所名称', '机构名称', '校名')
@@ -51,26 +52,12 @@ SOURCE_ITEM_FIELDS = {
     'covered_school_types',
     'contains_address',
     'local_files',
+    'local_file_urls',
     'derived_files',
 }
-REQUIRED_SOURCE_ITEM_FIELDS = SOURCE_ITEM_FIELDS - {'derived_files'}
-
-
-def read_json_object(json_path: Path) -> dict[str, Any]:
-    """读取 UTF-8 JSON 对象。"""
-    with json_path.open(encoding='utf-8') as stream:
-        json_object = json.load(stream)
-    if not isinstance(json_object, dict):
-        raise ValueError(f'JSON 顶层必须是对象：{json_path}')
-    return json_object
-
-
-def write_json_object(json_path: Path, json_object: dict[str, Any]) -> None:
-    """写入格式稳定的 UTF-8 JSON。"""
-    json_path.parent.mkdir(parents=True, exist_ok=True)
-    with json_path.open('w', encoding='utf-8', newline='\n') as stream:
-        json.dump(json_object, stream, ensure_ascii=False, indent=2)
-        stream.write('\n')
+REQUIRED_SOURCE_ITEM_FIELDS = SOURCE_ITEM_FIELDS - {
+    'derived_files', 'local_file_urls'
+}
 
 
 def validate_source_manifest(
@@ -182,6 +169,21 @@ def validate_source_manifest(
                     f'items[{source_index}].{field_name} '
                     + ('必须是字符串数组' if allow_empty else '必须是非空字符串数组')
                 )
+        local_file_urls = source_item.get('local_file_urls') or {}
+        if (
+            not isinstance(local_file_urls, dict)
+            or any(
+                not isinstance(file_name, str)
+                or file_name not in source_item['local_files']
+                or not isinstance(source_url, str)
+                or not source_url.strip()
+                for file_name, source_url in local_file_urls.items()
+            )
+        ):
+            raise ValueError(
+                f'items[{source_index}].local_file_urls '
+                '必须把 local_files 中的文件名映射到非空网址'
+            )
 
     required_coverage = [
         school_type_coverage[school_type]
@@ -312,6 +314,19 @@ def infer_table_rule(
             for data_row in table_rows[header_index:]
         ):
             fill_down_columns.append(place_columns[0])
+        nature_column = (
+            school_nature_columns[0] if school_nature_columns else None
+        )
+        if (
+            nature_column
+            and nature_column not in fill_down_columns
+            and any(
+                not read_table_cell(data_row, nature_column)
+                and read_table_cell(data_row, place_columns[0])
+                for data_row in table_rows[header_index:]
+            )
+        ):
+            fill_down_columns.append(nature_column)
         return {
             'file': file_name,
             'kind': structure_kind,
@@ -336,6 +351,79 @@ def infer_table_rule(
             'approved': False,
         }
     return None
+
+
+def infer_html_key_value_rule(
+    table_rows: list[list[str]], file_name: str
+) -> dict[str, Any] | None:
+    """识别学校详情页中纵向排列的字段和值。"""
+    key_value_rows = [
+        row for row in table_rows
+        if len(row) >= 2 and normalize_text(row[0]) and normalize_text(row[1])
+    ]
+    labels = [normalize_text(row[0]) for row in key_value_rows]
+    place_labels = [label for label in labels if is_place_name_header(label)]
+    address_labels = [label for label in labels if is_address_header(label)]
+    if not place_labels or not address_labels:
+        return None
+    school_type_labels = [
+        label for label in labels if is_school_type_header(label)
+    ]
+    school_nature_labels = [
+        label for label in labels if is_school_nature_header(label)
+    ]
+    return {
+        'file': file_name,
+        'kind': 'html_key_value',
+        'place_name_labels': list(dict.fromkeys(place_labels)),
+        'original_address_labels': list(dict.fromkeys(address_labels)),
+        'school_type_labels': list(dict.fromkeys(school_type_labels)),
+        'school_type_value': '',
+        'school_nature_labels': list(dict.fromkeys(school_nature_labels)),
+        'school_nature_value': '',
+        'approved': False,
+    }
+
+
+def consolidate_html_key_value_rules(
+    suggested_rules: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """把同一目录下结构相同的详情页规则合并为一个文件模式。"""
+    grouped_rules: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    passthrough_rules = []
+    for suggested_rule in suggested_rules:
+        if suggested_rule.get('kind') != 'html_key_value':
+            passthrough_rules.append(suggested_rule)
+            continue
+        rule_signature = {
+            key: value for key, value in suggested_rule.items()
+            if key != 'file'
+        }
+        grouped_rules[json.dumps(
+            rule_signature, ensure_ascii=False, sort_keys=True
+        )].append(suggested_rule)
+    for rule_group in grouped_rules.values():
+        if len(rule_group) == 1:
+            passthrough_rules.extend(rule_group)
+            continue
+        rule_files = [Path(rule['file']) for rule in rule_group]
+        parent_paths = {rule_file.parent.as_posix() for rule_file in rule_files}
+        suffixes = {rule_file.suffix.lower() for rule_file in rule_files}
+        if len(parent_paths) != 1 or len(suffixes) != 1:
+            passthrough_rules.extend(rule_group)
+            continue
+        consolidated_rule = {
+            key: value for key, value in rule_group[0].items()
+            if key != 'file'
+        }
+        parent_path = next(iter(parent_paths))
+        file_pattern = f'*{next(iter(suffixes))}'
+        consolidated_rule['file_pattern'] = (
+            f'{parent_path}/{file_pattern}'
+            if parent_path != '.' else file_pattern
+        )
+        passthrough_rules.append(consolidated_rule)
+    return passthrough_rules
 
 
 def collect_repeated_html_candidates(
@@ -389,6 +477,10 @@ def collect_repeated_html_candidates(
                 bool(re.search(
                     r'(?:学校|幼儿园|小学|中学|校区|教学点)', cell_text
                 ))
+                and not any(
+                    label in cell_text
+                    for label in ('学校类别', '学校性质', '上级主管部门')
+                )
                 for cell_text in column
             )
             for column in columns
@@ -417,9 +509,25 @@ def collect_repeated_html_candidates(
             'row_selector': tag + ''.join(f'.{escape(name)}' for name in classes),
             'place_name_selector': f':scope > :nth-child({place_index + 1})',
             'original_address_selector': f':scope > :nth-child({address_index + 1})',
-            'school_type_selector': '',
+            'school_type_selector': (
+                'li:-soup-contains("学校类别")'
+                if sum(
+                    element.select_one(
+                        'li:-soup-contains("学校类别")'
+                    ) is not None
+                    for element in elements[:8]
+                ) >= threshold else ''
+            ),
             'school_type_value': '',
-            'school_nature_selector': '',
+            'school_nature_selector': (
+                'li:-soup-contains("学校性质")'
+                if sum(
+                    element.select_one(
+                        'li:-soup-contains("学校性质")'
+                    ) is not None
+                    for element in elements[:8]
+                ) >= threshold else ''
+            ),
             'school_nature_value': '',
             'exclude_rows': [],
             'approved': False,
@@ -436,6 +544,7 @@ def inspect_source_file(
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """检查一个来源文件并生成规则建议。"""
     tables, inspection_metadata = load_source_tables(source_path)
+    file_format = detect_source_format(source_path)
     structures = []
     suggested_rules = []
     for table in tables:
@@ -447,6 +556,11 @@ def inspect_source_file(
             'column_count': max((len(row) for row in rows), default=0),
             'preview_rows': rows[:8],
         })
+        if file_format == 'html':
+            key_value_rule = infer_html_key_value_rule(rows, file_name)
+            if key_value_rule:
+                suggested_rules.append(key_value_rule)
+                continue
         suggested_rule = infer_table_rule(
             rows, file_name, table['kind'], table['location']
         )
@@ -454,7 +568,7 @@ def inspect_source_file(
             suggested_rules.append(suggested_rule)
     repeated_blocks = []
     text_preview = ''
-    if detect_source_format(source_path) == 'html':
+    if file_format == 'html':
         repeated_blocks, repeated_rules, text_preview = (
             collect_repeated_html_candidates(source_path, file_name)
         )
@@ -479,7 +593,7 @@ def build_extraction_plan(
     input_path: Path, output_path: Path
 ) -> tuple[dict[str, Any], int]:
     """检查来源清单并生成提取计划。"""
-    source_manifest = read_json_object(input_path)
+    source_manifest = read_json_payload(input_path)
     city_context, administrative_unit, source_items = validate_source_manifest(
         source_manifest
     )
@@ -496,6 +610,7 @@ def build_extraction_plan(
             raise ValueError('derived_files 必须是数组')
         inspected_files = []
         extraction_rules = []
+        local_file_urls = source.get('local_file_urls') or {}
         for raw_file_name in local_files + derived_files:
             file_name = normalize_text(raw_file_name)
             try:
@@ -503,6 +618,10 @@ def build_extraction_plan(
                 inspection, suggested_rules = inspect_source_file(
                     source_path, file_name
                 )
+                if file_name in local_file_urls:
+                    inspection['source_url'] = normalize_text(
+                        local_file_urls[file_name]
+                    )
                 extraction_rules.extend(suggested_rules)
             except Exception as exc:
                 error_count += 1
@@ -513,6 +632,20 @@ def build_extraction_plan(
                 }
             status_counts[inspection['inspection_status']] += 1
             inspected_files.append(inspection)
+        extraction_rules = consolidate_html_key_value_rules(extraction_rules)
+        covered_school_types = source.get('covered_school_types') or []
+        if len(covered_school_types) == 1:
+            suggested_school_type = normalize_text(covered_school_types[0])
+            for extraction_rule in extraction_rules:
+                if (
+                    'school_type_value' not in extraction_rule
+                    or extraction_rule.get('school_type_value')
+                    or extraction_rule.get('school_type_column')
+                    or extraction_rule.get('school_type_selector')
+                    or extraction_rule.get('school_type_labels')
+                ):
+                    continue
+                extraction_rule['school_type_value'] = suggested_school_type
         source_plans.append({
             'source_title': normalize_text(source.get('source_title')),
             'publisher': normalize_text(source.get('publisher')),

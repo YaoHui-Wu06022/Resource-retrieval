@@ -1,30 +1,51 @@
 """抓取机构官网页面并输出通用地址证据。"""
 
 import re
+import time
 from urllib.parse import urlparse
+from .access import (
+    BROWSER_HEADERS,
+    USER_AGENT,
+    fetch_direct_content,
+    is_url_in_domains,
+    normalize_domain,
+)
 
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 from playwright.sync_api import sync_playwright
 
 
-USER_AGENT = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-              'AppleWebKit/537.36 Chrome/151.0.0.0 Safari/537.36')
+CHROME_ARGS = ['--disable-blink-features=AutomationControlled']
 
 
-def normalize_domain(value):
-    """规范化官方域名。"""
-    value = str(value or '').strip().lower().rstrip('.')
-    return (urlparse(value).hostname or '').lower().rstrip('.') if '://' in value else value
-
-
-def is_url_in_domains(url, domains):
-    """判断 URL 是否属于任一官方域名。"""
-    parsed = urlparse(url)
-    if parsed.scheme not in {'http', 'https'} or not parsed.hostname:
-        return False
-    host = parsed.hostname.lower().rstrip('.')
-    return any(host == domain or host.endswith('.' + domain) for domain in domains)
+def decode_html_content(content, http_charset=''):
+    """按 BOM、HTTP 头或 HTML 声明的字符集解码直连 HTML，最后回退到 UTF-8。"""
+    raw = bytes(content or b'')
+    if raw.startswith(b'\xef\xbb\xbf'):
+        return raw.decode('utf-8-sig', errors='replace')
+    if raw.startswith((b'\xff\xfe', b'\xfe\xff')):
+        return raw.decode('utf-16', errors='replace')
+    head = raw[:8192].decode('ascii', errors='ignore')
+    match = re.search(
+        r'<meta[^>]+charset\s*=\s*["\']?\s*([\w-]+)', head,
+        re.IGNORECASE,
+    )
+    if not match:
+        match = re.search(
+            r'content-type[^>]+charset\s*=\s*["\']?\s*([\w-]+)',
+            head,
+            re.IGNORECASE,
+        )
+    encoding = (
+        str(http_charset or '').strip()
+        or (match.group(1) if match else '')
+        or 'utf-8'
+    )
+    try:
+        return raw.decode(encoding, errors='replace')
+    except LookupError:
+        return raw.decode('utf-8', errors='replace')
 
 
 def normalize_lines(value):
@@ -51,7 +72,10 @@ def fetch_browser_page(page, url):
             pass
         break
 
-    api_response = page.request.get(url, timeout=40000)
+    api_response = page.request.get(
+        url, timeout=40000,
+        headers={'User-Agent': USER_AGENT, **BROWSER_HEADERS},
+    )
     fallback_url = api_response.url
 
     def fulfill_document_only(route):
@@ -75,6 +99,27 @@ def fetch_browser_page(page, url):
 def format_page_error(error):
     """将页面访问异常压缩为单行警告。"""
     return f'页面访问失败：{normalize_lines(str(error)).replace(chr(10), " | ")}'
+
+
+class HttpResponseShim:
+    """为直连 HTML 回填提供 Playwright 响应所需的状态字段。"""
+
+    def __init__(self, status, url, access_attempts=()):
+        self.status = status
+        self.url = url
+        self.access_attempts = list(access_attempts)
+
+
+def fetch_http_page(page, url, preferred_method=None):
+    """通过 urllib 或 curl 获取 HTML 并回填当前页面。"""
+    body, final_url, status, attempts, charset = fetch_direct_content(
+        url, preferred_method=preferred_method,
+    )
+    page.set_content(
+        decode_html_content(body, charset),
+        wait_until='domcontentloaded',
+    )
+    return HttpResponseShim(status, final_url, attempts)
 
 
 def collect_official_page_data(page, extra_address_labels=()):
@@ -266,27 +311,134 @@ def build_page_result(requested_url, domains, **values):
               'requested_url': requested_url, 'final_url': '', 'http_status': None,
               'page_status': 'error', 'title': '', 'official_domains': domains,
               'address_evidence': [], 'links': [], 'warnings': []}
+    result['access_attempts'] = []
     result.update(values)
     return result
 
 
-def fetch_official_page(url, official_domains, extra_address_labels=()):
-    """抓取单个官方页面并返回通用地址证据。"""
-    domains = sorted({item for item in map(normalize_domain, official_domains) if item})
-    if not domains or not is_url_in_domains(url, domains):
-        raise ValueError('请求 URL 或官方域名无效')
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch(headless=True)
+class OfficialPageFetcher:
+    """复用 Chromium，并为每所学校建立隔离浏览器上下文。"""
+
+    def __init__(self):
+        self.playwright = None
+        self.browser = None
+        self._domain_preferences = {}
+
+    def __enter__(self):
+        self.playwright = sync_playwright().start()
         try:
-            page = browser.new_page(user_agent=USER_AGENT)
+            # 优先使用本机 Chrome，减少中国站点对内置 Chromium 指纹的误判。
+            self.browser = self.playwright.chromium.launch(
+                channel='chrome', headless=True, args=CHROME_ARGS,
+            )
+        except Exception:
+            # 没有 Chrome 通道时回退到 Playwright 自带 Chromium。
             try:
-                response = fetch_browser_page(page, url)
+                self.browser = self.playwright.chromium.launch(
+                    headless=True, args=CHROME_ARGS,
+                )
+            except Exception:
+                self.playwright.stop()
+                self.playwright = None
+                raise
+        return self
+
+    def new_context(self):
+        """创建固定指纹的浏览器上下文。"""
+        return self.browser.new_context(
+            user_agent=USER_AGENT,
+            extra_http_headers=BROWSER_HEADERS,
+            locale='zh-CN',
+            timezone_id='Asia/Shanghai',
+        )
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.browser is not None:
+            self.browser.close()
+            self.browser = None
+        if self.playwright is not None:
+            self.playwright.stop()
+            self.playwright = None
+
+    def fetch(self, url, official_domains, extra_address_labels=(),
+              context=None, page=None):
+        """实时抓取一个官方页面，并在返回前关闭该页的独立上下文。"""
+        if self.browser is None:
+            raise RuntimeError('OfficialPageFetcher 必须在 with 语句中使用')
+        domains = sorted({
+            item for item in map(normalize_domain, official_domains) if item
+        })
+        if not domains or not is_url_in_domains(url, domains):
+            raise ValueError('请求 URL 或官方域名无效')
+        owns_context = context is None
+        context = context or self.new_context()
+        try:
+            page = page or context.new_page()
+            access_attempts = []
+            try:
+                started = time.monotonic()
+                try:
+                    response = fetch_browser_page(page, url)
+                    if response is not None and response.status >= 400:
+                        raise RuntimeError(f'页面返回 HTTP {response.status}')
+                    access_attempts.append({
+                        'method': 'playwright', 'url': url,
+                        'final_url': page.url, 'http_status': response.status if response else None,
+                        'success': True, 'error': '',
+                        'elapsed_ms': round((time.monotonic() - started) * 1000),
+                    })
+                except Exception as browser_error:
+                    browser_status = getattr(locals().get('response'), 'status', None)
+                    access_attempts.append({
+                        'method': 'playwright', 'url': url, 'final_url': page.url,
+                        'http_status': browser_status, 'success': False,
+                        'error': format_page_error(browser_error),
+                        'elapsed_ms': round((time.monotonic() - started) * 1000),
+                    })
+                    started = time.monotonic()
+                    try:
+                        host = (urlparse(url).hostname or '').lower().rstrip('.')
+                        preferred_method = (
+                            self._domain_preferences.get(host)
+                            if browser_status not in {403, 404}
+                            else 'curl'
+                        )
+                        response = fetch_http_page(
+                            page, url, preferred_method=preferred_method,
+                        )
+                        direct_attempts = getattr(response, 'access_attempts', ())
+                        if direct_attempts:
+                            access_attempts.extend(direct_attempts)
+                        else:
+                            access_attempts.append({
+                                'method': 'urllib_or_curl', 'url': url,
+                                'final_url': response.url, 'http_status': response.status,
+                                'success': True, 'error': '',
+                                'elapsed_ms': round((time.monotonic() - started) * 1000),
+                            })
+                        successful_direct = next(
+                            (item for item in reversed(access_attempts)
+                             if item.get('success') and item.get('method') in {'urllib', 'curl'}),
+                            None,
+                        )
+                        if successful_direct is not None:
+                            self._domain_preferences[host] = successful_direct['method']
+                    except Exception as http_error:
+                        access_attempts.append({
+                            'method': 'urllib_or_curl', 'url': url,
+                            'final_url': '', 'http_status': None, 'success': False,
+                            'error': format_page_error(http_error),
+                            'elapsed_ms': round((time.monotonic() - started) * 1000),
+                        })
+                        raise browser_error
                 status = response.status if response else None
-                if not is_url_in_domains(page.url, domains):
-                    raise ValueError(f'跳转后的最终 URL 不属于已确认的官方域名：{page.url}')
+                resolved_url = response.url or page.url
+                if not is_url_in_domains(resolved_url, domains):
+                    raise ValueError(f'跳转后的最终 URL 不属于已确认的官方域名：{resolved_url}')
                 if status is not None and status >= 400:
-                    return build_page_result(url, domains, final_url=page.url,
+                    return build_page_result(url, domains, final_url=resolved_url,
                         http_status=status, page_status='http_error', title=page.title(),
+                        access_attempts=access_attempts,
                         warnings=[f'页面返回 HTTP {status}'])
                 page.wait_for_timeout(800)
                 data = collect_official_page_data(page, extra_address_labels)
@@ -294,11 +446,42 @@ def fetch_official_page(url, official_domains, extra_address_labels=()):
                     page.wait_for_timeout(1500)
                     data = collect_official_page_data(page, extra_address_labels)
                 warnings = [] if data['address_evidence'] else ['未发现可靠地址证据']
-                return build_page_result(url, domains, final_url=page.url,
+                return build_page_result(url, domains, final_url=resolved_url,
                     http_status=status, page_status='ok', title=page.title(),
                     address_evidence=data['address_evidence'], links=data['links'],
+                    access_attempts=access_attempts,
                     warnings=warnings)
-            except (PlaywrightError, ValueError) as error:
-                return build_page_result(url, domains, warnings=[format_page_error(error)])
+            except Exception as error:
+                return build_page_result(
+                    url, domains, access_attempts=access_attempts,
+                    warnings=[format_page_error(error)],
+                )
         finally:
-            browser.close()
+            if owns_context:
+                context.close()
+
+    def fetch_pages(self, page_requests, extra_address_labels=()):
+        """顺序抓取同一学校的多页，复用一个 context 和 page。"""
+        if self.browser is None:
+            raise RuntimeError('OfficialPageFetcher 必须在 with 语句中使用')
+        context = self.new_context()
+        try:
+            page = context.new_page()
+            return [self.fetch(
+                request['url'],
+                request['official_domains'],
+                extra_address_labels=extra_address_labels,
+                context=context,
+                page=page,
+            ) for request in page_requests]
+        finally:
+            context.close()
+
+
+def fetch_official_page(url, official_domains, extra_address_labels=()):
+    """抓取单个官方页面并返回通用地址证据。"""
+    with OfficialPageFetcher() as fetcher:
+        return fetcher.fetch(
+            url, official_domains,
+            extra_address_labels=extra_address_labels,
+        )

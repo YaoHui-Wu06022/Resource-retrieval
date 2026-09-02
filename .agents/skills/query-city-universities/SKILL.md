@@ -5,194 +5,109 @@ description: "根据中国城市筛选教育部普通高校名单，检索学校
 
 ## 输入与运行条件
 
-输入一个中国城市名称，输出该城市高校及校区的最终地址工作簿。
+输入：一个中国城市。输出：该城市高校及校区的最终地址工作簿（「高校信息」+「异常校」两个工作表）。
 
-- 若用户尚未确认 Python 环境或解释器，先询问；已经确认则不要重复询问。
-- 全程使用同一环境，要求安装 `openpyxl`、`playwright` 和 Playwright Chromium。
-- 共享库必须已安装且版本与 `requirements.txt` 一致；
-- 地址处理从进程环境或工作区 `.env` 读取 `AMAP_KEY`。
-- 高校名单固定使用本 Skill `assets/` 中的普通高校、985 和 211 名单。
-- 缺少依赖、浏览器、地图密钥或资产时停止并说明缺项，不自行安装，也不把未完成地图处理的结果当作完整结果。
+- 环境未确认先询问；确认后全程使用同一环境。依赖：`openpyxl`、`playwright` 与 Playwright Chromium。
+- 高校名单固定使用本 Skill `assets/` 中的普通高校、985、211 名单。
+- 地址处理从环境变量或 `.env` 读取 `AMAP_KEY`。
+- 缺依赖、密钥、浏览器或资产时停下说明缺项；不自装、不另写临时脚本复制固定逻辑，也不把未完成地图处理的结果当作完整结果。
 
-全部输出固定写入：
-
-`<项目根目录>/output/<标准城市名>/<YYYY-MM-DD>/Higher_Education/`
+全部输出写入 `output/<标准城市名>/<YYYY-MM-DD>/Higher_Education/<HHMMSS>/`。每次调用用新 `<HHMMSS>`，重新检索并生成全部结果，不覆盖旧运行目录。
 
 ## 执行边界与 Agent 分工
 
-固定处理必须调用现有命令或脚本，不得由 Agent 手工重算，也不得另写临时脚本复制逻辑：
+固定处理统一调用下表脚本，不另写临时脚本拆分、转换或组装抓取输出：
 
-| 用途 | 调用 |
+| 用途 | 命令 |
 | --- | --- |
-| 标准化城市并获取下级行政区 | `python -m query_city_core.city` |
+| 标准化城市、取下级行政区 | `python -m query_city_core.city` |
 | 生成城市高校名录 | `scripts/filter_universities.py` |
-| 抓取一个官网页面 | `scripts/fetch_official_universities.py` |
+| 域名确认 | 按批 WebSearch 确认，产出 `domain_batches/*.json`，再汇总为 `official_domain_manifest.json` |
+| 并发抓取官网 | `scripts/run_university_fetch.py` |
 | 合并逐校结果 | `scripts/merge_university_results.py` |
-| 生成公共地址输入 | `scripts/build_university_address_inputs.py` |
-| 规范化、地图验证与兜底 | `python -m query_city_core.address.process` |
+| 生成公共地址输入 | `scripts/build_university_address.py` |
+| 规范化地址与地图兜底 | `python -m query_city_core.address.process` |
 | 生成最终工作簿 | `scripts/build_excel.py` |
 
-搜索和确认官网、判断学校是否合并或停止独立办学、审查每页结果以及决定继续或停止，必须由负责该校的 Agent 根据证据完成，不得自动编码这些判断。
-
-运行环境支持子 Agent 时，主 Agent 按互不重叠的学校批次分配任务，每批最多五所学校：
-
-- 不同批次可以并行；同一批次由一个 Agent 逐校串行处理。
-- 每所学校只能分配给一个 Agent；子 Agent 不再向下委派。
-- 子 Agent 只负责本批次学校的搜索、逐页抓取、审查和写出逐校结果，不运行合并、地图或工作簿阶段。
-- 子 Agent 处理过程中须向主 Agent 报告失败学校的标识码、失败阶段和原因；不得为同一学校自行反复重试。
-- 主 Agent 负责基础名单、分片、合并、完整性校验及全部后续固定处理。
-
-每次工具或终端调用最多抓取一所学校的一个页面。负责 Agent 必须先审查完整结果，再决定下一页；禁止循环抓取多校或多页、自动选页或自动停止。
+- 域名确认、合并/停办判断由 Agent 按官方证据完成；官网抓取、单校结果落盘与覆盖校验由脚本完成。
+- Agent 负责域名确认与汇总复核、`fetch_report`/`retry_failures` 复检与全部下游固定处理。单校结果文件只能由 `run_university_fetch.py` 写出或替换。
 
 ## 1. 生成城市高校名录
 
-运行：
-
-```text
-python -m query_city_core.city --city <用户城市> > <city_context.json>
-scripts/filter_universities.py --city-context <city_context.json>
+```powershell
+$runDate = Get-Date -Format yyyy-MM-dd
+$runTime = Get-Date -Format HHmmss
+$runDir = 'output/<标准城市名>/' + $runDate + '/Higher_Education/' + $runTime
+New-Item -ItemType Directory -Force $runDir | Out-Null
+python -m query_city_core.city --city <用户城市> > "$runDir/city_context.json"
+scripts/filter_universities.py --city-context "$runDir/city_context.json"
 ```
 
-从筛选脚本输出读取标准城市名、日期、学校数量和输出目录。脚本生成：
+`<标准城市名>` 用城市组件返回的规范名称，如 `深圳市`。脚本生成 `city_universities.json` 与 `city_universities.xlsx`；后续中间文件全部写入 `$runDir`，`filter_universities.py` 以 `city_context.json` 所在目录为运行目录。
 
-- `city_universities.json`
-- `city_universities.xlsx`
+## 2. 确认官网域名并并发抓取
 
-主 Agent 在输出目录创建 `school_results/`，再按 `city_universities.json` 中的学校分配任务。
+### 2.1 域名确认（每校一次 WebSearch）
 
-## 2. 检索并审查单校官网
+每所学校 WebSearch 一次（学校全名 + 官网 + 校区 + 地址），确认官方域名与候选页，同时寻找合并/停办或无独立官网的证据；不得为更换域名重复搜索。
 
-负责该校的 Agent 必须逐校完成搜索、抓取和审查，再按第 3 点写出该校结果；不得在多个学校之间交叉抓取页面。
+把 `city_universities.json` 分成批次（每批 ≤ 20 所），逐批搜索确认，在 `$runDir/domain_batches/` 写 `domain_batch_<NN>.json`；每项含 `school_identifier` 与 `school_name`，确认后写回以下一种结果：
 
-### 2.1 搜索并确认官网
+- 普通项：`home_url`、`official_domains`（裸主机名，可多个）、可选 `candidate_urls`（同域候选页，最多 3 个）；
+- 无官网项：`no_official_site: true`、`evidence_url`、`reason`；
+- 合并/停办项：`processing_status: "skipped"`、`skip_reason`（`merged` 或 `ceased_independent_operation`）、`skip_reference`；
+- 无法给出合法结论：保留输入并加 `failure_reason`；禁止把“没搜到/打不开”伪造成 `no_official_site` 或 `skipped`。
 
-首轮中每所学校只进行一次 Web Search，查询词同时包含学校全名、官网、校区和地址。同次搜索既用于确认官方域名和候选页面，也用于查找学校合并或停止独立办学的官方证据；不得为更换域名再次搜索。
+官网判定：页面标题/站点名/正文须明确对应学校全名；可访问主站优先，`.edu.cn` 非硬性；招生、百科、媒体、第三方院校库与地图不算官网；跳转域名须有同次搜索证据；候选页必须属于 `official_domains`。
 
-确认官网时：
+运行 `scripts/merge_domain_batches.py --run-dir <runDir>` 汇总全部批次，输出 `official_domain_manifest.json`；存在 `failure_reason` 时脚本拒绝输出。
 
-- 页面标题、站点名称或正文必须明确对应学校全名。
-- 优先使用可访问的学校主站，`.edu.cn` 不是硬性条件。
-- 主站不可访问时，可采用同次搜索中归属明确的其他官方域名。
-- 招生平台、百科、媒体、自媒体、地图和第三方院校库不属于学校官网。
-- 跳转到新域名时，必须用同次搜索证据确认新域名归属。
+只对失败校统一复检一次（再搜一次、更新批次后重新汇总）；复检仍失败则停止并说明失败学校，不进入抓取。
 
-若官方证据已明确证明学校合并或停止独立办学，Agent 保留结论、原因和证据页面，直接进入第 3 点写出跳过结果，不抓取学校页面，也不进入地图服务。未取得这类证据时必须继续处理；官网无法访问、HTTP 4xx/5xx、网络错误或 Playwright 错误本身都不能作为跳过依据。
-
-### 2.2 逐页抓取并审查
-
-首次优先抓取官网首页：
+### 2.2 并发抓取
 
 ```text
-scripts/fetch_official_universities.py <页面URL> --official-domain <官网主机名>
+scripts/run_university_fetch.py \
+  --manifest <runDir>/official_domain_manifest.json \
+  --run-dir <runDir> \
+  --workers 3
 ```
 
-`--official-domain` 可重复传入，但只能填写已确认归属该校的主机名。
+- 普通项按 `--workers` 切给独立进程抓取；`no_official_site` 与 `skipped` 由运行器直接写出结果，不启动浏览器。
+- 页面策略：先抓 `home_url`；已有非空地址候选即停；否则按 `candidate_urls`、再按页面同域相关链接（campus/contact/overview 顺序）补抓。
+- 页数预算：默认每校 ≤ 3 页，访问失败也计入；页面出现多校区汇总线索（≥ 2 个校区提示或校区链接）且尚无地址时，预算自动放宽到 ≤ 6 页，同一校区详情只补抓一次。
+- 页面对象原样原子写入 `school_results/<school_identifier>.json`，失败页保留。
+- 输出 `fetch_report.json`（每校状态、页数、是否有地址候选）与 `retry_failures.json`（缺少合法结果的学校）。
+- 只对 `retry_failures` 复检一次：更新清单 URL 后运行同命令加 `--only-failures`；复检仍失败则停止，不进合并。
 
-每次调用只抓取一个页面。抓取后先审查最终 URL、访问状态、地址候选、校区线索、相关链接和警告，并原样保留脚本返回的完整页面对象，再决定是否抓取下一页。
+## 3. 合并单校结果
 
-页面选择和停止规则：
-
-1. 先检查官网首页及页脚。
-2. 信息不足时，从同次搜索候选或已抓页面的同域链接中选择联系方式或地址页、校区汇总或详情页、校园分布页、学校章程、学校概况或简介页。
-3. 通常最多抓取三页，访问失败的调用也计入预算。
-4. 只有校区汇总页明确列出多个校区详情链接但未给出完整地址时，才补抓尚未取得地址的校区详情页；每个明确校区最多一页，全校最多六页。
-5. 已取得明确地址且没有未解决的校区线索、页面预算用尽，或剩余链接均无关时停止。
-
-访问失败的页面也必须保留。若同次搜索或已抓页面中还有可用的官方候选，继续按预算审查；没有可用候选时结束该校抓取，不编造地址或页面结果。
-
-地址与校区判断：
-
-- 只有页面明确给出校区名称时才使用“学校名称 + 校区名称”；未知时只使用学校名称，不补“校本部”。
-- 不根据区县、道路或常识反推校区名。
-- 无标签页脚地址不强行提取；已有地点名称可进入地图兜底。
-- 同一校区存在多个名称时，以官网首页页脚随地址明确标注的名称为准，其他同址名称只作为别名线索。
-
-## 3. 保存、复检并合并单校结果
-
-### 3.1 写出单校结果
-
-完成一所学校的第 2 点后，读取 [单校结果文件规范](references/retrieval-result-format.md)，并写入：
-
-`school_results/<school_identifier>.json`
-
-- 已由官方证据确认学校合并或停止独立办学时，写出 `skipped` 结果及证据。
-- 其他情况均写出 `completed` 结果，并按访问顺序保存抓取脚本返回的完整页面对象。`completed` 只表示该校官网检索已经结束，不表示页面访问成功或整个工作流完成。
-- 页面访问失败但已取得合法页面对象时，仍可形成 `completed` 结果，不属于批次执行失败。
-- Agent 未能完成搜索、审查或合法结果写出时，不得伪造结果；须向主 Agent 报告学校标识码、失败阶段和原因。
-
-子 Agent 只写自己负责学校的单校结果，不创建或修改共享汇总文件。
-
-### 3.2 记录失败并统一复检
-
-首轮全部批次结束后，主 Agent 对照 `city_universities.json` 检查单校结果覆盖情况，并汇总子 Agent 报告。只有未形成合法单校结果的学校才属于复检对象；单校结果中已保留的 HTTP、网络或 Playwright 失败页面不单独触发复检。
-
-主 Agent 在输出目录写入 `retry_failures.json`，每项至少记录学校标识码、首轮失败阶段和原因，然后只对其中学校组织一次统一复检：
-
-- 每所学校可额外进行一次 Web Search，并重新执行第 2 点和第 3.1 点。
-- 复检成功时写入或替换同一学校的单校结果。
-- 复检仍失败时记录复检结果，不再进行第三次检索。
-
-复检后若仍有学校缺少合法单校结果，停止并说明失败学校，不得进入合并和后续处理。
-
-### 3.3 合并单校结果
-
-确认全部学校均有单校结果后，主 Agent 运行：
-
-```text
-scripts/merge_university_results.py \
-  --input-dir <输出目录>/school_results \
-  --output <输出目录>/university_retrieval_results.json
-```
-
-只有合并脚本确认文件名、学校覆盖、处理状态和页面预算均合法后，才能进入下一步。
+- 前提：全部学校有合法单校结果（`completed`/`skipped`/`no_official_site`），字段见 [单校结果文件规范](references/retrieval-result-format.md)。
+- 命令：`scripts/merge_university_results.py --input-dir <runDir>/school_results --output <runDir>/university_retrieval_results.json`
+- 脚本校验文件名、学校覆盖、处理状态与页面预算后输出结果。
 
 ## 4. 生成公共地址输入
 
-运行：
-
-```text
-scripts/build_university_address_inputs.py \
-  --input <输出目录>/university_retrieval_results.json \
-  --output <输出目录>/address_records.json
-```
-
-脚本同时生成 `university_page_results.json`。确认城市高校数等于已完成与已跳过学校数之和，且遗漏学校数为零。
+- 命令：`scripts/build_university_address.py --input <runDir>/university_retrieval_results.json --output <runDir>/address_records.json`
+- 同时生成 `university_page_results.json`；要求名录数 = completed + skipped + no_official_site，遗漏为 0。
+- 无官网学校生成一条空地址记录：`source_reference = evidence_url`，`attributes.abnormal_reason = reason`。
 
 ## 5. 处理地址
 
-运行：
-
-```text
-python -m query_city_core.address.process \
-  --input <输出目录>/address_records.json \
-  --output <输出目录>/processed_address_records.json
-```
-
-最终地址规则：
-
-- 官网规范地址完整：采用官网地址，地图只做验证，不得补全或覆盖。
-- 官网没有地址且地图唯一兜底成功：采用地图地址。
-- 地址指向目标城市外、规范化冲突或没有合格兜底结果：留空。
-
-不得存在未处理的地图错误；预期调用地图时，地图请求数不得为零。
+- 命令：`python -m query_city_core.address.process --input <runDir>/address_records.json --output <runDir>/processed_address_records.json`
+- 规则：官网完整地址直接采用（地图只验证）；官网无地址且地图唯一兜底成功采用地图地址；无官网学校按校名做 POI 兜底；指向城市外、规范化冲突或无合格兜底结果时留空。
+- 不得存在未处理的地图错误；预期调用地图时请求数不得为零。
 
 ## 6. 生成最终工作簿
 
-运行：
-
-```text
-scripts/build_excel.py \
-  --input <输出目录>/processed_address_records.json \
-  --output <输出目录>/高校建筑查询_<标准城市名>_<YYYY-MM-DD>.xlsx
-```
+- 命令：`scripts/build_excel.py --input <runDir>/processed_address_records.json --output <runDir>/高校建筑查询_<标准城市名>_<YYYY-MM-DD>.xlsx`
+- 「高校信息」十一列，只含最终地址非空行；「异常校」八列，覆盖最终地址为空的学校（含无官网且地图未救回），异常原因非空。
 
 ## 完成检查
 
-- `school_results/` 对城市高校名录逐校覆盖，无重复或遗漏。
-- 非失败学校只搜索一次；失败学校仅在首轮全部完成后的统一复检中额外搜索一次。页面均为原始单页结果，通常最多三页，符合校区扩展条件时最多六页。
-- 已写入 `retry_failures.json` 的学校均已完成一次统一复检，且不存在额外重试。
-- 所有继续和停止决定均经过负责 Agent 逐页审查。
-- 页面归档完整，公共地址处理无未处理错误。
-- 最终工作簿可以打开，只有规定工作表和十列，每行最终地址非空。
+- 域名批次与 `city_universities.json` 一一对应且已汇总；`failure_reason` 学校已统一复检；`fetch_report.json` 已复核。
+- `school_results/` 逐校覆盖名录，无重复或遗漏；`retry_failures.json` 学校仅复检一次，无第三次检索。
+- 页面均为原始单页结果，通常 ≤ 3 页（校区扩展条件成立时 ≤ 6 页）。
+- 公共地址处理无未处理错误；工作簿可打开，两表列与行约束符合约定。
 
-最终回复只说明标准城市名、城市高校名录学校数、公共处理状态计数、最终地址行数和最终文件绝对路径，不展开逐校搜索过程。
+最终回复只说明：标准城市名、名录学校数、域名/抓取状态计数、地址处理状态计数、最终地址行数和最终文件绝对路径；不展开逐校检索过程。

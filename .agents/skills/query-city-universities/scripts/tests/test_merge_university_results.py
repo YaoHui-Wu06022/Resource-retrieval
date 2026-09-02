@@ -28,7 +28,6 @@ def build_city_universities_payload():
             'supervising_authority': '测试部门',
             'location_city': '广州市',
             'education_level': '本科',
-            'source_remark': '',
             'school_tag': '',
             'school_nature': '公办',
         })
@@ -65,6 +64,35 @@ def write_school_result(directory, filename, payload):
 
 
 class MergeUniversityResultsTest(unittest.TestCase):
+    def test_merge_accepts_no_official_site_result(self):
+        """无官网学校结果可通过合并校验。"""
+        with tempfile.TemporaryDirectory() as directory:
+            write_school_result(directory, '1001.json', {
+                'school_identifier': '1001',
+                'processing_status': 'no_official_site',
+                'evidence_url': 'https://example.gov.cn/record',
+                'reason': '2026 年新设，无独立官网',
+            })
+            write_school_result(directory, '1002.json', {
+                'school_identifier': '1002',
+                'processing_status': 'completed',
+                'pages': [build_page()],
+            })
+
+            payload = merge_school_results(
+                directory,
+                build_city_universities_payload(),
+            )
+
+        self.assertEqual(
+            [item['school_identifier'] for item in payload['items']],
+            ['1001', '1002'],
+        )
+        self.assertEqual(
+            payload['items'][0]['processing_status'],
+            'no_official_site',
+        )
+
     def test_merge_orders_results_by_city_universities(self):
         with tempfile.TemporaryDirectory() as directory:
             write_school_result(directory, '1002.json', {

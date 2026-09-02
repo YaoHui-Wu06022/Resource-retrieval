@@ -7,7 +7,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from .common import extract_dataframe_rows, normalize_text
+from . import normalize_text
+from .tables import extract_dataframe_rows
 
 
 def find_soffice_path() -> str | None:

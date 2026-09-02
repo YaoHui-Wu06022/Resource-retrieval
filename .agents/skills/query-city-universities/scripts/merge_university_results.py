@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""合并子 Agent 生成的逐校高校检索结果。"""
+"""合并逐校高校检索结果。"""
 
 import argparse
 import json
 import sys
 from pathlib import Path
 
-from build_university_address_inputs import (
+from build_university_address import (
     build_page_results_payload,
     validate_city_universities,
 )
-from script_io import read_json_payload, write_json_payload
+from query_city_core.io_utils import read_json_payload, write_json_payload
 
 
 if hasattr(sys.stdout, 'reconfigure'):

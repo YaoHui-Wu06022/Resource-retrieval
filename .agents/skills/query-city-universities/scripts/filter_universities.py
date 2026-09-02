@@ -5,6 +5,7 @@
 import argparse
 import json
 import sys
+import warnings
 from datetime import date
 from pathlib import Path
 
@@ -12,10 +13,10 @@ import openpyxl
 
 from query_city_core.city import validate_city_context
 from query_city_core.excel_style import build_table_workbook
+from query_city_core.io_utils import write_json_payload
 
 
 ASSETS_DIR = Path(__file__).resolve().parents[1] / 'assets'
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_SCHOOLS_PATH = ASSETS_DIR / '全国普通高等学校名单.xlsx'
 DEFAULT_985_PATH = ASSETS_DIR / '985_universities.xlsx'
 DEFAULT_211_PATH = ASSETS_DIR / '211_universities.xlsx'
@@ -31,6 +32,12 @@ OUTPUT_COLUMN_WIDTHS = (26, 16, 20, 12, 12, 12, 14)
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
+warnings.filterwarnings(
+    'ignore',
+    message=r'Cannot parse header or footer.*',
+    category=UserWarning,
+)
+
 
 def _normalize_cell_text(value):
     """将名单单元格值转换为稳定的文本。"""
@@ -41,16 +48,16 @@ def _normalize_cell_text(value):
     return str(value).strip()
 
 
+def _load_workbook_for_reading(path):
+    """以只读模式读取来源工作簿，避免模板页眉页脚告警。"""
+    return openpyxl.load_workbook(path, read_only=True, data_only=True)
+
+
 def read_city_context(city_context_path):
     """读取城市上下文中的输入城市和标准城市名。"""
     with Path(city_context_path).open(encoding='utf-8') as stream:
         context = json.load(stream)
     return validate_city_context(context)
-
-
-def read_city_name(city_context_path):
-    """读取已标准化的城市名称。"""
-    return read_city_context(city_context_path)['city_name']
 
 
 def _find_header(workbook, required_columns):
@@ -73,7 +80,7 @@ def _read_school_names(path, label):
     source_path = Path(path)
     if not source_path.is_file():
         raise FileNotFoundError(f'缺少{label}名单：{source_path}')
-    workbook = openpyxl.load_workbook(source_path, read_only=True, data_only=True)
+    workbook = _load_workbook_for_reading(source_path)
     try:
         try:
             sheet, header_row, header = _find_header(workbook, ('学校名称',))
@@ -116,11 +123,6 @@ def classify_school_nature(source_remark):
     return '待核验'
 
 
-def build_output_directory(city_name, run_date):
-    """生成高校输出目录。"""
-    return PROJECT_ROOT / 'output' / city_name / run_date / 'Higher_Education'
-
-
 def filter_universities(
     city_context_path,
     output_path,
@@ -140,7 +142,7 @@ def filter_universities(
 
     schools_985 = _read_school_names(list_985_path, '985')
     schools_211 = _read_school_names(list_211_path, '211')
-    source_workbook = openpyxl.load_workbook(source_path, read_only=True, data_only=True)
+    source_workbook = _load_workbook_for_reading(source_path)
     try:
         source_sheet, header_row, header = _find_header(source_workbook, SOURCE_COLUMNS)
         source_sheet_name = source_sheet.title
@@ -177,7 +179,6 @@ def filter_universities(
                 'supervising_authority': source_record['主管部门'],
                 'location_city': source_record['所在地'],
                 'education_level': source_record['办学层次'],
-                'source_remark': source_record['备注'],
                 'school_tag': school_tag,
                 'school_nature': school_nature,
             }
@@ -186,7 +187,7 @@ def filter_universities(
                 warnings.append({
                     'source_sequence': school['source_sequence'],
                     'school_name': school['school_name'],
-                    'reason': '备注未匹配办学性质规则：' + school['source_remark'],
+                    'reason': '备注未匹配办学性质规则：' + source_record['备注'],
                 })
     finally:
         source_workbook.close()
@@ -229,11 +230,7 @@ def filter_universities(
             'workbook': str(output),
         },
     }
-    json_output.parent.mkdir(parents=True, exist_ok=True)
-    json_output.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2) + '\n',
-        encoding='utf-8',
-    )
+    write_json_payload(json_output, payload)
 
     return {
         'stage': 'city_universities',
@@ -253,9 +250,8 @@ def main():
     parser.add_argument('--city-context', required=True)
     args = parser.parse_args()
     try:
-        city_name = read_city_name(args.city_context)
+        output_dir = Path(args.city_context).resolve().parent
         run_date = date.today().isoformat()
-        output_dir = build_output_directory(city_name, run_date)
         result = filter_universities(
             args.city_context,
             output_dir / 'city_universities.xlsx',

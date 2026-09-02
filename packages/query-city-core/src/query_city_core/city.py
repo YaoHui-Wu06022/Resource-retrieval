@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 
+from .address.common import CITY_SUFFIXES
 from .amap_client import RequestRateLimiter, fetch_amap_subdivisions
 from .env_utils import read_env_value
 
@@ -18,7 +19,6 @@ if hasattr(sys.stdout, 'reconfigure'):
 DEFAULT_CATALOG_PATH = (
     Path(__file__).resolve().parent / 'assets' / 'china_city_catalog.json'
 )
-CITY_SUFFIXES = ('市', '地区', '自治州', '盟')
 
 
 def read_city_catalog(asset_path=DEFAULT_CATALOG_PATH):

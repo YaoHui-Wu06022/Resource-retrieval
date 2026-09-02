@@ -20,8 +20,11 @@ if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
 from build_excel import (  # noqa: E402
+    ABNORMAL_HEADERS,
+    ABNORMAL_SHEET_NAME,
     OUTPUT_HEADER,
     SHEET_NAME,
+    build_abnormal_rows,
     build_output_rows,
     create_workbook,
     load_processed_records,
@@ -36,8 +39,10 @@ def build_address_record(
     final_address,
     source_reference,
     campus_name='',
-    map_status=None,
+    map_match_status=None,
     final_address_source='',
+    map_reason='',
+    normalization_reason='',
 ):
     """构造测试使用的公共地址记录。"""
     return {
@@ -58,10 +63,10 @@ def build_address_record(
         },
         'normalized_address': final_address,
         'normalization_status': 'complete' if final_address else 'invalid',
-        'normalization_reason': '',
+        'normalization_reason': normalization_reason,
         'map_address': final_address,
-        'map_status': map_status or ('consistent' if final_address else 'not_found'),
-        'map_reason': '',
+        'map_match_status': map_match_status or ('consistent' if final_address else 'not_found'),
+        'map_reason': map_reason,
         'map_poi_type': '',
         'map_poi_typecode': '',
         'final_address': final_address,
@@ -71,6 +76,25 @@ def build_address_record(
 
 class FinalWorkbookTests(unittest.TestCase):
     """覆盖最终表字段、过滤、排序和显示格式。"""
+
+    def test_abnormal_reason_prefers_attributes_abnormal_reason(self):
+        """异常原因优先展示无官网等业务原因。"""
+        record = build_address_record(
+            2000,
+            '无官网示例大学',
+            '',
+            'https://example.gov.cn/record',
+        )
+        record['attributes']['abnormal_reason'] = '2026 年新设，未找到独立官网'
+        record['map_reason'] = '未找到名称、城市和地址均匹配的 POI'
+
+        abnormal_rows = build_abnormal_rows([record])
+
+        self.assertEqual(len(abnormal_rows), 1)
+        self.assertEqual(
+            abnormal_rows[0][4],
+            '2026 年新设，未找到独立官网',
+        )
 
     def test_output_rows_filter_empty_address_and_renumber(self):
         """空最终地址被剔除并按源序号重新生成展示序号。"""
@@ -97,7 +121,7 @@ class FinalWorkbookTests(unittest.TestCase):
             ),
         ]
 
-        output_rows = build_output_rows(address_records)
+        output_rows = build_output_rows(address_records, '广州市')
 
         self.assertEqual([row[0] for row in output_rows], [1, 2])
         self.assertEqual(
@@ -124,7 +148,7 @@ class FinalWorkbookTests(unittest.TestCase):
             ),
         ]
 
-        output_rows = build_output_rows(address_records)
+        output_rows = build_output_rows(address_records, '广州市')
 
         self.assertEqual(
             [row[1] for row in output_rows],
@@ -147,10 +171,10 @@ class FinalWorkbookTests(unittest.TestCase):
                 'https://map.example.edu.cn/',
                 final_address_source='map',
             ),
-        ])
+        ], '广州市')
 
-        self.assertEqual([row[7] for row in output_rows], ['官网提取', '地图信息'])
-        self.assertEqual([row[8] for row in output_rows], [date.today().isoformat()] * 2)
+        self.assertEqual([row[6] for row in output_rows], [date.today().isoformat()] * 2)
+        self.assertEqual([row[8] for row in output_rows], ['官网提取', '地图信息'])
 
     def test_map_same_detail_removes_unlabeled_duplicate(self):
         """地图道路和门牌相同的无校区记录应从最终表中删除。"""
@@ -168,21 +192,79 @@ class FinalWorkbookTests(unittest.TestCase):
                 '广州市番禺区大学路1号',
                 'https://example.edu.cn/',
             ),
-        ])
+        ], '广州市')
         self.assertEqual(len(output_rows), 1)
         self.assertEqual(output_rows[0][1], '示例大学校本部')
 
     def test_workbook_contains_only_confirmed_columns(self):
-        """最终工作簿只展示已经确认的十个字段。"""
+        """最终工作簿只展示已经确认的十一个字段。"""
         workbook = create_workbook([])
         worksheet = workbook[SHEET_NAME]
 
-        self.assertEqual(workbook.sheetnames, [SHEET_NAME])
+        self.assertEqual(workbook.sheetnames, [SHEET_NAME, ABNORMAL_SHEET_NAME])
         self.assertEqual([cell.value for cell in worksheet[1]], OUTPUT_HEADER)
-        self.assertEqual(OUTPUT_HEADER[6], '地址')
+        self.assertEqual(OUTPUT_HEADER[7], '地址')
         self.assertNotIn('学校标识码', OUTPUT_HEADER)
         self.assertNotIn('所在地', OUTPUT_HEADER)
         self.assertNotIn('校区名称', OUTPUT_HEADER)
+
+    def test_build_abnormal_rows_lists_empty_address_schools(self):
+        """最终地址为空的学校应整理为异常校行并保留原因。"""
+        records = [
+            build_address_record(
+                2000,
+                '无地址大学',
+                '',
+                'https://example.edu.cn/contact',
+                map_match_status='not_found',
+                map_reason='高德服务正常但未找到结果',
+            ),
+            build_address_record(
+                2001,
+                '异地大学',
+                '',
+                'https://outside.example.edu.cn/',
+                map_match_status='skipped',
+                normalization_reason='原始地址中的城市与目标城市不一致：深圳市',
+            ),
+        ]
+
+        rows = build_abnormal_rows(records)
+
+        self.assertEqual(len(rows), 2)
+        self.assertEqual(rows[0][1], '无地址大学')
+        self.assertEqual(rows[0][4], '高德服务正常但未找到结果')
+        self.assertEqual(rows[0][5], '未找到')
+        self.assertEqual(rows[1][1], '异地大学')
+        self.assertEqual(rows[1][4], '原始地址中的城市与目标城市不一致：深圳市')
+        self.assertEqual(rows[1][5], '未查询')
+
+    def test_workbook_contains_abnormal_sheet(self):
+        """异常校工作表字段、序号和来源链接正确。"""
+        records = [
+            build_address_record(
+                2000,
+                '无地址大学',
+                '',
+                'https://example.edu.cn/contact',
+                map_match_status='not_found',
+                map_reason='高德服务正常但未找到结果',
+            )
+        ]
+        workbook = create_workbook([], build_abnormal_rows(records))
+        abnormal_sheet = workbook[ABNORMAL_SHEET_NAME]
+
+        self.assertEqual(
+            [cell.value for cell in abnormal_sheet[1]],
+            ABNORMAL_HEADERS,
+        )
+        self.assertEqual(abnormal_sheet.cell(2, 1).value, 1)
+        self.assertEqual(abnormal_sheet.cell(2, 2).value, '无地址大学')
+        self.assertEqual(abnormal_sheet.cell(2, 5).value, '高德服务正常但未找到结果')
+        self.assertEqual(
+            abnormal_sheet.cell(2, 7).hyperlink.target,
+            'https://example.edu.cn/contact',
+        )
 
     def test_workbook_centers_cells_and_wraps_only_address_data(self):
         """最终工作簿全部居中，数据行仅地址列自动换行。"""
@@ -194,7 +276,7 @@ class FinalWorkbookTests(unittest.TestCase):
                 'https://example.edu.cn/contact',
                 '中心校区',
             )
-        ])
+        ], '广州市')
         workbook = create_workbook(output_rows)
         worksheet = workbook[SHEET_NAME]
 
@@ -202,13 +284,13 @@ class FinalWorkbookTests(unittest.TestCase):
             for cell in row:
                 self.assertEqual(cell.alignment.horizontal, 'center')
                 self.assertEqual(cell.alignment.vertical, 'center')
-                if cell.row == 1 or cell.column == 7:
+                if cell.row == 1 or cell.column == 8:
                     self.assertTrue(cell.alignment.wrap_text)
                 else:
                     self.assertFalse(cell.alignment.wrap_text)
                 self.assertIn(cell.alignment.indent, {None, 0, 0.0})
         self.assertIsNone(worksheet.row_dimensions[2].height)
-        self.assertIsNotNone(worksheet['J2'].hyperlink)
+        self.assertIsNotNone(worksheet['K2'].hyperlink)
 
     def test_main_writes_processed_records(self):
         """命令入口直接把公共处理结果写入最终工作簿。"""
@@ -255,10 +337,11 @@ class FinalWorkbookTests(unittest.TestCase):
 
         self.assertEqual(output_row[0], 1)
         self.assertEqual(output_row[1], '暨南大学石牌校区')
-        self.assertEqual(output_row[6], '广州市天河区黄埔大道西601号')
-        self.assertEqual(output_row[7], '官网提取')
-        self.assertEqual(output_row[8], date.today().isoformat())
-        self.assertEqual(output_row[9], 'https://www.jnu.edu.cn/contact')
+        self.assertEqual(output_row[6], date.today().isoformat())
+        self.assertEqual(output_row[7], '广州市天河区黄埔大道西601号')
+        self.assertEqual(output_row[8], '官网提取')
+        self.assertEqual(output_row[9], '一致')
+        self.assertEqual(output_row[10], 'https://www.jnu.edu.cn/contact')
 
     def test_loader_rejects_wrong_stage(self):
         """输入阶段不是公共处理结果时拒绝生成工作簿。"""
@@ -284,3 +367,4 @@ class FinalWorkbookTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+

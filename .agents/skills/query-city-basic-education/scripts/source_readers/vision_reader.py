@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from .common import normalize_text
+from . import normalize_text
 
 
 def extract_vision_tables(

@@ -1,10 +1,19 @@
 """按来源格式选择对应读取器。"""
 
+import re
 from pathlib import Path
 from typing import Any
 
-from .common import normalize_cell_text, normalize_text
-from .html_reader import extract_html_tables, load_source_html as read_source_html
+
+def normalize_text(raw_text: Any) -> str:
+    """清理来源文本中的空白，折叠为单个空格。"""
+    if raw_text is None:
+        return ''
+    return re.sub(r'\s+', ' ', str(raw_text).replace('\xa0', ' ')).strip()
+
+
+# normalize_text 必须先于读取器导入定义，供读取器相对导入，避免包级循环导入。
+from .html_reader import extract_html_tables, load_source_html as load_html_document
 from .image_reader import inspect_image_source
 from .pdf_reader import extract_pdf_tables
 from .spreadsheet_reader import extract_spreadsheet_tables
@@ -23,6 +32,8 @@ FORMAT_BY_SUFFIX = {
     '.webp': 'image',
     '.xls': 'spreadsheet',
     '.xlsx': 'spreadsheet',
+    '.xlsm': 'spreadsheet',
+    '.csv': 'spreadsheet',
 }
 
 
@@ -41,7 +52,7 @@ def load_source_html(source_path: Path) -> str:
     file_format = detect_source_format(source_path)
     if file_format not in {'html', 'word'}:
         raise ValueError(f'来源不是 HTML 或 Word：{source_path.name}')
-    return read_source_html(source_path, file_format)
+    return load_html_document(source_path, file_format)
 
 
 def load_source_tables(

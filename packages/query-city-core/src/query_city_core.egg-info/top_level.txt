@@ -1,1 +1,0 @@
-query_city_core

@@ -3,7 +3,7 @@
 import sys
 import unittest
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
@@ -15,13 +15,32 @@ if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
 from query_city_core.fetch_official_page import (  # noqa: E402
+    OfficialPageFetcher,
     build_page_result,
     collect_official_page_data,
+    decode_html_content,
     fetch_browser_page,
+    fetch_http_page,
+    fetch_official_page,
 )
 
 
 class OfficialPageExtractorTests(unittest.TestCase):
+    def test_decode_html_content_uses_http_charset(self):
+        """HTTP 头声明的字符集优先于 HTML meta 使用。"""
+        html = b'<meta charset="utf-8">\xd6\xd0\xb9\xfa'
+        self.assertEqual(
+            decode_html_content(html, 'gbk'),
+            '<meta charset="utf-8">中国',
+        )
+
+    def test_decode_html_content_falls_back_to_utf8(self):
+        """没有 HTTP 字符集和 meta 声明时回退 UTF-8。"""
+        self.assertEqual(
+            decode_html_content('广州市'.encode('utf-8')),
+            '广州市',
+        )
+
     def collect(self, html, extra_address_labels=()):
         """从测试页面收集通用地址证据。"""
         with sync_playwright() as playwright:
@@ -61,7 +80,8 @@ class OfficialPageExtractorTests(unittest.TestCase):
 
         self.assertIs(response, browser_response)
         page.request.get.assert_called_once_with(
-            'https://example.test/page', timeout=40000
+            'https://example.test/page', timeout=40000,
+            headers=unittest.mock.ANY,
         )
         page.route.assert_called_once()
 
@@ -81,6 +101,112 @@ class OfficialPageExtractorTests(unittest.TestCase):
         self.assertIs(response, browser_response)
         self.assertEqual(page.goto.call_count, 3)
         page.request.get.assert_called_once()
+
+    @patch('query_city_core.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.fetch_official_page.sync_playwright')
+    def test_fetcher_reuses_browser_and_isolates_each_page(
+            self, playwright_factory, fetch_page, collect_data):
+        playwright = playwright_factory.return_value.start.return_value
+        browser = playwright.chromium.launch.return_value
+        contexts = [Mock(), Mock()]
+        pages = [context.new_page.return_value for context in contexts]
+        for page in pages:
+            page.url = 'https://example.edu.cn/'
+            page.title.return_value = '示例大学'
+        browser.new_context.side_effect = contexts
+        fetch_page.return_value.status = 200
+        collect_data.return_value = {'address_evidence': [], 'links': []}
+
+        with OfficialPageFetcher() as fetcher:
+            fetcher.fetch('https://example.edu.cn/', ['example.edu.cn'])
+            fetcher.fetch('https://example.edu.cn/contact', ['example.edu.cn'])
+
+        playwright.chromium.launch.assert_called_once_with(
+            channel='chrome', headless=True, args=unittest.mock.ANY,
+        )
+        self.assertEqual(browser.new_context.call_count, 2)
+        for context in contexts:
+            context.close.assert_called_once_with()
+        browser.close.assert_called_once_with()
+        playwright.stop.assert_called_once_with()
+
+    @patch('query_city_core.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.fetch_official_page.sync_playwright')
+    def test_fetch_pages_reuses_one_context_and_page_per_school(
+            self, playwright_factory, fetch_page, collect_data):
+        playwright = playwright_factory.return_value.start.return_value
+        browser = playwright.chromium.launch.return_value
+        context = Mock()
+        page = context.new_page.return_value
+        page.url = 'https://example.edu.cn/'
+        page.title.return_value = '示例大学'
+        browser.new_context.return_value = context
+        fetch_page.return_value.status = 200
+        collect_data.return_value = {'address_evidence': [], 'links': []}
+
+        with OfficialPageFetcher() as fetcher:
+            results = fetcher.fetch_pages([
+                {'url': 'https://example.edu.cn/',
+                 'official_domains': ['example.edu.cn']},
+                {'url': 'https://example.edu.cn/contact',
+                 'official_domains': ['example.edu.cn']},
+            ])
+
+        self.assertEqual(len(results), 2)
+        kwargs = browser.new_context.call_args.kwargs
+        self.assertIn('user_agent', kwargs)
+        self.assertIn('extra_http_headers', kwargs)
+        self.assertEqual(kwargs['locale'], 'zh-CN')
+        self.assertEqual(kwargs['timezone_id'], 'Asia/Shanghai')
+        context.new_page.assert_called_once_with()
+        context.close.assert_called_once_with()
+
+    @patch('query_city_core.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.fetch_official_page.fetch_http_page')
+    @patch('query_city_core.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.fetch_official_page.sync_playwright')
+    def test_fetcher_records_http_fallback_after_browser_failure(
+            self, playwright_factory, fetch_page, fetch_http, collect_data):
+        """浏览器失败后使用直连页面并保留两次访问审计。"""
+        playwright = playwright_factory.return_value.start.return_value
+        browser = playwright.chromium.launch.return_value
+        context = Mock()
+        page = context.new_page.return_value
+        page.url = 'https://example.edu.cn/'
+        page.title.return_value = '示例大学'
+        browser.new_context.return_value = context
+        fetch_page.side_effect = PlaywrightError('connection closed')
+        fetch_http.return_value = type('Response', (), {
+            'status': 200, 'url': 'https://example.edu.cn/'
+        })()
+        collect_data.return_value = {'address_evidence': [], 'links': []}
+
+        with OfficialPageFetcher() as fetcher:
+            result = fetcher.fetch('https://example.edu.cn/', ['example.edu.cn'])
+
+        self.assertEqual(result['page_status'], 'ok')
+        self.assertEqual([item['method'] for item in result['access_attempts']],
+                         ['playwright', 'urllib_or_curl'])
+        self.assertFalse(result['access_attempts'][0]['success'])
+        self.assertTrue(result['access_attempts'][1]['success'])
+
+    @patch('query_city_core.fetch_official_page.OfficialPageFetcher')
+    def test_single_page_api_keeps_compatibility(self, fetcher_class):
+        fetcher = fetcher_class.return_value.__enter__.return_value
+        fetcher.fetch.return_value = {'page_status': 'ok'}
+
+        result = fetch_official_page(
+            'https://example.edu.cn/', ['example.edu.cn'],
+            extra_address_labels=('校址',),
+        )
+
+        self.assertEqual(result, {'page_status': 'ok'})
+        fetcher.fetch.assert_called_once_with(
+            'https://example.edu.cn/', ['example.edu.cn'],
+            extra_address_labels=('校址',),
+        )
 
     def test_extracts_json_ld_postal_address(self):
         nodes = self.collect(

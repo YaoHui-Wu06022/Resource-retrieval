@@ -6,15 +6,26 @@ import argparse
 import json
 import re
 import sys
-from copy import copy
 from datetime import date
 from pathlib import Path
-from tempfile import NamedTemporaryFile
 
 import openpyxl
 
 from query_city_core.city import validate_city_context
-from query_city_core.excel_style import populate_table_worksheet
+from query_city_core.address.common import format_map_match_status
+from query_city_core.io_utils import read_json_payload
+from query_city_core.excel_style import (
+    DATE_CELL_PATTERN,
+    add_source_hyperlinks,
+    build_address_output_values,
+    extend_address_output_columns,
+    format_date_cell,
+    format_source_reference,
+    populate_table_worksheet,
+    validate_common_worksheet,
+    write_workbook_atomically,
+)
+from normalize_school_records import merge_school_types
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -22,20 +33,29 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 
 SHEET_NAME = '学校信息'
-OUTPUT_HEADER = [
+ABNORMAL_SHEET_NAME = '异常校'
+DOMAIN_HEADERS = [
     '序号',
     '行政单位',
     '学校名称',
     '学校类型',
     '办学性质',
-    '地址',
-    '地址获取方式',
     '发布日期',
-    '信息来源',
 ]
-COLUMN_WIDTHS = [8, 14, 36, 20, 12, 44, 14, 18, 52]
-SOURCE_URL_PATTERN = re.compile(r'^https?://[^\s|]+', re.IGNORECASE)
-ROW_REFERENCE_PATTERN = re.compile(r'^row\s+\d+$', re.IGNORECASE)
+DOMAIN_WIDTHS = [8, 14, 36, 20, 12, 18]
+OUTPUT_HEADER, COLUMN_WIDTHS = extend_address_output_columns(DOMAIN_HEADERS, DOMAIN_WIDTHS)
+ABNORMAL_HEADERS = [
+    '序号',
+    '行政单位',
+    '学校名称',
+    '学校类型',
+    '办学性质',
+    '异常原因',
+    '地图匹配状态',
+    '信息来源',
+    '发布日期',
+]
+ABNORMAL_WIDTHS = [8, 14, 36, 20, 12, 50, 16, 50, 18]
 SCHOOL_NAME_SEPARATOR_PATTERN = re.compile(r'[\s（）()【】\[\]·•]+')
 SCHOOL_CAMPUS_SUFFIX_PATTERN = re.compile(
     r'(?P<base>.+?(?:幼儿园|小学|中学|学校))'
@@ -67,8 +87,7 @@ OTHER_SCHOOL_TYPE_PRIORITY = 13
 
 def load_processed_address_records(input_path):
     """读取并校验一个行政单位的公共地址处理结果。"""
-    with Path(input_path).resolve().open(encoding='utf-8') as stream:
-        address_payload = json.load(stream)
+    address_payload = read_json_payload(input_path)
     if not isinstance(address_payload, dict):
         raise ValueError(f'{input_path} 顶层必须是对象')
     if address_payload.get('stage') != 'processed_address_records':
@@ -122,16 +141,6 @@ def normalize_school_identity(place_name, administrative_unit, city_name):
     school_identity = SCHOOL_STAGE_SUFFIX_PATTERN.sub('', school_identity)
     campus_match = SCHOOL_CAMPUS_SUFFIX_PATTERN.fullmatch(school_identity)
     return campus_match.group('base') if campus_match else school_identity
-
-
-def merge_school_types(current_type, incoming_type):
-    """合并两条学校记录中的学校类型。"""
-    school_types = [
-        school_type
-        for school_type in f'{current_type}、{incoming_type}'.split('、')
-        if school_type
-    ]
-    return '、'.join(dict.fromkeys(school_types))
 
 
 def deduplicate_school_output_records(output_records, city_name):
@@ -223,15 +232,17 @@ def build_school_output_records(
             'place_name': place_name,
             'school_type': str(record_attributes.get('school_type') or '').strip(),
             'school_nature': str(record_attributes.get('school_nature') or '').strip(),
-            'publication_date': str(
-                record_attributes.get('publication_date') or ''
-            ).strip() or date.today().isoformat(),
+            'publication_date': format_date_cell(
+                record_attributes.get('publication_date'),
+                date.today().isoformat(),
+            ),
             'final_address': final_address,
             'address_acquisition_method': (
                 '高德地图'
                 if address_record.get('final_address_source') == 'map'
                 else '政府资料'
             ),
+            'map_match_status': address_record.get('map_match_status') or 'skipped',
             'source_reference': source_reference,
         })
     return sort_school_output_records(
@@ -248,36 +259,64 @@ def build_worksheet_rows(output_records):
             record['place_name'],
             record['school_type'],
             record['school_nature'],
-            record['final_address'],
-            record['address_acquisition_method'],
             record['publication_date'],
-            format_source_reference(record['source_reference']),
+            *build_address_output_values(
+                {
+                    'final_address': record['final_address'],
+                    'final_address_source': 'map' if record['address_acquisition_method'] == '高德地图' else 'official',
+                    'map_match_status': record['map_match_status'],
+                    'source_reference': record['source_reference'],
+                },
+                '政府资料', '高德地图',
+            ),
         ]
         for sequence, record in enumerate(output_records, start=1)
     ]
 
 
-def extract_source_url(source_reference):
-    """从来源定位文本开头提取可点击网页地址。"""
-    match = SOURCE_URL_PATTERN.match(str(source_reference or '').strip())
-    return match.group(0) if match else ''
+def build_abnormal_reason(address_record):
+    """从地图、规范化和最终地址原因中取最具体的一项。"""
+    return str(
+        address_record.get('map_reason')
+        or address_record.get('normalization_reason')
+        or address_record.get('final_address_reason')
+        or ''
+    ).strip()
 
 
-def format_source_reference(source_reference):
-    """把完整来源定位压缩为网址、文件名和原始行号。"""
-    parts = [
-        part.strip() for part in str(source_reference or '').split('|')
-        if part.strip()
-    ]
-    source_url = extract_source_url(source_reference)
-    file_name = parts[1] if len(parts) > 1 else ''
-    row_reference = next(
-        (part for part in parts[2:] if ROW_REFERENCE_PATTERN.fullmatch(part)),
-        '',
-    )
-    return ' | '.join(
-        part for part in (source_url, file_name, row_reference) if part
-    )
+def build_abnormal_rows(administrative_unit_name, address_records):
+    """整理行政单位内最终地址为空的学校为异常校展示行。"""
+    abnormal_rows = []
+    for address_record in address_records:
+        if not isinstance(address_record, dict):
+            raise ValueError(f'{administrative_unit_name}包含非对象地址记录')
+        final_address = str(address_record.get('final_address') or '').strip()
+        if final_address:
+            continue
+        place_name = str(address_record.get('place_name') or '').strip()
+        source_reference = str(
+            address_record.get('source_reference') or ''
+        ).strip()
+        if not place_name or not source_reference:
+            raise ValueError(
+                f'{administrative_unit_name}存在缺少名称或来源的异常记录'
+            )
+        record_attributes = address_record.get('attributes') or {}
+        abnormal_rows.append([
+            len(abnormal_rows) + 1,
+            administrative_unit_name,
+            place_name,
+            str(record_attributes.get('school_type') or '').strip(),
+            str(record_attributes.get('school_nature') or '').strip(),
+            build_abnormal_reason(address_record),
+            format_map_match_status(address_record.get('map_match_status')),
+            format_source_reference(source_reference),
+            format_date_cell(
+                record_attributes.get('publication_date'),
+                date.today().isoformat(),
+            ),
+        ])
+    return abnormal_rows
 
 
 def populate_worksheet(worksheet, sheet_name, output_records):
@@ -289,14 +328,19 @@ def populate_worksheet(worksheet, sheet_name, output_records):
         build_worksheet_rows(output_records),
         COLUMN_WIDTHS,
     )
-    for source_cell in worksheet['I'][1:]:
-        source_url = extract_source_url(source_cell.value)
-        if source_url:
-            source_cell.hyperlink = source_url
-            hyperlink_font = copy(source_cell.font)
-            hyperlink_font.color = '0563C1'
-            hyperlink_font.underline = 'single'
-            source_cell.font = hyperlink_font
+    add_source_hyperlinks(worksheet, OUTPUT_HEADER.index('信息来源') + 1)
+
+
+def populate_abnormal_worksheet(worksheet, sheet_name, abnormal_rows):
+    """使用公共样式写入异常校工作表并添加来源链接。"""
+    populate_table_worksheet(
+        worksheet,
+        sheet_name,
+        ABNORMAL_HEADERS,
+        abnormal_rows,
+        ABNORMAL_WIDTHS,
+    )
+    add_source_hyperlinks(worksheet, ABNORMAL_HEADERS.index('信息来源') + 1)
 
 
 def build_workbook(sheet_records):
@@ -308,30 +352,28 @@ def build_workbook(sheet_records):
         worksheet = (
             workbook.active if index == 0 else workbook.create_sheet()
         )
-        populate_worksheet(worksheet, sheet_name, output_records)
+        if sheet_name == ABNORMAL_SHEET_NAME:
+            populate_abnormal_worksheet(worksheet, sheet_name, output_records)
+        else:
+            populate_worksheet(worksheet, sheet_name, output_records)
     return workbook
 
 
 def verify_worksheet(worksheet, expected_records):
     """验证一张学校工作表的内容、序号和显示格式。"""
-    if [cell.value for cell in worksheet[1]] != OUTPUT_HEADER:
-        raise ValueError(f'{worksheet.title}工作表字段不正确')
-    if worksheet.max_row - 1 != len(expected_records):
-        raise ValueError(f'{worksheet.title}工作表记录数不正确')
-    if worksheet.sheet_view.showGridLines:
-        raise ValueError(f'{worksheet.title}工作表未关闭网格线')
+    validate_common_worksheet(worksheet, OUTPUT_HEADER, len(expected_records))
     for sequence, row_index in enumerate(
         range(2, worksheet.max_row + 1), start=1
     ):
         if worksheet.cell(row_index, 1).value != sequence:
             raise ValueError(f'{worksheet.title}工作表序号不连续')
-        for column_index in (2, 3, 6, 7, 9):
+        for column_index in (2, 3, 7, 8, 9, 10):
             if not str(worksheet.cell(row_index, column_index).value or '').strip():
                 raise ValueError(f'{worksheet.title}工作表存在空的必填字段')
-        acquisition_method = worksheet.cell(row_index, 7).value
+        acquisition_method = worksheet.cell(row_index, 8).value
         if acquisition_method not in {'政府资料', '高德地图'}:
             raise ValueError(f'{worksheet.title}的地址获取方式不正确')
-        source_cell = worksheet.cell(row_index, 9)
+        source_cell = worksheet.cell(row_index, 10)
         expected_source = format_source_reference(
             expected_records[row_index - 2]['source_reference']
         )
@@ -350,7 +392,7 @@ def verify_worksheet(worksheet, expected_records):
                 raise ValueError(f'{worksheet.title}存在未居中的单元格')
             if cell.alignment.vertical != 'center':
                 raise ValueError(f'{worksheet.title}存在未垂直居中的单元格')
-            expected_wrap = row_index == 1 or column_index == 6
+            expected_wrap = row_index == 1 or column_index == 7
             if bool(cell.alignment.wrap_text) != expected_wrap:
                 raise ValueError(f'{worksheet.title}的自动换行格式不正确')
             if cell.alignment.indent not in {None, 0, 0.0}:
@@ -365,33 +407,46 @@ def verify_workbook(workbook_path, expected_sheets):
         if workbook.sheetnames != expected_names:
             raise ValueError('工作簿的工作表名称或顺序不正确')
         for sheet_name, expected_records in expected_sheets:
-            verify_worksheet(workbook[sheet_name], expected_records)
+            if sheet_name == ABNORMAL_SHEET_NAME:
+                verify_abnormal_worksheet(
+                    workbook[sheet_name], len(expected_records)
+                )
+            else:
+                verify_worksheet(workbook[sheet_name], expected_records)
     finally:
         workbook.close()
 
 
+def verify_abnormal_worksheet(worksheet, expected_rows):
+    """验证异常校工作表的字段、序号和来源链接。"""
+    if [cell.value for cell in worksheet[1]] != ABNORMAL_HEADERS:
+        raise ValueError('异常校工作表字段不正确')
+    if worksheet.max_row - 1 != expected_rows:
+        raise ValueError('异常校工作表记录数不正确')
+    for sequence, row_index in enumerate(
+        range(2, worksheet.max_row + 1), start=1
+    ):
+        if worksheet.cell(row_index, 1).value != sequence:
+            raise ValueError('异常校工作表序号不连续')
+        for column_index in (2, 3, 6, 7, 8):
+            if not str(worksheet.cell(row_index, column_index).value or '').strip():
+                raise ValueError('异常校工作表存在空的必填字段')
+        publication_date = worksheet.cell(row_index, 9).value
+        if not DATE_CELL_PATTERN.fullmatch(str(publication_date or '')):
+            raise ValueError('异常校工作表存在无效发布日期')
+        source_cell = worksheet.cell(row_index, 8)
+        if not source_cell.hyperlink:
+            raise ValueError('异常校工作表信息来源没有可点击链接')
+
+
 def write_workbook(output_path, sheet_records):
     """原子保存工作簿并在替换前完成验证。"""
-    resolved_output_path = Path(output_path).resolve()
-    resolved_output_path.parent.mkdir(parents=True, exist_ok=True)
-    with NamedTemporaryFile(
-        prefix=f'.{resolved_output_path.stem}.',
-        suffix='.xlsx',
-        dir=resolved_output_path.parent,
-        delete=False,
-    ) as temporary_file:
-        temporary_path = Path(temporary_file.name)
-    try:
-        workbook = build_workbook(sheet_records)
-        try:
-            workbook.save(temporary_path)
-        finally:
-            workbook.close()
-        verify_workbook(temporary_path, sheet_records)
-        temporary_path.replace(resolved_output_path)
-    finally:
-        temporary_path.unlink(missing_ok=True)
-    return resolved_output_path
+    workbook = build_workbook(sheet_records)
+    return write_workbook_atomically(
+        workbook,
+        output_path,
+        lambda temporary_path: verify_workbook(temporary_path, sheet_records),
+    )
 
 
 def main():
@@ -413,14 +468,21 @@ def main():
             unit_records = build_school_output_records(
                 unit_name, address_payload['items'], city
             )
+            unit_abnormal_rows = build_abnormal_rows(
+                unit_name, address_payload['items']
+            )
             unit_output_path = write_workbook(
                 unit_dir / f'基础教育学校信息_{unit_name}.xlsx',
-                [(SHEET_NAME, unit_records)],
+                [
+                    (SHEET_NAME, unit_records),
+                    (ABNORMAL_SHEET_NAME, unit_abnormal_rows),
+                ],
             )
             administrative_unit_outputs.append({
                 'administrative_unit': unit_name,
                 'output': str(unit_output_path),
                 'row_count': len(unit_records),
+                'abnormal_row_count': len(unit_abnormal_rows),
             })
             merged_records.extend(unit_records)
             administrative_unit_sheets.append((unit_name, unit_records))

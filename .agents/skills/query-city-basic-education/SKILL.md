@@ -5,123 +5,136 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 
 ## 输入与运行条件
 
-输入一个中国城市名称，输出该城市直接下级行政单位中的非高校学校信息。
+输入：一个中国城市。输出：该城市直接下级行政单位内的非高校学校信息。
 
-- 若用户尚未确认 Python 环境或解释器，先询问；已经确认则不要重复询问。
-- 全程使用同一环境，要求安装 `beautifulsoup4`、`lxml`、`pandas`、`openpyxl`、`xlrd` 和 `PyMuPDF`；读取 Word 还需要 LibreOffice。
-- 共享运行库必须已安装且版本与 `requirements.txt` 一致；
-- 城市查询和地址处理从进程环境或工作区 `.env` 读取 `AMAP_KEY`。
-- 缺少依赖、地图密钥或公共组件时停止并说明缺项，不自行安装，也不另写临时脚本复制固定逻辑。
+- 环境未确认先询问；确认后全程使用同一环境。依赖：`beautifulsoup4`、`lxml`、`pandas`、`openpyxl`、`xlrd`、`PyMuPDF`；Word 还需 LibreOffice。
+- `requirements.txt` 只锁定 `query-city-core` 版本；其余依赖按上条安装，版本由运行环境管理。
+- 城市查询与地址处理从环境变量或 `.env` 读取 `AMAP_KEY`。
+- 缺依赖、密钥或公共组件时停下说明缺项；不自装、不写临时脚本复制固定逻辑。
+- 执行约定：命令示例的相对路径相对 skill 根目录；非交互 Python 命令按仓库 AGENTS.md 的运行约定执行。
 
-全部输出固定写入：
-
-`<项目根目录>/output/<标准城市名>/<YYYY-MM-DD>/Basic_Education/`
+全部输出写入 `output/<标准城市名>/<YYYY-MM-DD>/Basic_Education/<HHMMSS>/`。每次调用用新 `<HHMMSS>`，重新检索并生成全部结果，不覆盖同日旧结果，旧目录保留。
 
 ## 执行边界与 Agent 分工
 
-固定处理必须调用现有脚本：
+固定处理统一调用下表脚本（`list-links` 按需；`address.process` 串行执行）：
 
-| 用途 | 调用 |
+| 用途 | 命令 |
 | --- | --- |
-| 标准化城市并取得下级行政单位 | `python -m query_city_core.city` |
-| 检查来源并生成提取计划 | `scripts/build_school_address.py inspect` |
+| 标准化城市、取下级行政单位 | `python -m query_city_core.city` |
+| （可选）栏目页链接抓取 | `scripts/build_school_address.py list-links` |
+| 保存入选来源文件 | `scripts/build_school_address.py download` |
+| 保存名录链接的同构详情页 | `scripts/build_school_address.py collect-details` |
+| 检查来源、生成提取计划 | `scripts/build_school_address.py inspect` |
 | 按已复核计划提取学校 | `scripts/build_school_address.py extract` |
 | 规范化地址与地图兜底 | `python -m query_city_core.address.process` |
-| 生成区级和城市工作簿 | `scripts/build_excel.py` |
+| 生成区级与城市工作簿 | `scripts/build_excel.py` |
 
-来源检索、质量判断、覆盖判断和提取计划复核由 Agent 完成；学校类型规范、记录去重、地址路由、排序和工作簿格式由脚本完成。
+Agent 负责来源检索、质量与覆盖判断、提取计划复核；脚本负责类型规范、去重、地址路由、排序与工作簿格式。
 
-运行环境支持子 Agent 时，主 Agent 按行政单位划分互不重叠的任务：
-
-- 每个行政单位交给一个子 Agent；并发名额不足时分批派发，不得遗漏或重复处理。
-- 子 Agent 不再向下委派，只能写入自己的行政单位目录。
-- 子 Agent 负责来源检索、下载、`government_source.json`、提取计划复核、学校提取和地址处理。
-- 主 Agent 负责城市标准化、任务分发、逐区结果验收和最终工作簿，不让子 Agent 写城市总表。
+本 skill 不按行政单位分派：由同一执行 Agent 按 `subdivisions` 顺序逐个完成第 2-4 节，处理一个行政单位时只写它的目录；再串行执行第 5 节地址处理并生成第 6 节工作簿。下文“执行 Agent”即运行本 skill 的 Agent。
 
 ## 1. 取得行政单位
 
-运行：
-
-```text
+```powershell
+$runDate = Get-Date -Format yyyy-MM-dd
+$runTime = Get-Date -Format HHmmss
+$runDir = 'output/<标准城市名>/' + $runDate + '/Basic_Education/' + $runTime
+New-Item -ItemType Directory -Force $runDir | Out-Null
 python -m query_city_core.city --city <用户城市>
 ```
 
-从输出读取标准城市名和 `subdivisions`。
-
-主 Agent 按每个 `subdivisions[].name` 创建同名目录，并把完整行政单位对象、标准城市名、执行日期和该目录分配给对应子 Agent。不得增删、合并、改名或继续查询更低一级行政单位。
+读输出中的标准城市名与 `subdivisions`。在 `$runDir` 下按 `subdivisions[].name` 建同名目录，之后依次处理每个目录；不得增删、合并、改名或继续查询更低一级行政单位。
 
 ## 2. 检索并保存政府来源
 
-每个子 Agent 使用自身 Web Search，先查本区教育行政部门，再查本区政府门户、上级教育部门和政府数据平台。只采用政府或教育行政部门发布且正文、附件或分页实际包含学校名录的来源；通知只有在正文或附件包含名录时才采用。
+**检索规则（Agent 判断）**
 
-必须分别检索幼儿园、小学、初中和高中。政府来源还列出一贯制学校、完全中学、特殊教育、中等职业教育、职业高级中学、技工院校、专门学校或其他非高校类型时，一并纳入，不按固定类型排除。
+- 只采用政府或教育部门发布、且正文/附件/分页实际含学校名录的来源；通知仅在含名录时采用。禁用地图、百科、媒体、自媒体、择校网站和第三方学校数据库。
+- 按「本区教育部门 → 区政府门户 → 上级教育部门 → 政府数据平台」检索；优先当年、去年，覆盖不足再扩前年。
+- 四类必查：幼儿园、小学、初中、高中。来源列出的其他非高校类型（一贯制、完全中学、特殊教育、中等职业、技工、专门学校等）一并纳入。
+- 一贯制/完中按覆盖学段计入四类覆盖：完全中学 = 初中 + 高中；九年一贯制 = 小学 + 初中；十二年一贯制 = 小学 + 初中 + 高中；十五年一贯制 = 幼儿园 + 小学 + 初中 + 高中。`school_type_coverage`、`covered_school_types` 据此填写，不按名称字面推断。
 
-先检索当年和去年；没有合格来源或仍有覆盖缺口时，才扩大到前年。候选按官方性、时效性和信息量选择，不因格式不同改变优先级。不得使用地图、百科、媒体、自媒体、择校网站或第三方学校数据库作为名录来源。
+访问兜底：`download`、`collect-details`、`list-links` 内置 urllib → curl 直连并记录尝试；需执行脚本或登录的内容才用浏览器并同样记录。访问失败 ≠ 没有官方来源。
 
-入选后立即把原始 HTML、Excel、Word、PDF 或图片保存到行政单位目录。分页 HTML 保存全部名录页；附件保留原文件名和格式，不下载没有学校清单的通知附件。
+**保存来源文件（按需执行，含输入输出）**
 
-写入 `government_source.json` 前读取 [政府来源结果格式](references/government-source-format.md)。每个行政单位必须记录幼儿园、小学、初中和高中的覆盖状态；未找到资料也要写明状态，不得静默结束。
+`list-links`（栏目页筛候选）
+
+- 输入：`directory_manifest.json`，`stage = directory_link_manifest`，items 给 `url`，顶层可选 `link_pattern`、`allowed_domain`
+- 命令：`scripts/build_school_address.py list-links --input <manifest> --output <links.json>`
+- 输出：`directory_links.json`（候选链接）；复核后决定收录
+
+`download`（保存入选来源）
+
+- 输入：`source_download_manifest.json`，`stage = source_download_manifest`，items 给 `file`、`url`，顶层可选 `allowed_domain`
+- 命令：`scripts/build_school_address.py download --manifest <manifest> --output-dir <行政单位目录>`
+- 行为：保存 HTML/Excel(`.xls/.xlsx/.xlsm`)/CSV/Word/PDF/图片；分页全存，附件保留原名原格式；清单原地写回每项 `final_url`、`http_status`、`size_bytes`、`access_attempts`，失败项进顶层 `errors`
+- 输出：本地文件 + 写回结果的清单；随后把 `local_files`、`local_file_urls`、`access_attempts` 写入 `government_source.json`
+
+`collect-details`（名录页链接到同构详情页时）
+
+- 输入：本地名录 HTML + 已复核的详情链接 CSS 选择器 + 允许域名
+- 命令：`scripts/build_school_address.py collect-details --input <名录页.html> --link-selector <选择器> --output-dir <详情页目录> --manifest <详情页清单.json> --allowed-domain <域名>`
+- 输出：详情页文件 + 清单（`local_file` 与逐页网址）；返回非零或 `errors` 非空时先复核再继续，不得把访问失败当作学校不存在
+
+并发：三命令默认同主机串行（并发 1、间隔 0.3 秒），跨主机并行不超过 `--max-workers`；可用 `--max-workers`、`--host-max-workers`、`--host-min-interval` 调整。节流只约束单进程。
+
+写 `government_source.json` 前读取 [政府来源结果格式](references/government-source-format.md)。每个行政单位必须写明幼儿园、小学、初中、高中的覆盖状态；找不到资料也要写明。
 
 ## 3. 检查并复核提取计划
 
-运行：
+- 输入：`government_source.json`
+- 命令：`scripts/build_school_address.py inspect --input <government_source.json> --output <extraction_plan.json>`
+- 输出：`extraction_plan.json`（待复核）
 
-```text
-scripts/build_school_address.py inspect \
-  --input <行政单位目录>/government_source.json \
-  --output <行政单位目录>/extraction_plan.json
-```
+复核内容：脚本识别的表格、列、固定值、向下填充、排除行是否正确。
 
-子 Agent 检查脚本识别出的文件、页码、工作表、表格、学校列、地址列、学校类型、办学性质、固定值、向下填充列和排除行。正确规则设为 `approved = true`，来源设为 `review_status = ready`；不得手工抄写最终学校记录。
+单一覆盖类型且无类型列时脚本自动预填固定学校类型；九年一贯制、完全中学、十二年一贯制等多学段来源不会预填，需人工填官方类型标签。
 
-扫描 PDF 或图片被标记为 `needs_vision` 时，按来源格式参考中的视觉分支处理。有视觉能力时生成视觉结果并重新运行检查；没有视觉能力时将该来源按 `no_vision_capability` 跳过，不运行本地 OCR。
+正确规则设 `approved = true`，来源设 `review_status = ready`；不得手工抄写最终学校记录。
+
+PDF/图片标记 `needs_vision` 时按参考文档的视觉分支处理：有视觉能力则生成视觉结果并重跑检查；否则该来源按 `no_vision_capability` 跳过，不运行本地 OCR。
 
 ## 4. 提取学校记录
 
-运行：
+- 输入：已复核的 `extraction_plan.json`
+- 命令：`scripts/build_school_address.py extract --plan <extraction_plan.json> --output <address_records.json>`
+- 输出：`address_records.json`
 
-```text
-scripts/build_school_address.py extract \
-  --plan <行政单位目录>/extraction_plan.json \
-  --output <行政单位目录>/address_records.json
-```
+仅当 `stage = address_records` 且 `metrics.error_count = 0` 才继续。
 
-只有 `stage = address_records` 且 `metrics.error_count = 0` 才能继续。输出记录必须包含学校名称、原始地址、学校类型、办学性质、发布日期、行政单位和可定位的信息来源；`source_nature` 固定为 `government_information`。来源没有地址时保留空值，不得推断或编造。
+记录须含学校名称、原始地址、学校类型、办学性质、发布日期、行政单位、可定位来源；`source_nature` 固定为 `government_information`。来源无地址时留空，不推断、不编造。
+
+脚本按「校名 + 原始地址」合并记录，按覆盖学段去重并保留官方类型标签（如 小学 + 九年一贯制学校 → 九年一贯制学校；九年一贯制学校 + 完全中学 → 保留两者）。
 
 ## 5. 处理地址
 
-运行：
+- 约束：执行 Agent 串行调用，同一时间只允许一个 `address.process` 进程。当前高德 key 每秒上限少于 3 次，公共层按 1 秒窗口 2 次执行；两区并行即超限（2 × 2 > 3）。更换 key 档位后再调整公共层限流参数。
+- 输入：`address_records.json`
+- 命令：`python -m query_city_core.address.process --input <address_records.json> --output <processed_address_records.json>`
+- 输出：`processed_address_records.json`
 
-```text
-python -m query_city_core.address.process \
-  --input <行政单位目录>/address_records.json \
-  --output <行政单位目录>/processed_address_records.json
-```
-
-确认输出 `stage = processed_address_records`。政府资料中的完整地址直接使用；缺少地址或地址不完整时由公共组件在当前行政单位内尝试地图兜底。目标城市冲突或没有合格结果时，最终地址保持为空。
-
-子 Agent 完成后向主 Agent 返回：行政单位名称、总体状态、各类型覆盖状态、来源数、提取记录数、最终地址非空数和行政单位目录。
+地址规则：政府完整地址直接采用；地址为空，或只有区/街道/片区且不含小区、楼栋、村等具体地点词时，按学校名在当前行政单位内做 POI 兜底；已含具体地点信息时直接采用官方地址。目标城市冲突或无合格结果时最终地址留空，保留在输出中供复检。
 
 ## 6. 生成最终工作簿
 
-主 Agent 确认所有行政单位均已返回结果后运行：
+- 输入：`Basic_Education` 目录（各行政单位的 `processed_address_records.json`）
+- 命令：`scripts/build_excel.py --input-dir <Basic_Education目录> --output <基础教育学校查询_<标准城市名>_<YYYY-MM-DD>.xlsx>`
+- 输出：每个行政单位一份区级工作簿 + 一份城市总表（“学校信息”总表 + 各区工作表）
 
-```text
-scripts/build_excel.py \
-  --input-dir <Basic_Education输出目录> \
-  --output <Basic_Education输出目录>/基础教育学校查询_<标准城市名>_<YYYY-MM-DD>.xlsx
-```
+区级工作簿含「学校信息」「异常校」两表：学校信息只输出最终地址非空的记录；异常校列最终地址为空的学校及异常原因。去重、类型顺序、区内排序、按区拼接与展示格式以脚本结果为准，不由 Agent 手工调整。
 
-脚本在各行政单位目录生成一份区级工作簿，并生成包含“学校信息”总表和各行政单位分表的城市工作簿。只输出最终地址非空的记录；去重、学校类型顺序、区内排序、总表按区拼接和展示格式均以脚本结果为准，不由 Agent 手工调整。
-
-最终列固定为：序号、行政单位、学校名称、学校类型、办学性质、地址、地址获取方式、发布日期、信息来源。
+学校信息表列：序号、行政单位、学校名称、学校类型、办学性质、发布日期、地址、地址获取方式、地图匹配状态、信息来源。异常校表列：序号、行政单位、学校名称、学校类型、办学性质、异常原因、地图匹配状态、信息来源、发布日期。
 
 ## 完成检查
 
-- `subdivisions` 中每个行政单位都有子 Agent 返回结果或明确的无来源状态，无遗漏和重复目录。
-- 幼儿园、小学、初中和高中均完成独立检索，覆盖缺口已写入 `government_source.json`。
-- 每个进入汇总的行政单位都有合法的 `address_records.json` 和 `processed_address_records.json`。
-- 城市总表行数等于各行政单位分表行数之和，所有输出行的最终地址非空。
-- 最终工作簿可以打开，工作表和九列字段符合脚本约定。
+- `subdivisions` 每个行政单位都有返回结果或明确的无来源状态，无遗漏、无重复目录。
+- 四类学校均完成独立检索，覆盖缺口已写入 `government_source.json`。
+- 每个进入汇总的行政单位都有合法的 `address_records.json` 与 `processed_address_records.json`。
+- 每个区级工作簿含两个工作表，异常校每行异常原因非空。
+- 城市总表行数 = 各区行数之和，输出行最终地址均非空。
+- 最终地址为空的记录保留在 `processed_address_records.json` 供复检，不进工作簿。
+- 最终工作簿可打开，表与列符合约定。
 
 最终回复只说明标准城市名、行政单位总数及各状态数量、来源总数、最终地址行数和最终文件绝对路径，不展开逐区检索过程。

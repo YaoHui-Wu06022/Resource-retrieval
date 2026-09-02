@@ -5,7 +5,7 @@ import io
 from pathlib import Path
 from typing import Any
 
-from .common import normalize_text
+from . import normalize_text
 
 
 def extract_pdf_tables(

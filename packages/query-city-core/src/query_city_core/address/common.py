@@ -4,8 +4,36 @@ import re
 
 
 SOURCE_NATURES = {'web_search', 'government_information'}
+MAP_MATCH_STATUS_VALUES = {
+    'consistent', 'partial', 'conflict', 'poi_match', 'not_found',
+    'ambiguous', 'error', 'skipped',
+}
+MAP_MATCH_STATUS_LABELS = {
+    'consistent': '一致',
+    'partial': '部分匹配',
+    'conflict': '冲突',
+    'poi_match': 'POI匹配',
+    'not_found': '未找到',
+    'ambiguous': '多个候选',
+    'error': '查询错误',
+    'skipped': '未查询',
+}
 COMPARISON_PUNCTUATION_PATTERN = re.compile(r'[\s，,。；;：:（）()]+')
 DISTRICT_PATTERN = re.compile(r'^(.{1,15}?(?:区|县|旗))')
+CITY_SUFFIXES = ('市', '地区', '自治州', '盟')
+ADMIN_UNIT_SUFFIXES = ('街道', '苏木', '区', '县', '旗', '镇', '乡', '市')
+SUB_LEVEL_SUFFIXES = ('街道', '镇', '乡', '苏木')
+DISTRICT_LEVEL_SUFFIXES = frozenset(ADMIN_UNIT_SUFFIXES) - frozenset(
+    SUB_LEVEL_SUFFIXES
+)
+PLACE_NAME_SUFFIXES = ('校区', '校园', '分院', '分行', '支行', '分部')
+MISSING_ADMIN_REASON = '地址缺少下级行政区'
+_ADMIN_UNIT_PATTERN = re.compile(
+    r'^(.{1,20}?(?:' + '|'.join(
+        re.escape(suffix)
+        for suffix in sorted(ADMIN_UNIT_SUFFIXES, key=len, reverse=True)
+    ) + r'))'
+)
 
 
 def compact_address(value):
@@ -13,12 +41,40 @@ def compact_address(value):
     return COMPARISON_PUNCTUATION_PATTERN.sub('', str(value or ''))
 
 
-def extract_address_components(detail):
-    """从城市之后的文本中提取区县和具体位置。"""
-    district_match = DISTRICT_PATTERN.match(detail)
-    district = district_match.group(1) if district_match else ''
-    location = detail[len(district):] if district else detail
-    return district, location
+def extract_admin_unit_components(detail):
+    """从城市之后的文本中提取下级行政区和具体位置。"""
+    match = _ADMIN_UNIT_PATTERN.match(detail)
+    admin_unit = match.group(1) if match else ''
+    location = detail[len(admin_unit):] if admin_unit else detail
+    return admin_unit, location
+
+
+def address_detail_key(value):
+    """提取最后道路与门牌号作为同址比较键。"""
+    value = re.sub(r'\s+', '', str(value or ''))
+    number_matches = list(re.finditer(r'\d+(?:[-－]\d+)?号', value))
+    if not number_matches:
+        return value
+    number_match = number_matches[-1]
+    road_positions = [
+        value.rfind(suffix, 0, number_match.start())
+        for suffix in ('大道', '大街', '路', '街', '巷', '弄', '道')
+    ]
+    road_position = max(road_positions)
+    if road_position < 0:
+        return value
+    detail_start = 0
+    for separator in ('省', '市', '区', '县', '街道', '街', '镇', '乡'):
+        separator_position = value.rfind(separator, 0, road_position)
+        if separator_position >= detail_start:
+            detail_start = separator_position + len(separator)
+    return value[detail_start:number_match.end()]
+
+
+def strip_city_prefix(value, city):
+    """移除地址开头的目标城市前缀。"""
+    value = str(value or '')
+    return value[len(city):] if value.startswith(city) else value
 
 
 def validate_address_record(address_record):
@@ -42,7 +98,7 @@ def build_map_result_record(address_record):
     return {
         **address_record,
         'map_address': '',
-        'map_status': '',
+        'map_match_status': '',
         'map_reason': '',
         'map_poi_type': '',
         'map_poi_typecode': '',
@@ -50,3 +106,10 @@ def build_map_result_record(address_record):
         'final_address_source': '',
         'final_address_reason': '',
     }
+
+
+def format_map_match_status(value):
+    """将地图匹配状态转换为稳定的中文展示文本。"""
+    status = str(value or '').strip()
+    return MAP_MATCH_STATUS_LABELS.get(status, status or '未查询')
+

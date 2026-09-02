@@ -2,17 +2,97 @@
 # -*- coding: utf-8 -*-
 """规范化统一地址记录中的原始地址。"""
 
-import json
 import re
 from collections import Counter
-from pathlib import Path
 
-from ..city import validate_city_context
+from ..city import read_city_catalog, validate_city_context
 from .common import (
+    ADMIN_UNIT_SUFFIXES,
+    CITY_SUFFIXES,
+    DISTRICT_LEVEL_SUFFIXES,
     DISTRICT_PATTERN,
-    extract_address_components,
+    MISSING_ADMIN_REASON,
+    PLACE_NAME_SUFFIXES,
+    SUB_LEVEL_SUFFIXES,
+    extract_admin_unit_components,
     validate_address_record,
 )
+
+
+_CITY_CATALOG = read_city_catalog()
+
+
+def _city_short_names(full_name):
+    """返回城市全名的常见简称；无简称时返回全名。"""
+    core = full_name
+    for suffix in CITY_SUFFIXES:
+        if full_name.endswith(suffix):
+            core = full_name[:-len(suffix)]
+            break
+    names = {core}
+    minority_marker = core.find('族')
+    if minority_marker > 0:
+        names.add(core[:minority_marker])
+    return names
+
+
+_CITY_FULL_NAMES = frozenset(_CITY_CATALOG)
+_CITY_SHORT_NAMES = set()
+_CITY_SHORT_TO_FULL = {}
+for _city_full_name in _CITY_CATALOG:
+    for _city_short_name in _city_short_names(_city_full_name):
+        _CITY_SHORT_NAMES.add(_city_short_name)
+        _CITY_SHORT_TO_FULL.setdefault(_city_short_name, []).append(
+            _city_full_name
+        )
+
+
+def _subdivision_suffixes(city_context):
+    """从目标城市下级行政区名称推断其使用的层级后缀。"""
+    suffixes = set()
+    for item in city_context.get('subdivisions') or []:
+        name = str(item.get('name') or '').strip()
+        for suffix in ADMIN_UNIT_SUFFIXES:
+            if name.endswith(suffix):
+                suffixes.add(suffix)
+                break
+    return suffixes
+
+
+def detect_city_prefix(address):
+    """返回地址开头明确出现的城市全名或简称；未出现时返回空字符串。"""
+    value = str(address or '')
+    province_match = PROVINCE_PREFIX_PATTERN.match(value)
+    if province_match:
+        value = value[province_match.end():]
+    city_match = CITY_PREFIX_PATTERN.match(value)
+    if city_match:
+        return city_match.group('city')
+    short_city_match = CITY_SHORT_WITH_DISTRICT_PATTERN.match(value)
+    if short_city_match:
+        short_name = short_city_match.group('city')
+        full_names = _CITY_SHORT_TO_FULL.get(short_name, ())
+        if len(full_names) == 1:
+            return full_names[0]
+        return short_name
+    return ''
+
+
+def detect_foreign_city_campus(place_name, city_context):
+    """地点名称中出现目标城市以外的城市校区名时返回异地城市全名。"""
+    target_city = str(city_context.get('city_name') or '')
+    target_short = (
+        min(_city_short_names(target_city), key=len) if target_city else ''
+    )
+    value = str(place_name or '')
+    for short_name, full_names in _CITY_SHORT_TO_FULL.items():
+        if not short_name or short_name == target_short:
+            continue
+        if any(full_name == target_city for full_name in full_names):
+            continue
+        if short_name + '校区' in value or short_name + '校园' in value:
+            return full_names[0] if full_names else short_name
+    return ''
 
 
 ADDRESS_LABEL_PATTERN = re.compile(
@@ -37,10 +117,17 @@ FUNCTIONAL_ZONE_PATTERN = re.compile(
     r'^(?:.*?)(?:经济技术开发区|高新技术产业开发区|开发区|高新区|产业园区)$'
 )
 NON_ADMIN_ZONE_MARKER_PATTERN = re.compile(
-    r'街道?|镇|乡|苏木|大道|公路|路|街|巷|村|社区|小区|商住|工业|园|校'
+    r'街道?|' + '|'.join(
+        suffix for suffix in SUB_LEVEL_SUFFIXES if suffix != '街道'
+    )
+    + r'|大道|公路|路|街|巷|村|社区|小区|商住|工业|园|校'
 )
-LOWER_ADMIN_PATTERN = re.compile(r'^(.{1,20}?(?:街道|镇|乡|苏木))')
-PLACE_ONLY_PATTERN = re.compile(r'^.{0,30}(?:校区|校园|分院|分行|支行|分部)$')
+LOWER_ADMIN_PATTERN = re.compile(
+    r'^(.{1,20}?(?:' + '|'.join(SUB_LEVEL_SUFFIXES) + r'))'
+)
+PLACE_ONLY_PATTERN = re.compile(
+    r'^.{0,30}(?:' + '|'.join(PLACE_NAME_SUFFIXES) + r')$'
+)
 SPECIFIC_ADDRESS_PATTERN = re.compile(
     r'(?:大道|道路|公路|路|街|巷|弄|段|村|大院|\d+号|\d+栋|\d+座|\d+楼)'
 )
@@ -89,39 +176,41 @@ def extract_target_city_detail(address, city_context):
                 f'{province_match.group("province")}'
             )
 
+    target_short = min(_city_short_names(city), key=len)
     if address.startswith(city):
         address = address[len(city):]
     elif (
-        city.endswith('市')
-        and address.startswith(city[:-1])
-        and DISTRICT_PATTERN.match(address[len(city) - 1:])
+        address.startswith(target_short)
+        and DISTRICT_PATTERN.match(address[len(target_short):])
         and not is_non_administrative_zone(
-            DISTRICT_PATTERN.match(address[len(city) - 1:]).group(1)
+            DISTRICT_PATTERN.match(address[len(target_short):]).group(1)
         )
     ):
-        address = address[len(city) - 1:]
+        address = address[len(target_short):]
     else:
         city_match = CITY_PREFIX_PATTERN.match(address)
-        if city_match:
-            foreign_city = city_match.group('city')
-            remaining = address[city_match.end():]
-            district_match = DISTRICT_PATTERN.match(remaining)
-            has_administrative_district = (
-                district_match is not None
-                and not is_non_administrative_zone(district_match.group(1))
+        if (
+            city_match
+            and city_match.group('city') in _CITY_FULL_NAMES
+            and city_match.group('city') != city
+        ):
+            return '', (
+                '原始地址中的城市与目标城市不一致：'
+                f'{city_match.group("city")}'
             )
-            if target_province_matched or has_administrative_district:
-                return '', (
-                    '原始地址中的城市与目标城市不一致：'
-                    f'{foreign_city}'
-                )
-        if target_province_matched:
-            short_city_match = CITY_SHORT_WITH_DISTRICT_PATTERN.match(address)
-            if short_city_match:
-                return '', (
-                    '原始地址中的城市与目标城市不一致：'
-                    f'{short_city_match.group("city")}'
-                )
+        short_city_match = CITY_SHORT_WITH_DISTRICT_PATTERN.match(address)
+        if (
+            short_city_match
+            and not short_city_match.group('district').startswith(
+                ('区', '县', '旗')
+            )
+            and short_city_match.group('city') in _CITY_SHORT_NAMES
+            and short_city_match.group('city') != target_short
+        ):
+            return '', (
+                '原始地址中的城市与目标城市不一致：'
+                f'{short_city_match.group("city")}'
+            )
     return address, ''
 
 
@@ -159,6 +248,7 @@ def normalize_address_value(
             'normalized_address': '',
             'normalization_status': 'empty',
             'normalization_reason': '前置处理没有取得地址文本',
+            'resolved_city': '',
         }
 
     cleaned_address = normalize_address_text(original_address)
@@ -167,16 +257,19 @@ def normalize_address_value(
             'normalized_address': '',
             'normalization_status': 'invalid',
             'normalization_reason': '清理后没有可用地址',
+            'resolved_city': '',
         }
 
     detail, conflict_reason = extract_target_city_detail(
         cleaned_address, city_context
     )
     if conflict_reason:
+        foreign_city = detect_city_prefix(cleaned_address)
         return {
             'normalized_address': '',
             'normalization_status': 'conflict',
             'normalization_reason': conflict_reason,
+            'resolved_city': foreign_city,
         }
 
     target_administrative_unit = re.sub(
@@ -185,36 +278,73 @@ def normalize_address_value(
     target_unit_index = detail.find(target_administrative_unit)
     if target_administrative_unit and 0 <= target_unit_index <= 20:
         detail = detail[target_unit_index:]
-    district, location = extract_address_components(detail)
-    if district and is_non_administrative_zone(district):
-        district = ''
-        location = detail
+    subdivision_names = {
+        str(item.get('name') or '').strip()
+        for item in city_context.get('subdivisions') or []
+    }
+    admin_unit, _ = extract_admin_unit_components(detail)
+    if admin_unit:
+        admin_suffix = next(
+            suffix for suffix in ADMIN_UNIT_SUFFIXES
+            if admin_unit.endswith(suffix)
+        )
+        city_suffixes = _subdivision_suffixes(city_context)
+        if (
+            admin_suffix not in SUB_LEVEL_SUFFIXES
+            and is_non_administrative_zone(admin_unit)
+        ):
+            admin_unit = ''
+        elif subdivision_names:
+            known_local = any(
+                name == admin_unit or name.startswith(admin_unit)
+                for name in subdivision_names
+            )
+            if not known_local:
+                if (
+                    admin_suffix in city_suffixes
+                    or admin_suffix in DISTRICT_LEVEL_SUFFIXES
+                ):
+                    return {
+                        'normalized_address': '',
+                        'normalization_status': 'conflict',
+                        'normalization_reason': (
+                            '原始地址中的下级行政区不属于目标城市：'
+                            f'{admin_unit}'
+                        ),
+                        'resolved_city': city,
+                    }
+                admin_unit = ''
+        elif admin_suffix in SUB_LEVEL_SUFFIXES:
+            admin_unit = ''
+    location = detail[len(admin_unit):] if admin_unit else detail
     if (
-        district
+        admin_unit
         and target_administrative_unit
-        and district != target_administrative_unit
+        and admin_unit != target_administrative_unit
     ):
         return {
             'normalized_address': '',
             'normalization_status': 'conflict',
             'normalization_reason': (
-                '原始地址中的区县与检索单元不一致：'
-                f'{district} != {target_administrative_unit}'
+                '原始地址中的下级行政区与检索单元不一致：'
+                f'{admin_unit} != {target_administrative_unit}'
             ),
+            'resolved_city': city,
         }
-    if not district and target_administrative_unit:
+    if not admin_unit and target_administrative_unit:
         detail = f'{target_administrative_unit}{detail}'
-        district = target_administrative_unit
+        admin_unit = target_administrative_unit
     normalized_address = f'{city}{detail}'
     reason = ''
-    if not district:
-        reason = '地址缺少区县'
+    if not admin_unit:
+        reason = MISSING_ADMIN_REASON
     elif not has_specific_location(location):
         reason = '地址缺少行政区之后的具体位置'
     return {
         'normalized_address': normalized_address,
         'normalization_status': 'partial' if reason else 'complete',
         'normalization_reason': reason,
+        'resolved_city': city,
     }
 
 
@@ -222,17 +352,31 @@ def normalize_address_record(address_record, city_context):
     """保留业务字段并规范化一条公共地址记录。"""
     validate_address_record(address_record)
     attributes = dict(address_record.get('attributes') or {})
+    place_name = str(address_record.get('place_name') or '').strip()
     normalized_fields = normalize_address_value(
         address_record.get('original_address'),
         city_context,
         attributes.get('administrative_unit'),
     )
+    foreign_city = detect_foreign_city_campus(place_name, city_context)
+    if foreign_city and not normalized_fields.get('normalized_address'):
+        return {
+            **address_record,
+            'place_name': place_name,
+            'original_address': str(
+                address_record.get('original_address') or ''
+            ).strip(),
+            'source_reference': str(address_record['source_reference']).strip(),
+            'attributes': attributes,
+            'normalized_address': '',
+            'normalization_status': 'conflict',
+            'normalization_reason': f'地点名称包含异地城市校区：{foreign_city}',
+            'resolved_city': foreign_city,
+        }
     return {
         **address_record,
-        'place_name': str(address_record['place_name']).strip(),
-        'original_address': str(
-            address_record.get('original_address') or ''
-        ).strip(),
+        'place_name': place_name,
+        'original_address': str(address_record.get('original_address') or '').strip(),
         'source_reference': str(address_record['source_reference']).strip(),
         'attributes': attributes,
         **normalized_fields,
@@ -267,12 +411,3 @@ def normalize_address_payload(input_payload):
             'status_counts': dict(sorted(status_counts.items())),
         },
     }
-
-
-def write_json_payload(output_path, output_payload):
-    """把公共地址结果写入 UTF-8 JSON。"""
-    path = Path(output_path).resolve()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open('w', encoding='utf-8', newline='\n') as stream:
-        json.dump(output_payload, stream, ensure_ascii=False, indent=2)
-        stream.write('\n')

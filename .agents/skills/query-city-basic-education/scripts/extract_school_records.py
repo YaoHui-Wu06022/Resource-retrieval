@@ -1,6 +1,7 @@
 """执行已复核规则并构造基础教育学校地址记录。"""
 
 import re
+from fnmatch import fnmatch
 from pathlib import Path
 from typing import Any
 
@@ -11,14 +12,20 @@ from source_readers import (
     normalize_text,
 )
 from query_city_core.city import validate_city_context
+from query_city_core.io_utils import read_json_payload
 from inspect_government_source import (
+    ADDRESS_HEADERS,
+    EXACT_PLACE_HEADERS,
+    PLACE_HEADERS,
+    SCHOOL_NATURE_HEADERS,
+    SCHOOL_TYPE_HEADERS,
     is_place_name_header,
-    read_json_object,
     read_table_cell,
     resolve_source_path,
 )
 from normalize_school_records import (
     deduplicate_school_records,
+    infer_school_type_from_stage_name,
     normalize_place_name_text,
     normalize_school_nature,
     normalize_school_type,
@@ -61,7 +68,7 @@ def is_table_location_match(
     )
 
 
-def format_source_reference(
+def build_source_reference(
     source_record: dict[str, Any], source_location: str
 ) -> str:
     """组合来源链接和文件内定位。"""
@@ -84,22 +91,59 @@ def build_school_record(
     administrative_unit: str,
 ) -> dict[str, Any]:
     """生成公共地址输入记录。"""
+    normalized_place_name = normalize_place_name_text(place_name)
+    normalized_school_type = (
+        infer_school_type_from_stage_name(normalized_place_name)
+        or normalize_school_type(school_type)
+    )
     return {
-        'place_name': normalize_place_name_text(place_name),
+        'place_name': normalized_place_name,
         'original_address': normalize_text(original_address),
         'source_nature': 'government_information',
-        'source_reference': format_source_reference(
+        'source_reference': build_source_reference(
             source_record, source_location
         ),
         'attributes': {
             'administrative_unit': administrative_unit,
-            'school_type': normalize_school_type(school_type),
+            'school_type': normalized_school_type,
             'school_nature': normalize_school_nature(school_nature),
             'publication_date': resolve_publication_date(
                 source_record.get('publication_date')
             ),
         },
     }
+
+
+def build_records_for_locations(
+    place_name: str,
+    original_address: str,
+    school_type: str,
+    school_nature: str,
+    source_record: dict[str, Any],
+    source_location: str,
+    administrative_unit: str,
+) -> list[dict[str, Any]]:
+    """拆分明确校区地址并为每个地点生成学校记录。"""
+    records = []
+    campus_locations = split_explicit_campus_addresses(
+        place_name, original_address
+    )
+    for location_index, (location_name, location_address) in enumerate(
+        campus_locations, start=1
+    ):
+        record_location = source_location
+        if len(campus_locations) > 1:
+            record_location += f' | address {location_index}'
+        records.append(build_school_record(
+            location_name,
+            location_address,
+            school_type,
+            school_nature,
+            source_record,
+            record_location,
+            administrative_unit,
+        ))
+    return records
 
 
 def is_non_school_record_name(place_name: str) -> bool:
@@ -238,24 +282,15 @@ def extract_table_records(
         school_nature = school_nature_value or read_table_cell(
             table_row, school_nature_column
         )
-        campus_locations = split_explicit_campus_addresses(
-            place_name, read_table_cell(table_row, address_column)
-        )
-        for location_index, (location_name, location_address) in enumerate(
-            campus_locations, start=1
-        ):
-            record_location = location_text
-            if len(campus_locations) > 1:
-                record_location += f' | address {location_index}'
-            records.append(build_school_record(
-                location_name,
-                location_address,
-                school_type,
-                school_nature,
-                source_record,
-                record_location,
-                administrative_unit,
-            ))
+        records.extend(build_records_for_locations(
+            place_name,
+            read_table_cell(table_row, address_column),
+            school_type,
+            school_nature,
+            source_record,
+            location_text,
+            administrative_unit,
+        ))
     return records
 
 
@@ -310,23 +345,101 @@ def extract_html_css_records(
         source_location = (
             f'{source_path.name} | {row_selector} | row {row_number}'
         )
-        records.append(build_school_record(
-            place_name,
+        address_text = (
             normalize_text(address_element.get_text(' ', strip=True))
-            if address_element else '',
+            if address_element else ''
+        )
+        school_type = (
             normalize_text(school_type_element.get_text(' ', strip=True))
-            if school_type_element else school_type_value,
-            school_nature_value or (
-                normalize_text(
-                    school_nature_element.get_text(' ', strip=True)
-                )
-                if school_nature_element else ''
-            ),
+            if school_type_element else school_type_value
+        )
+        school_nature = school_nature_value or (
+            normalize_text(school_nature_element.get_text(' ', strip=True))
+            if school_nature_element else ''
+        )
+        records.extend(build_records_for_locations(
+            place_name,
+            address_text,
+            school_type,
+            school_nature,
             source_record,
             source_location,
             administrative_unit,
         ))
     return records
+
+
+def normalize_key_value_label(label_text: Any) -> str:
+    """统一详情页纵向字段名称。"""
+    return re.sub(r'[\s（）()：:、/\\_\-]+', '', normalize_text(label_text))
+
+
+def read_key_value_field(
+    fields: dict[str, str], configured_labels: Any, default_labels: tuple[str, ...]
+) -> str:
+    """按已复核标签或默认官方表头读取详情页字段。"""
+    labels = configured_labels or default_labels
+    if not isinstance(labels, (list, tuple)):
+        raise ValueError('html_key_value 字段标签必须是数组')
+    for label in labels:
+        field_value = fields.get(normalize_key_value_label(label))
+        if field_value:
+            return field_value
+    return ''
+
+
+def extract_html_key_value_records(
+    source_path: Path,
+    extraction_rule: dict[str, Any],
+    source_record: dict[str, Any],
+    administrative_unit: str,
+) -> list[dict[str, Any]]:
+    """从政府学校详情页的纵向键值表提取一条或多校区记录。"""
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(load_source_html(source_path), 'lxml')
+    fields = {}
+    for table_row in soup.select('table tr'):
+        cells = table_row.find_all(['th', 'td'], recursive=False)
+        if len(cells) < 2:
+            continue
+        field_label = normalize_key_value_label(
+            cells[0].get_text(' ', strip=True)
+        )
+        field_value = normalize_text(cells[1].get_text(' ', strip=True))
+        if field_label and field_value:
+            fields.setdefault(field_label, field_value)
+    place_name = read_key_value_field(
+        fields,
+        extraction_rule.get('place_name_labels'),
+        PLACE_HEADERS + EXACT_PLACE_HEADERS,
+    )
+    if not place_name or is_non_school_record_name(place_name):
+        return []
+    original_address = read_key_value_field(
+        fields,
+        extraction_rule.get('original_address_labels'),
+        ADDRESS_HEADERS,
+    )
+    school_type = read_key_value_field(
+        fields,
+        extraction_rule.get('school_type_labels'),
+        SCHOOL_TYPE_HEADERS,
+    ) or normalize_text(extraction_rule.get('school_type_value'))
+    school_nature = read_key_value_field(
+        fields,
+        extraction_rule.get('school_nature_labels'),
+        SCHOOL_NATURE_HEADERS,
+    ) or normalize_text(extraction_rule.get('school_nature_value'))
+    return build_records_for_locations(
+        place_name,
+        original_address,
+        school_type,
+        school_nature,
+        source_record,
+        f'{source_path.name} | key-value table',
+        administrative_unit,
+    )
 
 
 def extract_text_segments(
@@ -392,9 +505,47 @@ def extract_text_records(
     return records
 
 
+def resolve_rule_source_files(
+    source_dir: Path,
+    source_plan: dict[str, Any],
+    extraction_rule: dict[str, Any],
+) -> list[tuple[Path, str, str]]:
+    """把单文件或文件模式规则限定到来源清单已经登记的文件。"""
+    declared_files = {
+        normalize_text(source_file.get('file')): source_file
+        for source_file in (source_plan.get('files') or [])
+        if isinstance(source_file, dict)
+        and normalize_text(source_file.get('file'))
+    }
+    file_name = normalize_text(extraction_rule.get('file'))
+    file_pattern = normalize_text(extraction_rule.get('file_pattern'))
+    if bool(file_name) == bool(file_pattern):
+        raise ValueError('提取规则必须且只能包含 file 或 file_pattern')
+    matched_names = (
+        [file_name]
+        if file_name
+        else [
+            declared_name for declared_name in declared_files
+            if fnmatch(declared_name.replace('\\', '/'), file_pattern)
+        ]
+    )
+    if not matched_names:
+        raise ValueError(f'file_pattern 没有匹配已登记文件：{file_pattern}')
+    resolved_files = []
+    for matched_name in matched_names:
+        if matched_name not in declared_files:
+            raise ValueError(f'提取规则引用未登记文件：{matched_name}')
+        resolved_files.append((
+            resolve_source_path(source_dir, matched_name),
+            matched_name,
+            normalize_text(declared_files[matched_name].get('source_url')),
+        ))
+    return resolved_files
+
+
 def extract_school_records(plan_path: Path) -> tuple[dict[str, Any], int]:
     """执行已复核计划并生成公共地址输入。"""
-    extraction_plan = read_json_object(plan_path)
+    extraction_plan = read_json_payload(plan_path)
     if extraction_plan.get('stage') != 'basic_education_extraction_plan':
         raise ValueError('输入必须是 basic_education_extraction_plan JSON')
     government_source_path = (
@@ -447,55 +598,72 @@ def extract_school_records(plan_path: Path) -> tuple[dict[str, Any], int]:
         for rule_index, extraction_rule in enumerate(extraction_rules, start=1):
             approved_count += 1
             try:
-                source_path = resolve_source_path(
-                    source_dir, normalize_text(extraction_rule.get('file'))
+                rule_sources = resolve_rule_source_files(
+                    source_dir, source_plan, extraction_rule
                 )
-                if extraction_rule.get('kind') in {
-                    'table', 'sheet', 'pdf_table', 'vision_table'
-                }:
-                    if source_path not in table_cache:
-                        table_cache[source_path] = load_source_tables(
-                            source_path
-                        )[0]
-                    source_table = next(
-                        (
-                            table_candidate
-                            for table_candidate in table_cache[source_path]
-                            if is_table_location_match(
-                                table_candidate, extraction_rule
-                            )
-                        ),
-                        None,
-                    )
-                    if source_table is None:
-                        raise ValueError('找不到规则指定的表格')
-                    extracted_records = extract_table_records(
-                        source_table,
-                        extraction_rule,
-                        source_plan,
-                        administrative_unit,
-                    )
-                elif extraction_rule.get('kind') == 'html_css':
-                    extracted_records = extract_html_css_records(
-                        source_path,
-                        extraction_rule,
-                        source_plan,
-                        administrative_unit,
-                    )
-                elif extraction_rule.get('kind') == 'text_regex':
-                    extracted_records = extract_text_records(
-                        source_path,
-                        extraction_rule,
-                        source_plan,
-                        administrative_unit,
-                    )
-                else:
-                    raise ValueError(
-                        f'不支持的规则类型：{extraction_rule.get("kind")}'
-                    )
-                if not extracted_records:
-                    raise ValueError('规则没有提取到任何学校')
-                records.extend(extracted_records)
+                for source_path, source_file_name, source_url in rule_sources:
+                    effective_rule = dict(extraction_rule)
+                    effective_rule['file'] = source_file_name
+                    effective_rule.pop('file_pattern', None)
+                    effective_source_plan = dict(source_plan)
+                    if source_url:
+                        effective_source_plan['content_url'] = source_url
+                    if extraction_rule.get('kind') in {
+                        'table', 'sheet', 'pdf_table', 'vision_table'
+                    }:
+                        if source_path not in table_cache:
+                            table_cache[source_path] = load_source_tables(
+                                source_path
+                            )[0]
+                        source_table = next(
+                            (
+                                table_candidate
+                                for table_candidate in table_cache[source_path]
+                                if is_table_location_match(
+                                    table_candidate, effective_rule
+                                )
+                            ),
+                            None,
+                        )
+                        if source_table is None:
+                            raise ValueError('找不到规则指定的表格')
+                        extracted_records = extract_table_records(
+                            source_table,
+                            effective_rule,
+                            effective_source_plan,
+                            administrative_unit,
+                        )
+                    elif extraction_rule.get('kind') == 'html_css':
+                        extracted_records = extract_html_css_records(
+                            source_path,
+                            effective_rule,
+                            effective_source_plan,
+                            administrative_unit,
+                        )
+                    elif extraction_rule.get('kind') == 'html_key_value':
+                        extracted_records = extract_html_key_value_records(
+                            source_path,
+                            effective_rule,
+                            effective_source_plan,
+                            administrative_unit,
+                        )
+                    elif extraction_rule.get('kind') == 'text_regex':
+                        extracted_records = extract_text_records(
+                            source_path,
+                            effective_rule,
+                            effective_source_plan,
+                            administrative_unit,
+                        )
+                    else:
+                        raise ValueError(
+                            '不支持的规则类型：'
+                            f'{extraction_rule.get("kind")}'
+                        )
+                    if not extracted_records:
+                        raise ValueError(
+                            f'规则没有从 {source_file_name} 提取到任何学校'
+                        )
+                    records.extend(extracted_records)
             except Exception as exc:
                 error_messages.append(
                     f'{source_title} 规则 {rule_index}：{normalize_text(exc)}'
