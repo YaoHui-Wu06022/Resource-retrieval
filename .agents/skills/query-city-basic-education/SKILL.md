@@ -21,7 +21,7 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 
 | 用途 | 命令 |
 | --- | --- |
-| 标准化城市、取下级行政单位 | `python -m query_city_core.city` |
+| 标准化城市、取下级行政单位 | `python -m query_city_core.address.city` |
 | （可选）栏目页链接抓取 | `scripts/build_school_address.py list-links` |
 | 保存入选来源文件 | `scripts/build_school_address.py download` |
 | 保存名录链接的同构详情页 | `scripts/build_school_address.py collect-details` |
@@ -41,7 +41,7 @@ $runDate = Get-Date -Format yyyy-MM-dd
 $runTime = Get-Date -Format HHmmss
 $runDir = 'output/<标准城市名>/' + $runDate + '/Basic_Education/' + $runTime
 New-Item -ItemType Directory -Force $runDir | Out-Null
-python -m query_city_core.city --city <用户城市>
+python -m query_city_core.address.city --city <用户城市>
 ```
 
 读输出中的标准城市名与 `subdivisions`。在 `$runDir` 下按 `subdivisions[].name` 建同名目录，之后依次处理每个目录；不得增删、合并、改名或继续查询更低一级行政单位。

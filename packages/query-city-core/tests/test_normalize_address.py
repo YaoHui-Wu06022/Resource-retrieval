@@ -9,9 +9,10 @@ COMPONENT_DIR = Path(__file__).resolve().parents[1]
 if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
-from query_city_core.city import read_city_catalog  # noqa: E402
+from query_city_core.address.city import read_city_catalog  # noqa: E402
 from query_city_core.address.normalize import (  # noqa: E402
     detect_city_prefix,
+    is_structurally_valid_address,
     normalize_address_payload,
     normalize_address_text,
     normalize_address_value,
@@ -82,6 +83,54 @@ class NormalizeAddressTests(unittest.TestCase):
         self.assertEqual(
             result['normalized_address'],
             '广州市天河区先烈东横路48号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+    def test_bullet_and_narrative_prefix_are_cleaned(self):
+        """列表符号与地处前缀不得破坏区县识别。"""
+        addresses = (
+            '•广州天河区沙河龙洞迎福路',
+            '地处广州市天河区龙洞迎福路527号',
+        )
+        for address in addresses:
+            with self.subTest(address=address):
+                result = self.normalize('广州市', address)
+                self.assertNotEqual(result['normalization_status'], 'conflict')
+                self.assertTrue(
+                    result['normalized_address'].startswith('广州市天河区')
+                )
+
+    def test_embedded_city_label_prefix_is_removed(self):
+        """地址前的校区标签前缀不得进入规范地址。"""
+        result = self.normalize(
+            '广州市',
+            '校本部（嘉禾校区）：广州市白云区东平文盛庄路118号',
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市白云区东平文盛庄路118号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+    def test_road_name_with_city_suffix_is_not_admin_unit(self):
+        """环市东路等道路名不得被误判为下级行政区。"""
+        result = self.normalize('广州市', '广州市环市东路465号')
+        self.assertEqual(result['normalization_status'], 'partial')
+        self.assertNotIn('环市', result['normalization_reason'])
+        self.assertTrue(
+            result['normalized_address'].startswith('广州市环市东路465号')
+        )
+
+    def test_narrative_tail_after_house_number_is_trimmed(self):
+        """地址门牌后的公交、地铁等叙述性尾巴应被裁剪。"""
+        result = self.normalize(
+            '广州市',
+            '地处广州市增城区广州华立科技园7号，'
+            '学校门口设有1路、7路公交车站，每15分钟一班',
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市增城区广州华立科技园7号',
         )
         self.assertEqual(result['normalization_status'], 'complete')
 
@@ -541,6 +590,41 @@ class NormalizeAddressTests(unittest.TestCase):
         )
         self.assertEqual(result['items'][0]['attributes'], {'业务名称': '地点甲'})
         self.assertNotIn('id', result['items'][0])
+
+    def test_payload_derives_address_mode_from_source_nature(self):
+        """规范化输出补充 address_mode；缺失时按来源证据推导。"""
+        payload = {
+            'stage': 'address_records',
+            'city_context': build_city_context(),
+            'items': [
+                build_record(
+                    '天河区黄埔大道西601号',
+                    '地点甲',
+                    source='government_information',
+                ),
+                build_record('', '地点乙', source='map_search'),
+                build_record('天河区黄埔大道西601号', '地点丙'),
+            ],
+        }
+        result = normalize_address_payload(payload)
+        self.assertEqual(
+            [record['address_mode'] for record in result['items']],
+            ['government_list', 'map_search', 'web_search'],
+        )
+
+    def test_complete_normalized_record_is_structurally_valid(self):
+        """完整、已解析到目标城市的地址判为有效。"""
+        payload = {
+            'stage': 'address_records',
+            'city_context': build_city_context(),
+            'items': [
+                build_record('天河区黄埔大道西601号', '地点甲'),
+            ],
+        }
+        record = normalize_address_payload(payload)['items'][0]
+        self.assertTrue(is_structurally_valid_address(record, build_city_context()))
+        record['normalization_status'] = 'partial'
+        self.assertFalse(is_structurally_valid_address(record, build_city_context()))
 
     def test_city_context_is_the_only_city_input(self):
         """地址模块不重新读取目录校验城市名称。"""

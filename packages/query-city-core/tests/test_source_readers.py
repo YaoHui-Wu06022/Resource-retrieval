@@ -1,18 +1,10 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""测试基础教育来源读取器的格式边界。"""
+"""测试官方来源读取器的格式边界。"""
 
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-
-SCRIPT_DIR = Path(__file__).resolve().parents[1]
-if str(SCRIPT_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPT_DIR))
-
-from source_readers import (  # noqa: E402
+from query_city_core.official.readers import (
     detect_source_format,
     load_source_tables,
 )

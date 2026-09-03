@@ -85,6 +85,7 @@ def validate_manifest(payload, city_universities_payload):
             )
         fetch_items.append({
             'school_identifier': identifier,
+            'school_name': city_index[identifier]['school_name'],
             'home_url': home_url,
             'official_domains': [
                 str(domain).strip() for domain in official_domains if str(domain).strip()
@@ -189,6 +190,11 @@ def build_fetch_report(run_dir, city_index):
         result = read_json_payload(result_path)
         status = str(result.get('processing_status') or '').strip()
         pages = result.get('pages') or []
+        identity_warning = any(
+            str(warning or '').startswith('页面身份校验：')
+            for page in pages
+            for warning in page.get('warnings') or []
+        )
         report_items.append({
             'school_identifier': identifier,
             'school_name': school['school_name'],
@@ -197,6 +203,7 @@ def build_fetch_report(run_dir, city_index):
             'has_address_candidate': any(
                 has_usable_address_candidate(page) for page in pages
             ),
+            'identity_warning': identity_warning,
             'error': '',
         })
     return report_items

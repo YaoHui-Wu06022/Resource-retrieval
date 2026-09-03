@@ -10,15 +10,15 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
-from .access import fetch_direct_content, normalize_domain
-from .host_gate import (
+from ...access import fetch_direct_content, normalize_domain
+from ...host_gate import (
     DEFAULT_HOST_MAX_WORKERS,
     DEFAULT_HOST_MIN_INTERVAL,
     DEFAULT_MAX_WORKERS,
     HostRequestGate,
     extract_url_host,
 )
-from .io_utils import write_json_payload
+from ...io_utils import write_json_payload
 
 
 LINKED_HTML_PAGES_STAGE = 'linked_html_pages'

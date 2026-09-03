@@ -10,6 +10,8 @@
 | 文件 | 功能 |
 | --- | --- |
 | `__init__.py` | 包标记。 |
+| `amap_client.py` | 高德 API 客户端：滑动窗口限流、地理编码/POI/行政区查询、统一重试与错误归一。 |
+| `city.py` | 城市标准化：按固定目录匹配城市名、查询直接下级行政区、构造/校验 `city_context`。 |
 | `common.py` | 公共常量与记录规则：地址记录字段校验、行政区/具体位置拆分、地图匹配状态标签、地图处理结果记录构造。 |
 | `normalize.py` | 地址规范化：清洗文本、城市归属判定（按城市目录排除外地城市）、下级行政区提取与核验、输出统一为「城市名 + 下级行政区 + 具体位置」。 |
 | `process.py` | 批处理入口：规范化 → 逐条地图解析 → 汇总指标（状态计数、地图请求数、缺下级行政区数等）。 |
@@ -17,8 +19,43 @@
 
 ## 修改记录
 
+### 2026-09-03
+
+- 由公共层根目录迁入 `city.py` 与 `amap_client.py`；地址层现在统一
+  承载城市上下文、高德客户端与地址处理。
+
 ### 2026-09-02
 
+- `verify.py`
+  - 移除 `SCHOOL_STAGE_SUFFIXES`、`school_type` 与学部后缀对应整套学校
+    语义，公共层不再识别「小学部/初中部/高中部/中学部」；
+    改为通用记录字段 `poi_name_aliases`：场景层提供完整候选名称后，
+    公共层逐个名称做唯一 POI 匹配。基础教育技能的学部规则见其
+    `normalize_school_records.py`。
+- `common.py`、`normalize.py`、`verify.py`、`process.py`
+  - 新增顶层 `address_mode` 三模式：`web_search`（名单约束城市 → 网页检索
+    地址 → 地图处理）、`government_list`（政府名单可靠 → 规范补充 →
+    地图兜底）、`map_search`（本轮 schema/占位，不执行检索）；
+    `source_nature` 保留为来源证据，缺失 `address_mode` 时按来源推导。
+  - 结构化有效地址（`normalization_status=complete` 且已解析到目标城市）
+    直接采用来源地址，不再调用高德；`map_reason=地址有效，无需地图验证`。
+  - `web_search` 完整有效地址不再做地理编码验证；不完整但有道路门牌仍走
+    地理编码，空地址/无详细地址走严格 POI。
+  - `government_list` 含道路门牌或具体地点的官方地址直接采用；
+    空地址或仅区划地址走 POI 兜底；需要名称变体匹配时由记录
+    `attributes.poi_name_aliases` 提供候选名称。
+  - `map_search` 记录本轮固定 `skipped` 且不产出最终地址。
+  - 指标新增 `address_mode_counts`。
+- `verify.py`
+  - POI 名称比较放宽：先按原有清洗全名精确比较，不等时再按容差基准比较；
+    容差为移除括号内状态词（建设中/在建/拟建/筹设/筹办）并剥离名称开头的
+    「城市名/区县/镇街」行政区前缀；城市与区县一致、地址唯一、辅助 POI
+    排除等防错规则保持不变。
+  - POI 兜底按 `address_mode` 分两档：`web_search` 只使用共同容差基线；
+    `government_list` 的宽松匹配由 Skill 预生成的 `poi_name_aliases`
+    提供，核心层不包含学部等场景规则。
+  - 采用地图地址前删除括号内“地铁/公交/步行/交叉口/停车场”等交通引导
+    文本，行政区、道路与门牌保持不变。
 - `normalize.py`
   - 移除乱码修复与检测函数（`repair_mojibake_text`、`contains_encoding_corruption`），不再做乱码后处理。
   - `detect_city_prefix` 不再依赖传入省份，改为按城市目录识别任意城市全名/简称。

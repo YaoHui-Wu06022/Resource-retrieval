@@ -3,7 +3,7 @@
 import re
 import time
 from urllib.parse import urlparse
-from .access import (
+from ..access import (
     BROWSER_HEADERS,
     USER_AGENT,
     fetch_direct_content,

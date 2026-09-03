@@ -4,19 +4,19 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
-from .access import (
+from ...access import (
     fetch_direct_content,
     is_url_in_domains,
     normalize_domain,
 )
-from .host_gate import (
+from ...host_gate import (
     DEFAULT_HOST_MAX_WORKERS,
     DEFAULT_HOST_MIN_INTERVAL,
     DEFAULT_MAX_WORKERS,
     HostRequestGate,
     extract_url_host,
 )
-from .io_utils import read_json_payload, write_json_payload
+from ...io_utils import read_json_payload, write_json_payload
 
 
 SOURCE_DOWNLOAD_STAGE = 'source_download_manifest'

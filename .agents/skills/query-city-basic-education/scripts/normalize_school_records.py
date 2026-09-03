@@ -4,7 +4,7 @@ import re
 from datetime import date
 from typing import Any
 
-from source_readers import normalize_text
+from query_city_core.official.readers import normalize_text
 
 
 EXPLICIT_CAMPUS_LABEL = (
@@ -53,6 +53,16 @@ SCHOOL_TYPE_STAGES = {
     '十五年一贯制学校': ('幼儿园', '小学', '初中', '高中'),
 }
 BASIC_SCHOOL_STAGES = ('幼儿园', '小学', '初中', '高中')
+SCHOOL_STAGE_SUFFIXES = (
+    ('高中部', '高中'),
+    ('初中部', '初中'),
+    ('小学部', '小学'),
+    ('中学部', ('初中', '高中')),
+)
+CAMPUS_QUALIFIED_NAME_PATTERN = re.compile(
+    r'校区|校园|分园|园区|教学点|分教点'
+)
+STAGE_NAME_FORMAT_PATTERN = re.compile(r'[（()）\[\]]')
 
 
 def normalize_school_type_part(school_type_part: str) -> str:
@@ -121,6 +131,66 @@ def infer_school_type_from_stage_name(place_name: Any) -> str:
         '初中部': '初中',
         '高中部': '高中',
     }.get(stage_match.group(1) if stage_match else '', '')
+
+
+def normalize_stage_name(value: Any) -> str:
+    """压缩学校名称并移除用于名称比对的括号。"""
+    return STAGE_NAME_FORMAT_PATTERN.sub(
+        '', normalize_place_name_text(value)
+    )
+
+
+def split_school_stage_suffix(value: Any) -> tuple[str, Any]:
+    """从名称末尾拆分学部后缀，返回正文与覆盖学段。"""
+    cleaned = normalize_stage_name(value)
+    for suffix, stage in SCHOOL_STAGE_SUFFIXES:
+        if cleaned.endswith(suffix):
+            return cleaned[:-len(suffix)], stage
+    return cleaned, ''
+
+
+def extract_single_school_stage(school_type: Any) -> str:
+    """记录类型只覆盖一个基础学段时返回该学段，否则返回空字符串。"""
+    stages = {
+        stage
+        for stage in str(school_type or '').split('、')
+        if stage in {'小学', '初中', '高中'}
+    }
+    return next(iter(stages)) if len(stages) == 1 else ''
+
+
+def stage_suffix_compatible(stage_group: Any, record_stage: str) -> bool:
+    """判断学部后缀覆盖的学段与记录类型学段一致。"""
+    if isinstance(stage_group, tuple):
+        return record_stage in stage_group
+    return stage_group == record_stage
+
+
+def build_poi_name_aliases(place_name: Any, school_type: Any) -> list[str]:
+    """为单学段政府记录生成允许的 POI 全名别名。"""
+    normalized = normalize_stage_name(place_name)
+    if not normalized or CAMPUS_QUALIFIED_NAME_PATTERN.search(normalized):
+        return []
+    record_stage = extract_single_school_stage(school_type)
+    if not record_stage:
+        return []
+    base, place_stage = split_school_stage_suffix(normalized)
+    if place_stage and not stage_suffix_compatible(
+        place_stage, record_stage
+    ):
+        return []
+    if not base:
+        return []
+    aliases = []
+    if place_stage:
+        aliases.append(base)
+    for suffix, stage_group in SCHOOL_STAGE_SUFFIXES:
+        if not stage_suffix_compatible(stage_group, record_stage):
+            continue
+        alias = base + suffix
+        if alias != normalized and alias not in aliases:
+            aliases.append(alias)
+    return aliases
 
 
 def normalize_school_nature(school_nature_text: Any) -> str:
@@ -289,7 +359,14 @@ def deduplicate_school_records(
         ):
             current_record = school_record
             unique_records[record_index] = current_record
-        current_record['attributes']['school_type'] = merge_school_types(
+        merged_type = merge_school_types(
             current_type, incoming_type
+        )
+        current_record['attributes']['school_type'] = merged_type
+        current_record['attributes']['poi_name_aliases'] = (
+            build_poi_name_aliases(
+                current_record['place_name'],
+                merged_type,
+            )
         )
     return unique_records, len(school_records) - len(unique_records)

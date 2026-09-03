@@ -11,7 +11,7 @@ from pathlib import Path
 
 import openpyxl
 
-from query_city_core.city import validate_city_context
+from query_city_core.address.city import validate_city_context
 from query_city_core.excel_style import build_table_workbook
 from query_city_core.io_utils import write_json_payload
 

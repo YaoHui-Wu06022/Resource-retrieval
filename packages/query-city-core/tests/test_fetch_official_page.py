@@ -14,7 +14,7 @@ COMPONENT_DIR = Path(__file__).resolve().parents[1]
 if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
-from query_city_core.fetch_official_page import (  # noqa: E402
+from query_city_core.web.fetch_official_page import (  # noqa: E402
     OfficialPageFetcher,
     build_page_result,
     collect_official_page_data,
@@ -102,9 +102,9 @@ class OfficialPageExtractorTests(unittest.TestCase):
         self.assertEqual(page.goto.call_count, 3)
         page.request.get.assert_called_once()
 
-    @patch('query_city_core.fetch_official_page.collect_official_page_data')
-    @patch('query_city_core.fetch_official_page.fetch_browser_page')
-    @patch('query_city_core.fetch_official_page.sync_playwright')
+    @patch('query_city_core.web.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.web.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.web.fetch_official_page.sync_playwright')
     def test_fetcher_reuses_browser_and_isolates_each_page(
             self, playwright_factory, fetch_page, collect_data):
         playwright = playwright_factory.return_value.start.return_value
@@ -131,9 +131,9 @@ class OfficialPageExtractorTests(unittest.TestCase):
         browser.close.assert_called_once_with()
         playwright.stop.assert_called_once_with()
 
-    @patch('query_city_core.fetch_official_page.collect_official_page_data')
-    @patch('query_city_core.fetch_official_page.fetch_browser_page')
-    @patch('query_city_core.fetch_official_page.sync_playwright')
+    @patch('query_city_core.web.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.web.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.web.fetch_official_page.sync_playwright')
     def test_fetch_pages_reuses_one_context_and_page_per_school(
             self, playwright_factory, fetch_page, collect_data):
         playwright = playwright_factory.return_value.start.return_value
@@ -163,10 +163,10 @@ class OfficialPageExtractorTests(unittest.TestCase):
         context.new_page.assert_called_once_with()
         context.close.assert_called_once_with()
 
-    @patch('query_city_core.fetch_official_page.collect_official_page_data')
-    @patch('query_city_core.fetch_official_page.fetch_http_page')
-    @patch('query_city_core.fetch_official_page.fetch_browser_page')
-    @patch('query_city_core.fetch_official_page.sync_playwright')
+    @patch('query_city_core.web.fetch_official_page.collect_official_page_data')
+    @patch('query_city_core.web.fetch_official_page.fetch_http_page')
+    @patch('query_city_core.web.fetch_official_page.fetch_browser_page')
+    @patch('query_city_core.web.fetch_official_page.sync_playwright')
     def test_fetcher_records_http_fallback_after_browser_failure(
             self, playwright_factory, fetch_page, fetch_http, collect_data):
         """浏览器失败后使用直连页面并保留两次访问审计。"""
@@ -192,7 +192,7 @@ class OfficialPageExtractorTests(unittest.TestCase):
         self.assertFalse(result['access_attempts'][0]['success'])
         self.assertTrue(result['access_attempts'][1]['success'])
 
-    @patch('query_city_core.fetch_official_page.OfficialPageFetcher')
+    @patch('query_city_core.web.fetch_official_page.OfficialPageFetcher')
     def test_single_page_api_keeps_compatibility(self, fetcher_class):
         fetcher = fetcher_class.return_value.__enter__.return_value
         fetcher.fetch.return_value = {'page_status': 'ok'}

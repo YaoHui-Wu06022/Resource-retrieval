@@ -17,6 +17,7 @@ if str(SCRIPTS_DIR) not in sys.path:
 from build_university_address import (
     build_output_payloads,
     build_page_results_payload,
+    clean_school_address_records,
     main,
     postprocess_university_address_records,
 )
@@ -52,15 +53,22 @@ def build_map_record(school_identifier, campus_name, map_address):
     }
 
 
-def build_page(url, candidates=None, hints=None):
+def build_page(
+    url,
+    candidates=None,
+    hints=None,
+    related_links=None,
+    title='',
+):
     """构造一份页面提取结果。"""
     return {
         'stage': 'address_candidates',
         'requested_url': url,
         'final_url': url,
+        'title': title,
         'address_candidates': list(candidates or []),
         'campus_hints': list(hints or []),
-        'related_links': [],
+        'related_links': list(related_links or []),
         'warnings': [],
     }
 
@@ -175,7 +183,7 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
             build_output_payloads(retrieval_payload, city_payload)
 
     def test_merges_pages_and_splits_address_and_hint_records(self):
-        """多页结果应去重并拆成地址和兜底记录。"""
+        """多页结果去重后，与校区不同址的无标签非主页地址按噪音丢弃。"""
         school = build_school()
         page_one = build_page(
             'https://example.edu.cn/',
@@ -205,14 +213,14 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
 
         self.assertEqual(
             [item['place_name'] for item in result['items']],
-            ['示例大学东湖校区', '示例大学', '示例大学滨海校区'],
+            ['示例大学东湖校区', '示例大学滨海校区'],
         )
         self.assertEqual(
             [item['original_address'] for item in result['items']],
-            ['示例市东湖区大学路1号', '示例市中心区学院路2号', ''],
+            ['示例市东湖区大学路1号', ''],
         )
         self.assertEqual(result['metrics']['page_count'], 2)
-        self.assertEqual(result['metrics']['original_address_count'], 2)
+        self.assertEqual(result['metrics']['original_address_count'], 1)
         self.assertEqual(result['metrics']['missing_original_address_count'], 1)
 
     def test_website_module_hint_does_not_create_record(self):
@@ -221,7 +229,7 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         page = build_page(
             'https://example.edu.cn/',
             candidates=[],
-            hints=['数字校园', '智慧校园', '东湖校区'],
+            hints=['数字校园', '智慧校园', '关于校区', '走进校区', '东湖校区'],
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [page])]),
@@ -230,6 +238,66 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         self.assertEqual(
             [item['place_name'] for item in result['items']],
             ['示例大学东湖校区'],
+        )
+        self.assertEqual(result['metrics']['item_count'], 1)
+
+    def test_prev_next_navigation_hint_does_not_create_empty_record(self):
+        """“下一条”翻页链接中的校区名不得生成无地址记录。"""
+        school = build_school(school_name='广东药科大学')
+        page = build_page(
+            'https://www.gdpu.edu.cn/info/1013/2080.htm',
+            candidates=[{
+                'campus_hint': '广州校区宝岗校园',
+                'address_text': '广州市海珠区宝岗光汉直街40号',
+            }],
+            hints=['广州校区宝岗校园', '广州校区赤岗校园'],
+            related_links=[{
+                'text': '下一条：广州校区赤岗校园',
+                'url': 'https://www.gdpu.edu.cn/info/1013/2079.htm',
+                'link_type': 'campus',
+            }],
+            title='广州校区宝岗校园-广东药科大学',
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(
+            [
+                (
+                    item['place_name'],
+                    item['attributes']['campus_name'],
+                    item['original_address'],
+                )
+                for item in result['items']
+            ],
+            [
+                (
+                    '广东药科大学广州校区宝岗校园',
+                    '广州校区宝岗校园',
+                    '广州市海珠区宝岗光汉直街40号',
+                )
+            ],
+        )
+
+    def test_compound_campus_suffix_hint_is_dropped_as_alias(self):
+        """“广州校区校园”是“广州校区”的冗余写法，不再生成空地址记录。"""
+        school = build_school(school_name='广东岭南职业技术学院')
+        page = build_page(
+            'https://lnc.edu.cn/',
+            candidates=[{
+                'campus_hint': '广州校区',
+                'address_text': '广东省广州市天河区大观中路492号',
+            }],
+            hints=['广州校区', '广州校区校园'],
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(
+            [item['attributes']['campus_name'] for item in result['items']],
+            ['广州校区'],
         )
         self.assertEqual(result['metrics']['item_count'], 1)
 
@@ -248,7 +316,7 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [addresses, campuses])]),
-            build_city_universities_payload([school]),
+            build_city_universities_payload([school], city='广州市'),
         )
         self.assertEqual(
             [(item['attributes']['campus_name'], item['original_address'])
@@ -256,7 +324,6 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
             [
                 ('昌岗校区', '广州市海珠区昌岗东路257号'),
                 ('大学城校区', '番禺区广州大学城外环西路168号'),
-                ('佛山校区', ''),
             ],
         )
 
@@ -278,11 +345,11 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [page])]),
-            build_city_universities_payload([school]),
+            build_city_universities_payload([school], city='广州市'),
         )
         self.assertEqual(
             [item['attributes']['campus_name'] for item in result['items']],
-            ['广州校区', '佛山校区'],
+            ['广州校区'],
         )
 
     def test_removes_unlabeled_duplicate_of_campus_address(self):
@@ -330,6 +397,124 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         )
         self.assertEqual(len(result['items']), 1)
         self.assertEqual(result['items'][0]['place_name'], '示例大学校本部')
+
+    def test_clean_drops_foreign_city_campus_record(self):
+        """清洗时丢弃明确指向外市的校区记录。"""
+        school = build_school(school_name='华南师范大学')
+        records = [
+            {
+                'place_name': '华南师范大学广州校区石牌校园',
+                'original_address': '广州市天河区中山大道西55号',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/',
+                'attributes': {'campus_name': '广州校区石牌校园'},
+            },
+            {
+                'place_name': '华南师范大学佛山校区南海校园',
+                'original_address': '广东省佛山市南海区狮山镇万锦路',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/',
+                'attributes': {'campus_name': '佛山校区南海校园'},
+            },
+        ]
+        cleaned = clean_school_address_records(
+            records, build_city_context(city='广州市')
+        )
+        self.assertEqual(
+            [record['place_name'] for record in cleaned],
+            ['华南师范大学广州校区石牌校园'],
+        )
+
+    def test_clean_drops_city_campus_with_interposed_words(self):
+        """城市名与校区间夹修饰字的外市校区同样被丢弃。"""
+        records = [{
+            'place_name': '华南农业大学珠江学院肇庆（四会）校区',
+            'original_address': '',
+            'source_nature': 'web_search',
+            'source_reference': 'https://www.example.edu.cn/',
+            'attributes': {'campus_name': '肇庆（四会）校区'},
+        }]
+        cleaned = clean_school_address_records(
+            records, build_city_context(city='广州市')
+        )
+        self.assertEqual(cleaned, [])
+
+    def test_clean_prefers_homepage_campus_name_for_same_address(self):
+        """同址多条校区写法时优先保留主页来源的校区名。"""
+        school = build_school(school_name='华南师范大学')
+        records = [
+            {
+                'place_name': '华南师范大学石牌校园',
+                'original_address': '广州市天河区中山大道西55号',
+                'source_nature': 'web_search',
+                'source_reference': 'https://xy.example.edu.cn/news',
+                'attributes': {'campus_name': '石牌校园'},
+            },
+            {
+                'place_name': '华南师范大学广州校区石牌校园',
+                'original_address': '广东省广州市天河区中山大道西55号',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/',
+                'attributes': {'campus_name': '广州校区石牌校园'},
+            },
+        ]
+        cleaned = clean_school_address_records(
+            records, build_city_context(city='广州市')
+        )
+        self.assertEqual(
+            cleaned[0]['attributes']['campus_name'], '广州校区石牌校园'
+        )
+
+    def test_clean_drops_office_noise_for_unlabeled_non_home_address(self):
+        """无校区标签的办公点地址在非主页来源时被丢弃。"""
+        school = build_school(school_name='广东邮电职业技术学院')
+        records = [
+            {
+                'place_name': '广东邮电职业技术学院广州校区',
+                'original_address': '广州市天河区中山大道西191号',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/',
+                'attributes': {'campus_name': '广州校区'},
+            },
+            {
+                'place_name': '广东邮电职业技术学院',
+                'original_address': '广州市越秀区水荫路117号星光映景1403',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/info/1049/13121.htm',
+                'attributes': {'campus_name': ''},
+            },
+        ]
+        cleaned = clean_school_address_records(
+            records, build_city_context(city='广州市')
+        )
+        self.assertEqual(
+            [record['place_name'] for record in cleaned],
+            ['广东邮电职业技术学院广州校区'],
+        )
+
+    def test_clean_dedupes_empty_campus_hint_records(self):
+        """同一无地址校区提示只保留一条记录。"""
+        school = build_school(school_name='示例大学')
+        records = [
+            {
+                'place_name': '示例大学大学城校区',
+                'original_address': '',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/campus',
+                'attributes': {'campus_name': '大学城校区'},
+            },
+            {
+                'place_name': '示例大学大学城校区',
+                'original_address': '',
+                'source_nature': 'web_search',
+                'source_reference': 'https://www.example.edu.cn/about',
+                'attributes': {'campus_name': '大学城校区'},
+            },
+        ]
+        cleaned = clean_school_address_records(
+            records, build_city_context(city='示例市')
+        )
+        self.assertEqual(len(cleaned), 1)
 
     def test_keeps_unlabeled_address_with_different_detail(self):
         """道路或门牌不同的无校区候选不得被同址规则删除。"""

@@ -237,24 +237,24 @@ class BuildExcelTests(unittest.TestCase):
                     [cell.value for cell in worksheet[1]],
                     BUILD_EXCEL.OUTPUT_HEADER,
                 )
-                self.assertEqual(BUILD_EXCEL.OUTPUT_HEADER[6], '地址')
+                self.assertEqual(BUILD_EXCEL.OUTPUT_HEADER[7], '地址')
                 self.assertEqual(
                     worksheet['A1'].fill.fgColor.rgb[-6:], '1F4E78'
                 )
-                self.assertTrue(worksheet.cell(2, 7).alignment.wrap_text)
+                self.assertTrue(worksheet.cell(2, 8).alignment.wrap_text)
                 self.assertFalse(worksheet.cell(2, 5).alignment.wrap_text)
                 self.assertIsNone(worksheet.row_dimensions[2].height)
                 self.assertEqual(worksheet.cell(2, 1).value, 1)
                 self.assertEqual(worksheet.cell(2, 2).value, '测试区')
-                self.assertEqual(worksheet.cell(2, 8).value, '政府资料')
-                self.assertEqual(worksheet.cell(2, 9).value, '未查询')
+                self.assertEqual(worksheet.cell(2, 9).value, '政府资料')
+                self.assertEqual(worksheet.cell(2, 10).value, '未查询')
                 self.assertEqual(worksheet.cell(2, 6).value, '2026-08-01')
                 self.assertEqual(
-                    worksheet.cell(2, 10).value,
+                    worksheet.cell(2, 11).value,
                     'https://example.gov.cn/list.xlsx | 学校名录.xlsx | row 2',
                 )
                 self.assertEqual(
-                    worksheet.cell(2, 10).hyperlink.target,
+                    worksheet.cell(2, 11).hyperlink.target,
                     'https://example.gov.cn/list.xlsx',
                 )
             finally:
@@ -301,11 +301,10 @@ class BuildExcelTests(unittest.TestCase):
             ],
         )
         self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[0][2], '无地址小学')
-        self.assertEqual(rows[0][5], '高德服务正常但未找到结果')
-        self.assertEqual(rows[0][6], '未找到')
-        self.assertEqual(rows[1][2], '异地幼儿园')
-        self.assertIn('不属于目标城市', rows[1][5])
+        self.assertEqual(rows[0][0][1], '无地址小学')
+        self.assertEqual(rows[0][2], '高德服务正常但未找到结果')
+        self.assertEqual(rows[1][0][1], '异地幼儿园')
+        self.assertIn('不属于目标城市', rows[1][2])
 
     def test_unit_workbook_contains_abnormal_sheet(self):
         """行政单位工作簿应包含学校信息和异常校两个工作表。"""
@@ -354,8 +353,7 @@ class BuildExcelTests(unittest.TestCase):
                 )
                 self.assertEqual(abnormal_sheet.cell(2, 2).value, '测试区')
                 self.assertEqual(abnormal_sheet.cell(2, 3).value, '无地址小学')
-                self.assertEqual(abnormal_sheet.cell(2, 6).value, '高德服务正常但未找到结果')
-                self.assertEqual(abnormal_sheet.cell(2, 7).value, '未找到')
+                self.assertEqual(abnormal_sheet.cell(2, 7).value, '高德服务正常但未找到结果')
             finally:
                 workbook.close()
 
@@ -378,7 +376,7 @@ class BuildExcelTests(unittest.TestCase):
             try:
                 self.assertEqual(
                     workbook.sheetnames,
-                    [BUILD_EXCEL.SHEET_NAME, '甲区', '乙区'],
+                    [BUILD_EXCEL.SHEET_NAME, '甲区', '乙区', BUILD_EXCEL.ABNORMAL_SHEET_NAME],
                 )
                 self.assertEqual(workbook['甲区'].cell(2, 1).value, 1)
                 self.assertEqual(workbook['乙区'].cell(2, 1).value, 1)

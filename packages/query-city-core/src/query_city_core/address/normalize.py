@@ -5,7 +5,7 @@
 import re
 from collections import Counter
 
-from ..city import read_city_catalog, validate_city_context
+from .city import read_city_catalog, validate_city_context
 from .common import (
     ADMIN_UNIT_SUFFIXES,
     CITY_SUFFIXES,
@@ -15,6 +15,7 @@ from .common import (
     PLACE_NAME_SUFFIXES,
     SUB_LEVEL_SUFFIXES,
     extract_admin_unit_components,
+    resolve_address_mode,
     validate_address_record,
 )
 
@@ -98,6 +99,23 @@ def detect_foreign_city_campus(place_name, city_context):
 ADDRESS_LABEL_PATTERN = re.compile(
     r'(?:通讯地址|联系地址|邮寄地址|办公地址|学校地址|校址|地址)\s*[：:]\s*'
 )
+NARRATIVE_PREFIX_PATTERN = re.compile(
+    r'^(?:地处|位于|坐落于|位置)\s*[：:，,]?\s*'
+)
+LABEL_COLON_PREFIX_PATTERN = re.compile(r'^[^：:]{1,40}[：:]\s*')
+ADMIN_ADDRESS_START_PATTERN = re.compile(
+    r'^(?:中国|中华人民共和国)?'
+    r'(?:[\u4e00-\u9fff]{1,15}?(?:省|市|自治区|自治州|地区|盟|特别行政区)'
+    r'|[\u4e00-\u9fff]{1,15}?[区县旗])'
+)
+BULLET_MARK_PATTERN = re.compile(r'[•●◆■□·]')
+DUPLICATE_CITY_PREFIX_PATTERN = re.compile(
+    r'[\u4e00-\u9fff]{1,12}市'
+)
+NARRATIVE_TAIL_PATTERN = re.compile(
+    r'公交|地铁|学校门口|学费|收费标准|元/|学年|电话|邮编|'
+    r'TEL|联系人|报名|宿舍|食堂|后勤'
+)
 CONTACT_TAIL_PATTERN = re.compile(
     r'\s*(?:[，,；;、|｜]\s*)?'
     r'(?:邮政编码|邮编|联系电话|电话|传真|电子邮箱|邮箱|E-?mail)\s*[：:]?.*$',
@@ -146,6 +164,30 @@ def normalize_address_text(original_address):
     value = ADDRESS_LABEL_PATTERN.sub('', value)
     value = CONTACT_TAIL_PATTERN.sub('', value)
     value = POSTCODE_PATTERN.sub('', value)
+    value = BULLET_MARK_PATTERN.sub('', value)
+    while True:
+        stripped = NARRATIVE_PREFIX_PATTERN.sub('', value)
+        if stripped == value:
+            break
+        value = stripped
+    label_prefix = LABEL_COLON_PREFIX_PATTERN.match(value)
+    if label_prefix:
+        remainder = value[label_prefix.end():]
+        if ADMIN_ADDRESS_START_PATTERN.match(remainder):
+            value = remainder
+    city_matches = list(DUPLICATE_CITY_PREFIX_PATTERN.finditer(value))
+    if len(city_matches) >= 2:
+        last_start = city_matches[-1].start()
+        prefix = value[:last_start]
+        if not re.search(r'[路街大道巷号栋座]', prefix):
+            value = value[last_start:]
+    separators = list(re.finditer(r'[，,；;、]', value))
+    for separator in separators:
+        head = value[:separator.start()]
+        tail = value[separator.end():]
+        if re.search(r'\d+号', head) and NARRATIVE_TAIL_PATTERN.search(tail):
+            value = head
+            break
     value = re.sub(r'\s+', '', value)
     value = value.translate(PUNCTUATION_MAP)
     value = value.strip('，,；;：:|｜ ')
@@ -289,7 +331,13 @@ def normalize_address_value(
             if admin_unit.endswith(suffix)
         )
         city_suffixes = _subdivision_suffixes(city_context)
-        if (
+        location_after_admin = detail[len(admin_unit):]
+        if admin_suffix == '市' and re.match(
+            r'^(?:[东南西北中])?(?:路|街|大道|巷)',
+            location_after_admin,
+        ):
+            admin_unit = ''
+        elif (
             admin_suffix not in SUB_LEVEL_SUFFIXES
             and is_non_administrative_zone(admin_unit)
         ):
@@ -353,6 +401,7 @@ def normalize_address_record(address_record, city_context):
     validate_address_record(address_record)
     attributes = dict(address_record.get('attributes') or {})
     place_name = str(address_record.get('place_name') or '').strip()
+    address_mode = resolve_address_mode(address_record)
     normalized_fields = normalize_address_value(
         address_record.get('original_address'),
         city_context,
@@ -362,6 +411,7 @@ def normalize_address_record(address_record, city_context):
     if foreign_city and not normalized_fields.get('normalized_address'):
         return {
             **address_record,
+            'address_mode': address_mode,
             'place_name': place_name,
             'original_address': str(
                 address_record.get('original_address') or ''
@@ -375,12 +425,23 @@ def normalize_address_record(address_record, city_context):
         }
     return {
         **address_record,
+        'address_mode': address_mode,
         'place_name': place_name,
         'original_address': str(address_record.get('original_address') or '').strip(),
         'source_reference': str(address_record['source_reference']).strip(),
         'attributes': attributes,
         **normalized_fields,
     }
+
+
+def is_structurally_valid_address(address_record, city_context):
+    """判断规范地址是否已是可直接采用的目标城市有效地址。"""
+    return (
+        address_record.get('normalization_status') == 'complete'
+        and bool(str(address_record.get('normalized_address') or '').strip())
+        and address_record.get('resolved_city')
+        == city_context['city_name']
+    )
 
 
 def normalize_address_payload(input_payload):

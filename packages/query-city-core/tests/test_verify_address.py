@@ -9,7 +9,7 @@ COMPONENT_DIR = Path(__file__).resolve().parents[1]
 if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
-from query_city_core.amap_client import RequestRateLimiter  # noqa: E402
+from query_city_core.address.amap_client import RequestRateLimiter  # noqa: E402
 from query_city_core.address.verify import (  # noqa: E402
     build_map_components,
     build_source_components,
@@ -248,6 +248,60 @@ class PoiAddressTests(unittest.TestCase):
         self.assertEqual(status, 'poi_match')
         self.assertEqual(candidate['map_address'], '广州市增城区朱村街科教大道142号')
 
+    def test_missing_city_prefix_is_tolerated_for_poi_match(self):
+        """POI 名称省略广州市前缀时允许唯一 POI 匹配。"""
+        candidate, status, _ = select_poi_candidate(
+            '广州市增城区实验小学',
+            self.city_context,
+            [build_poi('增城区实验小学', '荔城大道243号', '增城区')],
+            '增城区',
+        )
+        self.assertEqual(status, 'poi_match')
+        self.assertEqual(candidate['map_address'], '广州市增城区荔城大道243号')
+
+    def test_missing_town_prefix_is_tolerated_for_poi_match(self):
+        """POI 名称省略镇街前缀时允许唯一 POI 匹配。"""
+        candidate, status, _ = select_poi_candidate(
+            '广州市增城区新塘镇群星小学',
+            self.city_context,
+            [build_poi('群星小学', '新塘镇群星村群星中路2号', '增城区')],
+            '增城区',
+        )
+        self.assertEqual(status, 'poi_match')
+        self.assertEqual(
+            candidate['map_address'], '广州市增城区新塘镇群星村群星中路2号'
+        )
+
+    def test_status_modifier_in_poi_name_is_ignored(self):
+        """POI 名称带建设中状态词时允许唯一 POI 匹配。"""
+        candidate, status, _ = select_poi_candidate(
+            '广州市越秀区东风东路小学',
+            self.city_context,
+            [build_poi(
+                '广州市越秀区东风东路小学（建设中）',
+                '东风东路756号',
+                '越秀区',
+            )],
+            '越秀区',
+        )
+        self.assertEqual(status, 'poi_match')
+        self.assertEqual(candidate['map_address'], '广州市越秀区东风东路756号')
+
+    def test_map_guide_annotation_is_cleaned(self):
+        """采用 POI 地址前删除地铁步行等括号引导文本。"""
+        candidate, status, _ = select_poi_candidate(
+            '广州市越秀区东风东路小学',
+            self.city_context,
+            [build_poi(
+                '东风东路小学',
+                '东风东路756号（杨箕地铁站F口步行450米）',
+                '越秀区',
+            )],
+            '越秀区',
+        )
+        self.assertEqual(status, 'poi_match')
+        self.assertEqual(candidate['map_address'], '广州市越秀区东风东路756号')
+
     def test_campus_core_difference_is_still_rejected(self):
         """校区核心词不同时不得因名称相似而误配。"""
         candidate, status, _ = select_poi_candidate(
@@ -257,6 +311,52 @@ class PoiAddressTests(unittest.TestCase):
         )
         self.assertIsNone(candidate)
         self.assertEqual(status, 'not_found')
+
+    def test_campus_division_suffix_remains_rejected(self):
+        """学部后缀差异不在本次容差范围，仍拒绝跨学部误配。"""
+        candidate, status, _ = select_poi_candidate(
+            '广州市第七中学',
+            self.city_context,
+            [build_poi('广州市第七中学（初中部）', '寺贝通津11号', '越秀区')],
+            '越秀区',
+        )
+        self.assertIsNone(candidate)
+        self.assertEqual(status, 'not_found')
+
+    def test_poi_name_aliases_extend_search_names(self):
+        """场景层提供的通用名称别名按候选地点依次检索。"""
+
+        def fetch_pois(place_name, city, api_key, rate_limiter):
+            if place_name == '广州市第七中学初中部':
+                return [
+                    build_poi(
+                        '广州市第七中学初中部',
+                        '寺贝通津11号',
+                        '越秀区',
+                    )
+                ], ''
+            return [], ''
+
+        record = {
+            'place_name': '广州市第七中学',
+            'original_address': '',
+            'source_nature': 'government_information',
+            'source_reference': 'https://example.gov.cn/source',
+            'attributes': {
+                'administrative_unit': '越秀区',
+                'poi_name_aliases': ['广州市第七中学初中部'],
+            },
+        }
+        result, request_count = resolve_poi_address(
+            record,
+            self.city_context,
+            'test-key',
+            RequestRateLimiter(0),
+            fetch_pois,
+        )
+        self.assertEqual(request_count, 2)
+        self.assertEqual(result['map_match_status'], 'poi_match')
+        self.assertEqual(result['map_address'], '广州市越秀区寺贝通津11号')
 
     def test_substring_name_is_rejected(self):
         """学校总名不得误匹配其附属单位或未指明的校区。"""
@@ -354,26 +454,69 @@ class MapResolutionTests(unittest.TestCase):
             fetch_pois,
         )
 
-    def test_government_address_keeps_source_and_verifies_map_match(self):
-        """政府资料已有详细道路地址时保留来源地址并验证地图匹配。"""
+    def test_government_detailed_address_is_used_without_map_verification(self):
+        """政府资料已有详细道路地址时直接采用，不再调用地图验证。"""
         record = self.build_record(
             '地点甲', '广州市天河区黄埔大道西601号', 'government_information'
         )
 
-        def fetch_geocodes(*args):
-            return [build_candidate(
-                '广东省广州市天河区黄埔大道西601号',
-                street='黄埔大道西', number='601号',
-            )], ''
+        def unexpected_geocodes(*args):
+            raise AssertionError(f'不应调用地理编码 fetch：{args}')
 
         def unexpected_pois(*args):
             raise AssertionError(f'不应调用 POI fetch：{args}')
 
-        result, request_count = self.resolve(record, fetch_geocodes, unexpected_pois)
-        self.assertEqual(request_count, 1)
-        self.assertEqual(result['map_match_status'], 'consistent')
+        result, request_count = self.resolve(
+            record, unexpected_geocodes, unexpected_pois
+        )
+        self.assertEqual(request_count, 0)
+        self.assertEqual(result['map_match_status'], 'skipped')
         self.assertEqual(result['final_address'], record['normalized_address'])
         self.assertEqual(result['final_address_source'], 'official')
+
+    def test_web_complete_resolved_address_skips_map(self):
+        """web_search 已规范完整的地址直接采用，不再调用地图验证。"""
+        record = self.build_record(
+            '地点甲', '广州市天河区黄埔大道西601号', 'web_search'
+        )
+        record['resolved_city'] = '广州市'
+        record['address_mode'] = 'web_search'
+
+        def unexpected_geocodes(*args):
+            raise AssertionError(f'不应调用地理编码 fetch：{args}')
+
+        def unexpected_pois(*args):
+            raise AssertionError(f'不应调用 POI fetch：{args}')
+
+        result, request_count = self.resolve(
+            record, unexpected_geocodes, unexpected_pois
+        )
+        self.assertEqual(request_count, 0)
+        self.assertEqual(result['map_match_status'], 'skipped')
+        self.assertEqual(result['map_reason'], '地址有效，无需地图验证')
+        self.assertEqual(result['final_address'], record['normalized_address'])
+        self.assertEqual(result['final_address_source'], 'official')
+
+    def test_map_search_mode_is_placeholder_without_map_call(self):
+        """map_search 模式本轮只占位，不调用高德且不产出最终地址。"""
+        record = self.build_record(
+            '地点甲', '广州市天河区黄埔大道西601号', 'map_search'
+        )
+        record['resolved_city'] = '广州市'
+        record['address_mode'] = 'map_search'
+
+        def unexpected_geocodes(*args):
+            raise AssertionError(f'不应调用地理编码 fetch：{args}')
+
+        def unexpected_pois(*args):
+            raise AssertionError(f'不应调用 POI fetch：{args}')
+
+        result, request_count = self.resolve(
+            record, unexpected_geocodes, unexpected_pois
+        )
+        self.assertEqual(request_count, 0)
+        self.assertEqual(result['map_match_status'], 'skipped')
+        self.assertEqual(result['final_address'], '')
 
     def test_government_building_address_does_not_require_poi_match(self):
         """政府资料已有小区或楼栋地址时不得因 POI 未命中而清空。"""

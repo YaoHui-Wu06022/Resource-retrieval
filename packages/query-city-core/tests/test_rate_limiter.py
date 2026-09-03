@@ -1,6 +1,6 @@
 import unittest
 
-from query_city_core.amap_client import RequestRateLimiter
+from query_city_core.address.amap_client import RequestRateLimiter
 
 
 class RequestRateLimiterTests(unittest.TestCase):

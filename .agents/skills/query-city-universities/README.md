@@ -24,9 +24,10 @@
 | `assets/985_universities.xlsx`、`211_universities.xlsx` | 本科院校标签名单。 |
 | `references/retrieval-result-format.md` | `school_results/<学校标识码>.json` 单校结果文件字段规范。 |
 | `scripts/filter_universities.py` | 按城市筛选普通高校，归类院校标签与办学性质，输出 `city_universities.json/xlsx`。 |
-| `scripts/fetch_official_universities.py` | 固定策略批量抓取（`--school-batch`）与校区语义提取；`--session` 仅保留作调试入口。 |
+| `scripts/fetch_official_universities.py` | 固定策略批量抓取（`--school-batch`）与校区语义提取；先抓首页并按候选页/多校区线索扩展补抓，首页做身份校验；`--session` 仅保留作调试入口。 |
 | `scripts/run_university_fetch.py` | 按 `official_domain_manifest.json` 分片并发抓取，自动落盘单校结果并产出 `fetch_report.json`/`retry_failures.json`。 |
 | `scripts/merge_domain_batches.py` | 汇总域名确认批次 `domain_batches/*.json`，校验覆盖后输出 `official_domain_manifest.json`。 |
+| `scripts/probe_official_domains.py` | 探测普通项主页可达性与跳转终域，输出 `domain_probe_report.json`，供域名批次复核现用域名。 |
 | `scripts/merge_university_results.py` | 合并逐校结果并校验文件名、学校覆盖、处理状态与页面预算。 |
 | `scripts/build_university_address.py` | 页面结果 → 公共地址记录（候选去重、校区回填、同址冲突告警），并包含地图同址去重（优先保留校区名）。 |
 | `scripts/build_excel.py` | 生成最终工作簿：「高校信息」表（固定十一列）与「异常校」表（固定八列，列出最终地址为空的学校及异常原因）。 |
@@ -34,6 +35,45 @@
 ## 修改记录
 
 ### 2026-09-02
+
+- `scripts/probe_official_domains.py`
+  - 探测逻辑下沉 `query_city_core/web/probe_domains.py`，命令层只保留
+    高校批次读取与字段适配；报告条目改用中立的 `place_id`/`place_name`。
+- `scripts/fetch_official_universities.py`
+  - 过滤“上一条/下一条/上一篇/下一篇/上一页/下一页/返回列表”等翻页
+    导航链接，避免详情页底部导航被当作校区线索或后续抓取目标。
+- `scripts/build_university_address.py`
+  - 兼容旧抓取结果：页面 `related_links` 中的翻页导航校区名不再生成
+    无地址记录；`广州校区校园` 一类冗余后缀折叠为 `广州校区`，
+    有地址时不再额外产生空地址校区行。
+- `scripts/tests/`
+  - 新增翻页导航不生成校区提示/空地址记录、冗余校区后缀别名用例。
+- `scripts/build_university_address.py`
+  - 生成公共地址记录前逐校清洗：丢弃外市校区记录、无校区标签的办公点/
+    报名点噪音地址；同址校区写法合并并优先保留主页来源名称；
+    重复空地址校区提示只保留一条。命令与输出格式不变。
+- `SKILL.md`
+  - 域名确认阶段新增现用性探测步骤与 `domain_probe_report.json` 复核；
+    跳转域名证据扩展为“同次搜索证据或官方探测的页面身份匹配证据”。
+  - 页面策略改为校区覆盖优先：首页命中地址不再阻止抓取
+    `candidate_urls`；多校区线索判定不再要求“尚无地址”；页数预算
+    同步（默认 ≤3 页，需抓候选页或多校区线索时放宽到 ≤6 页）。
+- `scripts/probe_official_domains.py`
+  - 新增域名现用性探测：读取 `domain_batches/*.json`，访问普通项主页，
+    输出可达性、跳转终域、标题身份匹配与建议。
+- `scripts/fetch_official_universities.py`
+  - `has_campus_expansion_signal` 去掉“尚无地址”限制，页面显示 ≥2 个
+    校区提示或校区链接即放宽预算；
+  - 新增首页身份校验：标题不含学校名称时向页面结果写入 warning；
+  - `fetch_school_pages` 改为先抓首页再抓完全部候选页（首页命中地址
+    也继续），候选页抓完且无多校区线索才停止；
+  - 预算容纳“首页 + 候选页”，上限与多校区扩展一致为 6 页。
+- `scripts/run_university_fetch.py`
+  - 域名清单处理项携带 `school_name`（供身份校验）；
+  - `fetch_report.json` 每校新增 `identity_warning` 标记。
+- `scripts/tests/`
+  - 新增 `test_probe_official_domains.py`；
+  - 同步抓取策略用例（候选页抓取、带地址的多校区线索、身份校验）。
 
 - `SKILL.md`
 - 域名确认不再使用子 Agent：改为按批 WebSearch、写回

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""提供受限频率的高德地址服务客户端。"""
+"""提供受限频率的高德地址服务客户端（address 子包）。"""
 
 import json
 import random

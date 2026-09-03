@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from query_city_core.source_files import (
+from query_city_core.official.collectors.source_files import (
     SOURCE_DOWNLOAD_STAGE,
     download_source_files,
 )
@@ -45,7 +45,7 @@ class DownloadSourceFilesTests(unittest.TestCase):
             source_dir = Path(temporary_dir)
             manifest_path = self.build_manifest(source_dir)
             with mock.patch(
-                'query_city_core.source_files.fetch_direct_content',
+                'query_city_core.official.collectors.source_files.fetch_direct_content',
                 return_value=(
                     content,
                     'https://www.example.gov.cn/list',
@@ -79,7 +79,7 @@ class DownloadSourceFilesTests(unittest.TestCase):
             source_dir = Path(temporary_dir)
             manifest_path = self.build_manifest(source_dir)
             with mock.patch(
-                'query_city_core.source_files.fetch_direct_content',
+                'query_city_core.official.collectors.source_files.fetch_direct_content',
                 side_effect=RuntimeError('连接失败'),
             ):
                 manifest, exit_code = download_source_files(
@@ -108,7 +108,7 @@ class DownloadSourceFilesTests(unittest.TestCase):
                 encoding='utf-8',
             )
             with mock.patch(
-                'query_city_core.source_files.fetch_direct_content'
+                'query_city_core.official.collectors.source_files.fetch_direct_content'
             ) as mocked_fetch:
                 with self.assertRaisesRegex(
                     ValueError, '越出目标目录'
@@ -133,7 +133,7 @@ class DownloadSourceFilesTests(unittest.TestCase):
                 encoding='utf-8',
             )
             with mock.patch(
-                'query_city_core.source_files.fetch_direct_content',
+                'query_city_core.official.collectors.source_files.fetch_direct_content',
                 return_value=(
                     '<html>名录</html>'.encode('utf-8'),
                     'https://other.example.com/redirect',

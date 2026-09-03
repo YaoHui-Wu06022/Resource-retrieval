@@ -6,7 +6,9 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from query_city_core.linked_pages import collect_linked_html_pages
+from query_city_core.official.collectors.linked_pages import (
+    collect_linked_html_pages,
+)
 
 
 class CollectLinkedHtmlPagesTests(unittest.TestCase):
@@ -48,7 +50,7 @@ class CollectLinkedHtmlPagesTests(unittest.TestCase):
             )
             manifest_path = source_dir / '详情页清单.json'
             with mock.patch(
-                'query_city_core.linked_pages.fetch_direct_content',
+                'query_city_core.official.collectors.linked_pages.fetch_direct_content',
                 return_value=(
                     '<html>详情</html>'.encode('utf-8'),
                     'https://www.example.gov.cn/detail/1.html',
@@ -79,7 +81,7 @@ class CollectLinkedHtmlPagesTests(unittest.TestCase):
             listing_path = self.write_listing_html(source_dir)
             manifest_path = source_dir / '详情页清单.json'
             with mock.patch(
-                'query_city_core.linked_pages.fetch_direct_content',
+                'query_city_core.official.collectors.linked_pages.fetch_direct_content',
                 side_effect=RuntimeError('连接失败'),
             ):
                 payload, exit_code = collect_linked_html_pages(

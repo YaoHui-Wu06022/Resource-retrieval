@@ -32,6 +32,12 @@
 
 ### 2026-09-02
 
+- `scripts/normalize_school_records.py`、`scripts/extract_school_records.py`
+  - 公共层 `verify.py` 中的学部后缀逻辑整体移回本技能：新增
+    `SCHOOL_STAGE_SUFFIXES`、`build_poi_name_aliases()`，生成地址记录时
+    为单学段记录写入通用 `attributes.poi_name_aliases`（如初中记录生成
+    `初中部/中学部` 全名），核心层只按候选名称做唯一 POI 匹配。
+  - 去重合并学校类型后同步重算 `poi_name_aliases`。
 - `SKILL.md`
   - 输出目录层级统一为
     `output/<标准城市名>/<YYYY-MM-DD>/Basic_Education/<HHMMSS>/`，

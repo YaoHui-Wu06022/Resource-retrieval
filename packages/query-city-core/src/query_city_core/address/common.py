@@ -3,7 +3,13 @@
 import re
 
 
-SOURCE_NATURES = {'web_search', 'government_information'}
+SOURCE_NATURES = {'web_search', 'government_information', 'map_search'}
+ADDRESS_MODES = {'web_search', 'government_list', 'map_search'}
+ADDRESS_MODE_BY_SOURCE_NATURE = {
+    'web_search': 'web_search',
+    'government_information': 'government_list',
+    'map_search': 'map_search',
+}
 MAP_MATCH_STATUS_VALUES = {
     'consistent', 'partial', 'conflict', 'poi_match', 'not_found',
     'ambiguous', 'error', 'skipped',
@@ -86,11 +92,29 @@ def validate_address_record(address_record):
     if 'original_address' not in address_record:
         raise ValueError('每条地址记录必须包含 original_address 字段')
     if address_record.get('source_nature') not in SOURCE_NATURES:
-        raise ValueError('source_nature 必须是 web_search 或 government_information')
+        raise ValueError(
+            'source_nature 必须是 web_search、government_information 或 map_search'
+        )
+    if (
+        'address_mode' in address_record
+        and address_record.get('address_mode') not in ADDRESS_MODES
+    ):
+        raise ValueError(
+            'address_mode 必须是 web_search、government_list 或 map_search'
+        )
     if not str(address_record.get('source_reference') or '').strip():
         raise ValueError('每条地址记录必须包含非空 source_reference')
     if not isinstance(address_record.get('attributes') or {}, dict):
         raise ValueError('attributes 必须是对象')
+
+
+def resolve_address_mode(address_record):
+    """返回记录应采用的处理模式；未显式给出时按来源证据推导。"""
+    address_mode = str(address_record.get('address_mode') or '').strip()
+    if address_mode:
+        return address_mode
+    source_nature = str(address_record.get('source_nature') or '').strip()
+    return ADDRESS_MODE_BY_SOURCE_NATURE.get(source_nature, '')
 
 
 def build_map_result_record(address_record):

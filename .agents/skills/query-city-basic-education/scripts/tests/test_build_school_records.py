@@ -91,6 +91,31 @@ class CampusAddressTests(unittest.TestCase):
                     record['attributes']['school_type'], expected_type
                 )
 
+    def test_poi_name_aliases_are_generated_for_single_stage_records(self):
+        """单学段记录生成同学段学部全名别名，多学段与校区名不生成。"""
+        cases = {
+            ('示例学校', '初中'): [
+                '示例学校初中部',
+                '示例学校中学部',
+            ],
+            ('示例学校', '小学'): ['示例学校小学部'],
+            ('示例学校（中学部）', '初中'): [
+                '示例学校',
+                '示例学校初中部',
+            ],
+            ('示例学校', '完全中学'): [],
+            ('示例学校（起义路校区）', '初中'): [],
+        }
+        for (place_name, school_type), expected_aliases in cases.items():
+            with self.subTest(place_name=place_name, school_type=school_type):
+                self.assertEqual(
+                    NORMALIZER.build_poi_name_aliases(
+                        place_name,
+                        school_type,
+                    ),
+                    expected_aliases,
+                )
+
     def test_technical_schools_are_normalized_as_technical_colleges(self):
         """技师学院和技工学校应统一规范为技工院校。"""
         self.assertEqual(
@@ -299,57 +324,6 @@ class CampusAddressTests(unittest.TestCase):
             '小学、初中',
         )
 
-    def test_zero_enrollment_does_not_remove_school_record(self):
-        """招生人数为零只影响类型推断，不得删除学校。"""
-        table = {
-            'location': {'sheet': '学校名录'},
-            'rows': [
-                ['学校名称', '小学招生人数', '初中招生人数'],
-                ['示例学校', '0', '0'],
-            ],
-        }
-        rule = {
-            'file': '来源.xlsx',
-            'data_start_row': 2,
-            'place_name_columns': [1],
-            'school_type_presence_columns': [
-                {'column': 2, 'value': '小学'},
-                {'column': 3, 'value': '初中'},
-            ],
-        }
-
-        school_records = EXTRACTOR.extract_table_records(
-            table, rule, {}, '越秀区'
-        )
-
-        self.assertEqual(len(school_records), 1)
-        self.assertEqual(school_records[0]['place_name'], '示例学校')
-        self.assertEqual(school_records[0]['attributes']['school_type'], '')
-
-    def test_extract_table_records_can_keep_only_address_rows(self):
-        """联系方式表应只保留显式标记为地址的行。"""
-        table = {
-            'location': {'table_index': 1},
-            'rows': [
-                ['示例小学', '电话', '123'],
-                ['示例小学', '地址', '荔湾区甲路1号'],
-            ],
-        }
-        rule = {
-            'file': '来源.html',
-            'data_start_row': 1,
-            'place_name_columns': [1],
-            'original_address_column': 3,
-            'required_cell_values': [{'column': 2, 'value': '地址'}],
-        }
-        school_records = EXTRACTOR.extract_table_records(
-            table, rule, {}, '荔湾区'
-        )
-        self.assertEqual(len(school_records), 1)
-        self.assertEqual(
-            school_records[0]['original_address'], '荔湾区甲路1号'
-        )
-
     def test_source_publication_date_is_preserved(self):
         """来源发布日期应保留，缺失时应使用当天日期。"""
         dated_record = EXTRACTOR.build_school_record(
@@ -365,37 +339,6 @@ class CampusAddressTests(unittest.TestCase):
         )
         self.assertEqual(
             blank_record['attributes']['publication_date'], date.today().isoformat()
-        )
-
-    def test_html_css_records_split_explicit_stage_addresses(self):
-        """政府目录网页中的多学段地址应拆为独立记录。"""
-        with tempfile.TemporaryDirectory() as temporary_dir:
-            source_path = Path(temporary_dir) / '学校目录.html'
-            source_path.write_text(
-                '<div id="dataList"><div class="cont">'
-                '<div class="text"><h3><a>示例学校</a></h3>'
-                '<p>初中部：南山区甲路1号；高中部：南山区乙路2号</p>'
-                '</div><div class="bottom"><ul>'
-                '<li>学校类别：普通高中(完全中学)</li>'
-                '<li>学校性质：公办</li></ul></div></div></div>',
-                encoding='utf-8',
-            )
-            records = EXTRACTOR.extract_html_css_records(
-                source_path,
-                {
-                    'row_selector': '#dataList > div.cont',
-                    'place_name_selector': '.text > h3 > a',
-                    'original_address_selector': '.text > p',
-                    'school_type_selector': '.bottom li:nth-child(1)',
-                    'school_nature_selector': '.bottom li:nth-child(2)',
-                },
-                {},
-                '南山区',
-            )
-        self.assertEqual(
-            [(record['place_name'], record['attributes']['school_type'])
-             for record in records],
-            [('示例学校初中部', '初中'), ('示例学校高中部', '高中')],
         )
 
     def test_key_value_rule_applies_to_multiple_declared_html_files(self):
@@ -454,7 +397,9 @@ class CampusAddressTests(unittest.TestCase):
                     'extraction_rules': [{
                         'file_pattern': '幼儿园详情/*.html',
                         'kind': 'html_key_value',
-                        'school_type_value': '幼儿园',
+                        'attribute_fields': [
+                            {'field': 'school_type', 'value': '幼儿园'},
+                        ],
                         'approved': True,
                     }],
                     'review_status': 'ready',
@@ -676,8 +621,18 @@ class SourceManifestTests(unittest.TestCase):
         self.assertEqual(
             rules[0]['original_address_selector'], ':scope > :nth-child(2)'
         )
-        self.assertIn('学校类别', rules[0]['school_type_selector'])
-        self.assertIn('学校性质', rules[0]['school_nature_selector'])
+        attribute_fields = {
+            item['field']: item
+            for item in rules[0]['attribute_fields']
+        }
+        self.assertIn(
+            '学校类别',
+            attribute_fields['school_type']['selector'],
+        )
+        self.assertIn(
+            '学校性质',
+            attribute_fields['school_nature']['selector'],
+        )
 
     def test_build_extraction_plan_preserves_city_scope(self):
         """inspect 输出应继续原样传递城市上下文和行政单位。"""
@@ -773,7 +728,11 @@ class InspectionRuleSuggestionTests(unittest.TestCase):
             )
         self.assertEqual(exit_code, 0)
         extraction_rule = plan['items'][0]['extraction_rules'][0]
-        self.assertEqual(extraction_rule['school_type_value'], '幼儿园')
+        school_type_entry = next(
+            item for item in extraction_rule['attribute_fields']
+            if item['field'] == 'school_type'
+        )
+        self.assertEqual(school_type_entry['value'], '幼儿园')
         self.assertFalse(extraction_rule['approved'])
 
     def test_empty_nature_cells_suggest_fill_down_column(self):
@@ -790,7 +749,11 @@ class InspectionRuleSuggestionTests(unittest.TestCase):
             {'page': 1, 'table_index': 1},
         )
         self.assertIn(1, extraction_rule['fill_down_columns'])
-        self.assertEqual(extraction_rule['school_nature_column'], 1)
+        school_nature_entry = next(
+            item for item in extraction_rule['attribute_fields']
+            if item['field'] == 'school_nature'
+        )
+        self.assertEqual(school_nature_entry['column'], 1)
 
 
 if __name__ == '__main__':

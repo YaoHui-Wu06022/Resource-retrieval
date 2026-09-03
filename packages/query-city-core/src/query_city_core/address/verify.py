@@ -4,7 +4,7 @@
 
 import re
 
-from ..amap_client import (
+from .amap_client import (
     fetch_amap_geocodes,
     fetch_amap_pois,
     normalize_amap_value,
@@ -15,9 +15,10 @@ from .common import (
     build_map_result_record,
     compact_address,
     extract_admin_unit_components,
+    resolve_address_mode,
     strip_city_prefix,
 )
-from .normalize import normalize_address_value
+from .normalize import is_structurally_valid_address, normalize_address_value
 
 
 ROAD_PATTERN = re.compile(
@@ -44,6 +45,13 @@ AUXILIARY_POI_PATTERN = re.compile(
 )
 NAME_FORMAT_PATTERN = re.compile(r'[\s()（）\[\]【】{}《》<>·\-—–_]')
 CAMPUS_NEW_MODIFIER_PATTERN = re.compile(r'新(?=校区|校园)')
+STATUS_MODIFIER_PATTERN = re.compile(
+    r'[（(](?:[^（）()])*?(?:建设中|在建|拟建|筹设|筹办)(?:[^（）()])*?[）)]'
+)
+TOWN_PREFIX_PATTERN = re.compile(r'^[\u4e00-\u9fff]{1,8}(?:镇|街道|街|乡)')
+MAP_GUIDE_PARENTHESIS_PATTERN = re.compile(
+    r'[（(][^（）()]*(?:地铁|公交|交叉口|出口|步行|停车场)[^（）()]*[）)]'
+)
 GOVERNMENT_SPECIFIC_LOCATION_PATTERN = re.compile(
     r'小区|花园|花苑|苑|新村|社区|村|里|路|街|巷|大道|公路|弄|段|号|栋|座|楼|'
     r'园|校区|院区|工业区|产业园'
@@ -354,6 +362,48 @@ def normalize_campus_name_for_match(value):
     return CAMPUS_NEW_MODIFIER_PATTERN.sub('', normalize_place_name(value))
 
 
+def normalize_tolerant_poi_name(value, city_name, admin_unit):
+    """生成 POI 容差比较名称：去掉状态词并剥离城市、区县与镇街前缀。"""
+    normalized = normalize_place_name(
+        STATUS_MODIFIER_PATTERN.sub('', str(value or ''))
+    )
+    while normalized:
+        if city_name and normalized.startswith(city_name):
+            normalized = normalized[len(city_name):]
+            continue
+        if admin_unit and normalized.startswith(admin_unit):
+            normalized = normalized[len(admin_unit):]
+            continue
+        town_prefix = TOWN_PREFIX_PATTERN.match(normalized)
+        if town_prefix and len(normalized) > len(town_prefix.group(0)):
+            normalized = normalized[town_prefix.end():]
+            continue
+        break
+    return normalized
+
+
+def is_poi_name_match(place_name, poi_name, city_name, admin_unit):
+    """判断 POI 名称在精确或行政区前缀容差下是否与地点名称一致。"""
+    place_clean = normalize_campus_name_for_match(place_name)
+    poi_clean = normalize_campus_name_for_match(poi_name)
+    if place_clean == poi_clean:
+        return True
+    place_tolerant = normalize_tolerant_poi_name(
+        place_name, city_name, admin_unit
+    )
+    poi_tolerant = normalize_tolerant_poi_name(
+        poi_name, city_name, admin_unit
+    )
+    return bool(place_tolerant) and place_tolerant == poi_tolerant
+
+
+def clean_map_guide_annotations(value):
+    """删除地图地址括号内地铁、步行等交通引导文本。"""
+    return re.sub(
+        r'\s+', '', MAP_GUIDE_PARENTHESIS_PATTERN.sub('', str(value or ''))
+    )
+
+
 def build_poi_address(poi, city_context, target_administrative_unit=''):
     """将 POI 的下级行政区和详细地址整理为规范地址。"""
     admin_unit = normalize_amap_value(poi.get('adname'))
@@ -367,11 +417,11 @@ def build_poi_address(poi, city_context, target_administrative_unit=''):
         raw_address = f'{city}{detail}'
     else:
         raw_address = f'{city}{admin_unit}{detail}'
-    return normalize_map_address(
+    return clean_map_guide_annotations(normalize_map_address(
         raw_address,
         city_context,
         target_administrative_unit,
-    )
+    ))
 
 
 def build_poi_candidate(
@@ -382,9 +432,13 @@ def build_poi_candidate(
 ):
     """筛选名称、城市和地址均可确认的 POI 候选。"""
     poi_name = normalize_amap_value(poi.get('name'))
-    if normalize_campus_name_for_match(
-        place_name
-    ) != normalize_campus_name_for_match(poi_name):
+    name_matched = is_poi_name_match(
+        place_name,
+        poi_name,
+        city_context['city_name'],
+        target_administrative_unit,
+    )
+    if not name_matched:
         return None
     if normalize_place_name(normalize_amap_value(poi.get('cityname'))) != (
         normalize_place_name(city_context['city_name'])
@@ -441,7 +495,7 @@ def resolve_poi_address(
     rate_limiter,
     fetch_pois=fetch_amap_pois,
 ):
-    """按学校或校区名称查询唯一匹配的 POI 地址。"""
+    """按地点或校区名称查询唯一匹配的 POI 地址。"""
     processed_record = build_map_result_record(address_record)
     if not api_key:
         processed_record.update(map_match_status='error', map_reason='未配置 AMAP_KEY')
@@ -455,6 +509,20 @@ def resolve_poi_address(
     ).strip()
     if campus_name and campus_name not in place_names:
         place_names.append(campus_name)
+    alias_values = (address_record.get('attributes') or {}).get(
+        'poi_name_aliases'
+    ) or []
+    if not isinstance(alias_values, list):
+        alias_values = [alias_values] if str(alias_values or '').strip() else []
+    existing_name_keys = {
+        normalize_place_name(name) for name in place_names if name
+    }
+    for alias in alias_values:
+        alias = str(alias or '').strip()
+        alias_key = normalize_place_name(alias)
+        if alias and alias_key not in existing_name_keys:
+            place_names.append(alias)
+            existing_name_keys.add(alias_key)
     request_count = 0
     candidate = None
     map_match_status = ''
@@ -468,7 +536,10 @@ def resolve_poi_address(
             processed_record.update(map_match_status='error', map_reason=error_reason)
             return processed_record, request_count
         candidate, map_match_status, map_reason = select_poi_candidate(
-            place_name, city_context, map_pois, target_administrative_unit
+            place_name,
+            city_context,
+            map_pois,
+            target_administrative_unit,
         )
         if candidate:
             break
@@ -479,7 +550,81 @@ def resolve_poi_address(
     return processed_record, request_count
 
 
-def resolve_map_address(
+def resolve_map_search_placeholder(address_record):
+    """map_search 占位处理，本轮不执行自动高德检索。"""
+    processed_record = build_map_result_record(address_record)
+    processed_record.update(
+        map_match_status='skipped',
+        map_reason='map_search 模式为占位，本轮不执行自动高德检索',
+    )
+    return processed_record, 0
+
+
+def resolve_structurally_valid_address(address_record, city_context):
+    """结构化有效地址直接采用来源地址，不调用高德。"""
+    processed_record = build_map_result_record(address_record)
+    processed_record.update(
+        map_match_status='skipped',
+        map_reason='地址有效，无需地图验证',
+        final_address=str(
+            address_record.get('normalized_address') or ''
+        ).strip(),
+        final_address_source='official',
+        final_address_reason='来源地址有效，直接采用',
+    )
+    return processed_record, 0
+
+
+def resolve_government_list_address(
+    address_record,
+    city_context,
+    api_key,
+    rate_limiter,
+    fetch_pois=fetch_amap_pois,
+):
+    """政府名录模式：有效地址直接采用，缺失地址做宽松 POI 兜底。"""
+    official_address = str(address_record.get('normalized_address') or '').strip()
+    if official_address and (
+        has_detailed_address(address_record, city_context['city_name'])
+        or has_government_specific_location(
+            address_record, city_context['city_name']
+        )
+    ):
+        processed_record = build_map_result_record(address_record)
+        processed_record.update(
+            map_match_status='skipped',
+            map_reason=(
+                '政府资料地址已含道路门牌或具体地点，直接采用官方地址'
+            ),
+            final_address=official_address,
+            final_address_source='official',
+            final_address_reason='政府资料地址',
+        )
+        return processed_record, 0
+    processed_record, request_count = resolve_poi_address(
+        address_record,
+        city_context,
+        api_key,
+        rate_limiter,
+        fetch_pois,
+    )
+    if processed_record['map_match_status'] == 'poi_match':
+        processed_record.update(
+            final_address=processed_record['map_address'],
+            final_address_source='map',
+            final_address_reason='政府资料地址不完整，按学校名称补充地图地址',
+        )
+        return processed_record, request_count
+    if official_address:
+        processed_record.update(
+            final_address=official_address,
+            final_address_source='official',
+            final_address_reason='政府资料地址',
+        )
+    return processed_record, request_count
+
+
+def resolve_web_search_address(
     address_record,
     city_context,
     api_key,
@@ -487,68 +632,14 @@ def resolve_map_address(
     fetch_geocodes=fetch_amap_geocodes,
     fetch_pois=fetch_amap_pois,
 ):
-    """根据来源性质和地址完整度选择地理编码或 POI 查询。"""
-    source_nature = address_record['source_nature']
+    """网页检索模式：部分地址做地理编码，缺失地址做严格 POI 兜底。"""
     normalization_status = address_record['normalization_status']
     official_address = str(address_record.get('normalized_address') or '').strip()
     detailed_address = has_detailed_address(
         address_record,
         city_context['city_name'],
     )
-
-    if source_nature == 'government_information' and official_address:
-        if detailed_address:
-            processed_record, request_count = verify_map_address(
-                address_record,
-                city_context,
-                api_key,
-                rate_limiter,
-                fetch_geocodes,
-            )
-            processed_record.update(
-                final_address=official_address,
-                final_address_source='official',
-                final_address_reason='政府资料地址，地图仅用于匹配验证',
-            )
-            return processed_record, request_count
-        if has_government_specific_location(
-            address_record, city_context['city_name']
-        ):
-            processed_record = build_map_result_record(address_record)
-            processed_record.update(
-                map_match_status='skipped',
-                map_reason='政府资料地址缺少可验证道路或门牌组件',
-                final_address=official_address,
-                final_address_source='official',
-                final_address_reason='政府资料地址',
-            )
-            return processed_record, 0
-        processed_record, request_count = resolve_poi_address(
-            address_record,
-            city_context,
-            api_key,
-            rate_limiter,
-            fetch_pois,
-        )
-        if processed_record['map_match_status'] == 'poi_match':
-            processed_record.update(
-                final_address=processed_record['map_address'],
-                final_address_source='map',
-                final_address_reason='政府资料地址不完整，按学校名称补充地图地址',
-            )
-            return processed_record, request_count
-        processed_record.update(
-            final_address=official_address,
-            final_address_source='official',
-            final_address_reason='政府资料地址',
-        )
-        return processed_record, request_count
-
-    if (
-        source_nature == 'web_search'
-        and normalization_status in {'complete', 'partial'}
-        and detailed_address
-    ):
+    if normalization_status in {'complete', 'partial'} and detailed_address:
         processed_record, request_count = verify_map_address(
             address_record,
             city_context,
@@ -578,8 +669,7 @@ def resolve_map_address(
             final_address_reason=final_reason,
         )
         return processed_record, request_count
-
-    if normalization_status in {'empty', 'partial', 'complete'} and not detailed_address:
+    if normalization_status in {'empty', 'partial', 'complete'}:
         processed_record, request_count = resolve_poi_address(
             address_record,
             city_context,
@@ -606,7 +696,6 @@ def resolve_map_address(
                 ),
             )
         return processed_record, request_count
-
     processed_record = build_map_result_record(address_record)
     normalization_reason = str(
         address_record.get('normalization_reason') or ''
@@ -616,7 +705,39 @@ def resolve_map_address(
         map_reason=(
             normalization_reason
             if normalization_reason
-            else f'{source_nature} 的 {normalization_status} 地址不调用高德'
+            else f'web_search 的 {normalization_status} 地址不调用高德'
         ),
     )
     return processed_record, 0
+
+
+def resolve_map_address(
+    address_record,
+    city_context,
+    api_key,
+    rate_limiter,
+    fetch_geocodes=fetch_amap_geocodes,
+    fetch_pois=fetch_amap_pois,
+):
+    """按地址模式分发到对应验证策略。"""
+    address_mode = resolve_address_mode(address_record)
+    if address_mode == 'map_search':
+        return resolve_map_search_placeholder(address_record)
+    if is_structurally_valid_address(address_record, city_context):
+        return resolve_structurally_valid_address(address_record, city_context)
+    if address_mode == 'government_list':
+        return resolve_government_list_address(
+            address_record,
+            city_context,
+            api_key,
+            rate_limiter,
+            fetch_pois,
+        )
+    return resolve_web_search_address(
+        address_record,
+        city_context,
+        api_key,
+        rate_limiter,
+        fetch_geocodes,
+        fetch_pois,
+    )

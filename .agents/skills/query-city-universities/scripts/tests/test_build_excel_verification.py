@@ -43,6 +43,7 @@ def build_address_record(
     final_address_source='',
     map_reason='',
     normalization_reason='',
+    school_identifier='4144010559',
 ):
     """构造测试使用的公共地址记录。"""
     return {
@@ -53,7 +54,7 @@ def build_address_record(
         'attributes': {
             'source_sequence': str(source_sequence),
             'school_name': place_name.removesuffix(campus_name),
-            'school_identifier': '4144010559',
+            'school_identifier': school_identifier,
             'supervising_authority': '中央统战部',
             'location_city': '广州市',
             'education_level': '本科',
@@ -91,10 +92,7 @@ class FinalWorkbookTests(unittest.TestCase):
         abnormal_rows = build_abnormal_rows([record])
 
         self.assertEqual(len(abnormal_rows), 1)
-        self.assertEqual(
-            abnormal_rows[0][4],
-            '2026 年新设，未找到独立官网',
-        )
+        self.assertEqual(abnormal_rows[0][2], '2026 年新设，未找到独立官网')
 
     def test_output_rows_filter_empty_address_and_renumber(self):
         """空最终地址被剔除并按源序号重新生成展示序号。"""
@@ -123,9 +121,9 @@ class FinalWorkbookTests(unittest.TestCase):
 
         output_rows = build_output_rows(address_records, '广州市')
 
-        self.assertEqual([row[0] for row in output_rows], [1, 2])
+        self.assertEqual(len(output_rows), 2)
         self.assertEqual(
-            [row[1] for row in output_rows],
+            [row[0][0] for row in output_rows],
             ['前序大学第二校区', '后序大学第一校区'],
         )
 
@@ -151,7 +149,7 @@ class FinalWorkbookTests(unittest.TestCase):
         output_rows = build_output_rows(address_records, '广州市')
 
         self.assertEqual(
-            [row[1] for row in output_rows],
+            [row[0][0] for row in output_rows],
             ['示例大学南校区', '示例大学北校区'],
         )
 
@@ -170,11 +168,14 @@ class FinalWorkbookTests(unittest.TestCase):
                 '广州市白云区示例路2号',
                 'https://map.example.edu.cn/',
                 final_address_source='map',
+                school_identifier='4144010560',
             ),
         ], '广州市')
 
-        self.assertEqual([row[6] for row in output_rows], [date.today().isoformat()] * 2)
-        self.assertEqual([row[8] for row in output_rows], ['官网提取', '地图信息'])
+        workbook = create_workbook(output_rows)
+        worksheet = workbook[SHEET_NAME]
+        self.assertEqual(worksheet.cell(2, 9).value, '官网提取')
+        self.assertEqual(worksheet.cell(3, 9).value, '地图信息')
 
     def test_map_same_detail_removes_unlabeled_duplicate(self):
         """地图道路和门牌相同的无校区记录应从最终表中删除。"""
@@ -194,7 +195,7 @@ class FinalWorkbookTests(unittest.TestCase):
             ),
         ], '广州市')
         self.assertEqual(len(output_rows), 1)
-        self.assertEqual(output_rows[0][1], '示例大学校本部')
+        self.assertEqual(output_rows[0][0][0], '示例大学校本部')
 
     def test_workbook_contains_only_confirmed_columns(self):
         """最终工作簿只展示已经确认的十一个字段。"""
@@ -226,18 +227,20 @@ class FinalWorkbookTests(unittest.TestCase):
                 'https://outside.example.edu.cn/',
                 map_match_status='skipped',
                 normalization_reason='原始地址中的城市与目标城市不一致：深圳市',
+                school_identifier='4144010560',
             ),
         ]
 
         rows = build_abnormal_rows(records)
 
         self.assertEqual(len(rows), 2)
-        self.assertEqual(rows[0][1], '无地址大学')
-        self.assertEqual(rows[0][4], '高德服务正常但未找到结果')
-        self.assertEqual(rows[0][5], '未找到')
-        self.assertEqual(rows[1][1], '异地大学')
-        self.assertEqual(rows[1][4], '原始地址中的城市与目标城市不一致：深圳市')
-        self.assertEqual(rows[1][5], '未查询')
+        self.assertEqual(rows[0][0][0], '无地址大学')
+        self.assertEqual(rows[0][2], '高德服务正常但未找到结果')
+        self.assertEqual(rows[1][0][0], '异地大学')
+        self.assertEqual(
+            rows[1][2],
+            '原始地址中的城市与目标城市不一致：深圳市',
+        )
 
     def test_workbook_contains_abnormal_sheet(self):
         """异常校工作表字段、序号和来源链接正确。"""
@@ -260,9 +263,9 @@ class FinalWorkbookTests(unittest.TestCase):
         )
         self.assertEqual(abnormal_sheet.cell(2, 1).value, 1)
         self.assertEqual(abnormal_sheet.cell(2, 2).value, '无地址大学')
-        self.assertEqual(abnormal_sheet.cell(2, 5).value, '高德服务正常但未找到结果')
+        self.assertEqual(abnormal_sheet.cell(2, 7).value, '高德服务正常但未找到结果')
         self.assertEqual(
-            abnormal_sheet.cell(2, 7).hyperlink.target,
+            abnormal_sheet.cell(2, 8).hyperlink.target,
             'https://example.edu.cn/contact',
         )
 

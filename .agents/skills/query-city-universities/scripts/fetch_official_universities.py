@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import urldefrag, urlparse
 
 
-from query_city_core.fetch_official_page import (
+from query_city_core.web.fetch_official_page import (
     OfficialPageFetcher,
     fetch_official_page,
     normalize_domain,
@@ -57,6 +57,9 @@ EXCLUDED_LINK_TEXT = re.compile(r'地图|风光|生活|文化|看点|媒体')
 EXCLUDED_LINK_PATH = re.compile(
     r'\.(?:jpe?g|png|gif|webp|svg|pdf|docx?|xlsx?)$', re.IGNORECASE
 )
+NAVIGATION_LINK_TEXT_PATTERN = re.compile(
+    r'^(?:上一条|下一条|上一篇|下一篇|上一页|下一页|返回(?:列表|上页|上一级)?)\s*[：:]?'
+)
 MAX_CAMPUS_HINTS = 30
 DEFAULT_MAX_PAGES_PER_SCHOOL = 3
 EXPANDED_MAX_PAGES_PER_SCHOOL = 6
@@ -76,9 +79,12 @@ def has_usable_address_candidate(page_result):
 
 
 def has_campus_expansion_signal(page_result):
-    """判断页面是否显示多校区汇总但尚无地址，需要补抓校区详情页。"""
-    if has_usable_address_candidate(page_result):
-        return False
+    """判断页面是否出现多校区汇总线索，需要继续补抓校区详情页。
+
+    只要页面展示 ≥2 个校区提示或校区相关链接即触发扩展，
+    不要求页面“尚无地址”——首页已命中主校区地址时同样需要
+    继续核对其余校区。
+    """
     campus_hints = [
         str(hint or '').strip()
         for hint in page_result.get('campus_hints') or []
@@ -90,6 +96,35 @@ def has_campus_expansion_signal(page_result):
         if str(link.get('link_type') or '') == 'campus'
     )
     return len(campus_hints) >= 2 or campus_link_count >= 2
+
+
+IDENTITY_WARNING_PREFIX = '页面身份校验：'
+
+
+def extract_identity_aliases(school_name):
+    """生成用于首页身份校验的校名别名（全名及去掉括号的简称）。"""
+    aliases = []
+    name = str(school_name or '').strip()
+    if name:
+        aliases.append(name)
+    core = re.sub(r'[（(][^（）()]*[）)]', '', name).strip()
+    if core and core != name:
+        aliases.append(core)
+    return list(dict.fromkeys(
+        re.sub(r'\s+', '', alias)
+        for alias in aliases
+        if re.sub(r'\s+', '', alias)
+    ))
+
+
+def build_home_identity_warning(page_result, school_name):
+    """首页标题不含学校名称（或其简称）时返回身份校验警告。"""
+    title = re.sub(r'\s+', '', str(page_result.get('title') or ''))
+    if not title or not school_name:
+        return ''
+    if any(alias and alias in title for alias in extract_identity_aliases(school_name)):
+        return ''
+    return f'{IDENTITY_WARNING_PREFIX}首页标题未包含学校名称「{school_name}」'
 
 
 def extract_campus_names(value):
@@ -322,6 +357,7 @@ def filter_related_links(links, domains, current_url):
         url = urldefrag(link.get('url') or '')[0]
         if (not is_url_in_domains(url, domains) or url.rstrip('/') == current_url
                 or EXCLUDED_LINK_TEXT.search(text)
+                or NAVIGATION_LINK_TEXT_PATTERN.search(text)
                 or EXCLUDED_LINK_PATH.search(urlparse(url).path)):
             continue
         classification = classify_related_link(text, url)
@@ -409,10 +445,12 @@ def build_school_followup_urls(
 
 
 def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL):
-    """按固定页面策略抓取一所学校的官网页面。
+    """按“校区覆盖优先”固定策略抓取一所学校的官网页面。
 
-    先抓 home_url；页面已有非空地址候选即停止。否则依次补抓
-    candidate_urls 与已抓页面返回的同域相关链接，全校最多 max_pages 页。
+    先抓 home_url；存在域名确认阶段给出的 candidate_urls 时，
+    即使首页已命中地址也会继续补抓候选页（章程/校区/联系方式等
+    汇总页），候选页全部抓完且无多校区线索时才停止。页面出现
+    ≥2 个校区提示或校区链接时放宽到 ≤6 页，并按校区去重补抓。
     页面访问失败也保留页面对象并计入页数预算。
     """
     home_url = str(school_item.get('home_url') or '').strip()
@@ -426,16 +464,25 @@ def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_
 
     pending = [home_url]
     home_key = _normalized_url_key(home_url)
-    pending.extend(
-        str(url).strip()
-        for url in school_item.get('candidate_urls') or []
-        if is_url_in_domains(str(url).strip(), official_domains)
-        and _normalized_url_key(str(url).strip()) != home_key
-    )
+    explicit_keys = []
+    for raw_url in school_item.get('candidate_urls') or []:
+        url = str(raw_url).strip()
+        key = _normalized_url_key(url)
+        if (
+            url
+            and is_url_in_domains(url, official_domains)
+            and key != home_key
+            and key not in explicit_keys
+        ):
+            explicit_keys.append(key)
+            pending.append(url)
     visited = set()
     queued_campuses = set()
     pages = []
-    effective_max_pages = max_pages
+    effective_max_pages = max(
+        max_pages,
+        min(1 + len(explicit_keys), EXPANDED_MAX_PAGES_PER_SCHOOL),
+    )
     campus_expanded = False
     while pending and len(pages) < effective_max_pages:
         url = pending.pop(0)
@@ -445,13 +492,23 @@ def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_
         visited.add(url_key)
         page_result = fetch_page(url, official_domains)
         pages.append(page_result)
-        if has_usable_address_candidate(page_result):
-            break
+        if url_key == home_key:
+            warning = build_home_identity_warning(
+                page_result, str(school_item.get('school_name') or '')
+            )
+            if warning:
+                page_result.setdefault('warnings', []).append(warning)
         if not campus_expanded and has_campus_expansion_signal(page_result):
             campus_expanded = True
             effective_max_pages = max(
                 effective_max_pages, EXPANDED_MAX_PAGES_PER_SCHOOL
             )
+        remaining_explicit = any(key not in visited for key in explicit_keys)
+        has_address = any(
+            has_usable_address_candidate(item) for item in pages
+        )
+        if has_address and not remaining_explicit and not campus_expanded:
+            break
         build_school_followup_urls(
             page_result, official_domains, pending, visited, queued_campuses
         )

@@ -8,8 +8,8 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from ..amap_client import RequestRateLimiter
-from ..city import validate_city_context
+from .amap_client import RequestRateLimiter
+from .city import validate_city_context
 from ..env_utils import read_env_value
 from ..io_utils import read_json_payload, write_json_payload
 from .common import MISSING_ADMIN_REASON
@@ -64,6 +64,10 @@ def build_address_resolution_metrics(processed_records, map_request_count, city_
         'map_request_count': map_request_count,
         'source_counts': dict(sorted(Counter(
             address_record['source_nature']
+            for address_record in processed_records
+        ).items())),
+        'address_mode_counts': dict(sorted(Counter(
+            address_record['address_mode']
             for address_record in processed_records
         ).items())),
         'normalization_status_counts': dict(sorted(Counter(

@@ -20,9 +20,10 @@ description: "根据中国城市筛选教育部普通高校名单，检索学校
 
 | 用途 | 命令 |
 | --- | --- |
-| 标准化城市、取下级行政区 | `python -m query_city_core.city` |
+| 标准化城市、取下级行政区 | `python -m query_city_core.address.city` |
 | 生成城市高校名录 | `scripts/filter_universities.py` |
 | 域名确认 | 按批 WebSearch 确认，产出 `domain_batches/*.json`，再汇总为 `official_domain_manifest.json` |
+| 域名现用性探测 | `scripts/probe_official_domains.py --run-dir <runDir>` |
 | 并发抓取官网 | `scripts/run_university_fetch.py` |
 | 合并逐校结果 | `scripts/merge_university_results.py` |
 | 生成公共地址输入 | `scripts/build_university_address.py` |
@@ -39,7 +40,7 @@ $runDate = Get-Date -Format yyyy-MM-dd
 $runTime = Get-Date -Format HHmmss
 $runDir = 'output/<标准城市名>/' + $runDate + '/Higher_Education/' + $runTime
 New-Item -ItemType Directory -Force $runDir | Out-Null
-python -m query_city_core.city --city <用户城市> > "$runDir/city_context.json"
+python -m query_city_core.address.city --city <用户城市> > "$runDir/city_context.json"
 scripts/filter_universities.py --city-context "$runDir/city_context.json"
 ```
 
@@ -58,7 +59,16 @@ scripts/filter_universities.py --city-context "$runDir/city_context.json"
 - 合并/停办项：`processing_status: "skipped"`、`skip_reason`（`merged` 或 `ceased_independent_operation`）、`skip_reference`；
 - 无法给出合法结论：保留输入并加 `failure_reason`；禁止把“没搜到/打不开”伪造成 `no_official_site` 或 `skipped`。
 
-官网判定：页面标题/站点名/正文须明确对应学校全名；可访问主站优先，`.edu.cn` 非硬性；招生、百科、媒体、第三方院校库与地图不算官网；跳转域名须有同次搜索证据；候选页必须属于 `official_domains`。
+官网判定：页面标题/站点名/正文须明确对应学校全名；可访问主站优先，`.edu.cn` 非硬性；招生、百科、媒体、第三方院校库与地图不算官网；跳转域名须有同次搜索证据或官方探测的页面身份匹配证据；候选页必须属于 `official_domains`。
+
+写回批次后运行 `scripts/probe_official_domains.py --run-dir <runDir>`，产出
+`domain_probe_report.json`：逐个访问普通项主页，记录可达性、跳转终域、
+终页标题与机构名称是否匹配，并给出建议；报告条目使用中立的
+`place_id`/`place_name`（高校场景即学校标识码/学校名称），供医院、
+政府机关等后续场景复用。探测是站点访问，不计入 WebSearch 预算。
+复核报告：主页跳转到未列入 `official_domains` 的域名且终页身份匹配时，
+更新批次将该域名并入 `official_domains` 并把主页改为跳转终址；
+主页访问失败且无法给出合法结论的学校按失败校处理。
 
 运行 `scripts/merge_domain_batches.py --run-dir <runDir>` 汇总全部批次，输出 `official_domain_manifest.json`；存在 `failure_reason` 时脚本拒绝输出。
 
@@ -74,10 +84,17 @@ scripts/run_university_fetch.py \
 ```
 
 - 普通项按 `--workers` 切给独立进程抓取；`no_official_site` 与 `skipped` 由运行器直接写出结果，不启动浏览器。
-- 页面策略：先抓 `home_url`；已有非空地址候选即停；否则按 `candidate_urls`、再按页面同域相关链接（campus/contact/overview 顺序）补抓。
-- 页数预算：默认每校 ≤ 3 页，访问失败也计入；页面出现多校区汇总线索（≥ 2 个校区提示或校区链接）且尚无地址时，预算自动放宽到 ≤ 6 页，同一校区详情只补抓一次。
+- 页面策略：先抓 `home_url` 并做首页身份校验（标题不含学校名称记
+  warning）；存在 `candidate_urls` 时，即使首页已命中地址也会继续抓完
+  全部候选页（章程/校区/联系方式等汇总页）；无候选页且首页已命中地址、
+  页面无多校区线索时停止；否则按同域相关链接（campus/contact/overview
+  顺序）补抓。
+- 页数预算：默认每校 ≤ 3 页，访问失败也计入；需抓候选页或页面出现
+  多校区汇总线索（≥ 2 个校区提示或校区链接）时预算放宽到 ≤ 6 页，
+  同一校区详情只补抓一次。
 - 页面对象原样原子写入 `school_results/<school_identifier>.json`，失败页保留。
-- 输出 `fetch_report.json`（每校状态、页数、是否有地址候选）与 `retry_failures.json`（缺少合法结果的学校）。
+- 输出 `fetch_report.json`（每校状态、页数、是否有地址候选、首页身份
+  校验是否告警）与 `retry_failures.json`（缺少合法结果的学校）。
 - 只对 `retry_failures` 复检一次：更新清单 URL 后运行同命令加 `--only-failures`；复检仍失败则停止，不进合并。
 
 ## 3. 合并单校结果
@@ -106,6 +123,7 @@ scripts/run_university_fetch.py \
 ## 完成检查
 
 - 域名批次与 `city_universities.json` 一一对应且已汇总；`failure_reason` 学校已统一复检；`fetch_report.json` 已复核。
+- `domain_probe_report.json` 已复核；存在跳转/身份问题的批次已按探测结果更新。
 - `school_results/` 逐校覆盖名录，无重复或遗漏；`retry_failures.json` 学校仅复检一次，无第三次检索。
 - 页面均为原始单页结果，通常 ≤ 3 页（校区扩展条件成立时 ≤ 6 页）。
 - 公共地址处理无未处理错误；工作簿可打开，两表列与行约束符合约定。

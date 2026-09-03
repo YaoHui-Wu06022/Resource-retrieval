@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from query_city_core.directory_links import (
+from query_city_core.official.collectors.directory_links import (
     DIRECTORY_LINK_MANIFEST_STAGE,
     collect_directory_links,
 )
@@ -55,7 +55,7 @@ class CollectDirectoryLinksTests(unittest.TestCase):
             input_path = self.write_input_manifest(source_dir)
             output_path = source_dir / 'directory_links.json'
             with mock.patch(
-                'query_city_core.directory_links.fetch_direct_content',
+                'query_city_core.official.collectors.directory_links.fetch_direct_content',
                 return_value=(
                     html.encode('utf-8'),
                     'https://www.example.gov.cn/jyly/xx/index.html',
@@ -88,7 +88,7 @@ class CollectDirectoryLinksTests(unittest.TestCase):
             input_path = self.write_input_manifest(source_dir)
             output_path = source_dir / 'directory_links.json'
             with mock.patch(
-                'query_city_core.directory_links.fetch_direct_content',
+                'query_city_core.official.collectors.directory_links.fetch_direct_content',
                 side_effect=RuntimeError('连接失败'),
             ):
                 payload, exit_code = collect_directory_links(

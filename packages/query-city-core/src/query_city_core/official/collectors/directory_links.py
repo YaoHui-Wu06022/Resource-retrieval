@@ -8,15 +8,15 @@ from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 
-from .access import fetch_direct_content, is_url_in_domains, normalize_domain
-from .host_gate import (
+from ...access import fetch_direct_content, is_url_in_domains, normalize_domain
+from ...host_gate import (
     DEFAULT_HOST_MAX_WORKERS,
     DEFAULT_HOST_MIN_INTERVAL,
     DEFAULT_MAX_WORKERS,
     HostRequestGate,
     extract_url_host,
 )
-from .io_utils import read_json_payload, write_json_payload
+from ...io_utils import read_json_payload, write_json_payload
 
 
 DIRECTORY_LINK_MANIFEST_STAGE = 'directory_link_manifest'

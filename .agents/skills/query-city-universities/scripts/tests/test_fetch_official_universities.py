@@ -14,6 +14,7 @@ if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
 from fetch_official_universities import (
+    build_home_identity_warning,
     build_address_candidates,
     build_university_result,
     extract_campus_link_names,
@@ -170,7 +171,8 @@ class FetchOfficialPagePluginTests(unittest.TestCase):
 
 
 def build_school_page_result(
-    url, candidates=None, related_links=None, page_status='ok', campus_hints=None
+    url, candidates=None, related_links=None, page_status='ok', campus_hints=None,
+    title='',
 ):
     """构造批量抓取策略使用的页面结果。"""
     return {
@@ -179,7 +181,7 @@ def build_school_page_result(
         'final_url': url,
         'http_status': 200,
         'page_status': page_status,
-        'title': '',
+        'title': title,
         'official_domains': ['example.edu.cn'],
         'address_candidates': list(candidates or []),
         'campus_hints': list(campus_hints or []),
@@ -215,11 +217,41 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         self.assertEqual(len(pages), 1)
         self.assertEqual(len(requested), 1)
 
-    def test_follows_candidate_urls_before_related_links(self):
-        """首页无地址时按 candidate_urls 顺序补抓，候选页命中即停。"""
+    def test_fetches_all_candidates_even_when_home_has_address(self):
+        """首页已有地址时仍按 candidate_urls 顺序抓完全部候选页。"""
         item = self.build_item(candidate_urls=[
             'https://www.example.edu.cn/contact',
             'https://www.example.edu.cn/overview',
+        ])
+        requested = []
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/'):
+                return build_school_page_result(
+                    url,
+                    candidates=[{'address_text': '广州市海珠区示例路2号'}],
+                )
+            return build_school_page_result(
+                url,
+                candidates=[{'address_text': '广州市越秀区示例路3号'}],
+            )
+
+        pages = fetch_school_pages(item, fetch_page, max_pages=5)
+        self.assertEqual(
+            requested,
+            [
+                'https://www.example.edu.cn/',
+                'https://www.example.edu.cn/contact',
+                'https://www.example.edu.cn/overview',
+            ],
+        )
+        self.assertEqual(len(pages), 3)
+
+    def test_follows_candidate_urls_before_related_links(self):
+        """首页无地址时按 candidate_urls 顺序补抓，候选页抓完后停止。"""
+        item = self.build_item(candidate_urls=[
+            'https://www.example.edu.cn/contact',
         ])
         requested = []
 
@@ -230,7 +262,12 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
                     url,
                     candidates=[{'address_text': '广州市海珠区示例路2号'}],
                 )
-            return build_school_page_result(url)
+            return build_school_page_result(
+                url,
+                related_links=[
+                    {'text': '联系方式', 'url': 'https://www.example.edu.cn/contact'},
+                ],
+            )
 
         pages = fetch_school_pages(item, fetch_page, max_pages=5)
         self.assertEqual(requested[1], 'https://www.example.edu.cn/contact')
@@ -314,8 +351,8 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
             candidates=[{'address_text': '  '}],
         )))
 
-    def test_campus_expansion_signal_requires_multi_campus_without_address(self):
-        """多校区汇总且无地址时才触发扩展；已有地址不触发。"""
+    def test_campus_expansion_signal_sees_multi_campus_with_address(self):
+        """页面已有地址但显示多校区线索时仍触发扩展。"""
         self.assertTrue(has_campus_expansion_signal(build_school_page_result(
             'https://www.example.edu.cn/',
             campus_hints=['五山校区', '大学城校区'],
@@ -335,7 +372,7 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
                 },
             ],
         )))
-        self.assertFalse(has_campus_expansion_signal(build_school_page_result(
+        self.assertTrue(has_campus_expansion_signal(build_school_page_result(
             'https://www.example.edu.cn/',
             candidates=[{'address_text': '广州市天河区示例路1号'}],
             campus_hints=['五山校区', '大学城校区'],
@@ -344,6 +381,54 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
             'https://www.example.edu.cn/',
             campus_hints=['校本部'],
         )))
+
+    def test_home_identity_warning_flags_title_mismatch(self):
+        """首页标题缺少学校名称时给出身份校验警告。"""
+        warning = build_home_identity_warning(
+            build_school_page_result(
+                'https://www.example.edu.cn/',
+                title='欢迎访问示例大学官方网站',
+            ),
+            '示例大学',
+        )
+        self.assertEqual(warning, '')
+        warning = build_home_identity_warning(
+            build_school_page_result(
+                'https://www.example.edu.cn/',
+                title='Other University',
+            ),
+            '示例大学',
+        )
+        self.assertTrue(warning.startswith('页面身份校验：'))
+
+    def test_home_identity_warning_allows_parenthetical_core(self):
+        """括号校区/合作标注不影响校名核心匹配。"""
+        warning = build_home_identity_warning(
+            build_school_page_result(
+                'https://www.example.edu.cn/',
+                title='香港科技大学',
+            ),
+            '香港科技大学（广州）',
+        )
+        self.assertEqual(warning, '')
+
+    def test_fetch_school_pages_appends_identity_warning_for_home(self):
+        """批量抓取时身份校验警告写入首页页面结果。"""
+        item = self.build_item()
+        item['school_name'] = '示例大学'
+
+        def fetch_page(url, domains):
+            return build_school_page_result(
+                url,
+                title='Other University',
+                candidates=[{'address_text': '广州市天河区示例路1号'}],
+            )
+
+        pages = fetch_school_pages(item, fetch_page, max_pages=5)
+        self.assertTrue(any(
+            str(warning or '').startswith('页面身份校验：')
+            for warning in pages[0].get('warnings') or []
+        ))
 
     def test_campus_expansion_raises_budget_from_3_to_6(self):
         """多校区汇总页无地址时预算从 3 页放宽到 6 页。"""
@@ -714,6 +799,55 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         self.assertEqual(
             [item['text'] for item in results],
             ['滨海校区', '学校导游', '联系我们', '学校章程'],
+        )
+
+    def test_related_links_ignore_prev_next_navigation(self):
+        """翻页导航链接不得作为校区线索或后续抓取目标。"""
+        links = [
+            {
+                'text': '下一条：广州校区赤岗校园',
+                'url': 'https://example.edu.cn/info/2079.htm',
+                'link_type': 'campus',
+            },
+            {
+                'text': '上一条：中山校区',
+                'url': 'https://example.edu.cn/info/2078.htm',
+                'link_type': 'campus',
+            },
+            {
+                'text': '学校校区',
+                'url': 'https://example.edu.cn/campuses.htm',
+                'link_type': 'campus',
+            },
+        ]
+        results = filter_related_links(
+            links, ['example.edu.cn'], 'https://example.edu.cn/info/2080.htm'
+        )
+        self.assertEqual(
+            [item['text'] for item in results],
+            ['学校校区'],
+        )
+
+    def test_navigation_link_does_not_become_campus_hint(self):
+        """旧版页面中“下一条”校区链接不再生成孤立校区提示。"""
+        result = build_university_result({
+            'requested_url': 'https://example.edu.cn/info/2080.htm',
+            'final_url': 'https://example.edu.cn/info/2080.htm',
+            'http_status': 200,
+            'page_status': 'ok',
+            'title': '广州校区宝岗校园-广东药科大学',
+            'official_domains': ['example.edu.cn'],
+            'address_evidence': [],
+            'links': [{
+                'text': '下一条：广州校区赤岗校园',
+                'url': 'https://example.edu.cn/info/2079.htm',
+            }],
+            'warnings': [],
+        })
+        self.assertEqual(result['campus_hints'], ['广州校区宝岗校园'])
+        self.assertEqual(
+            [link['text'] for link in result['related_links']],
+            [],
         )
 
     def test_common_http_status_is_preserved(self):

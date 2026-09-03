@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""标准化城市输入并取得其直接下级行政单位。"""
+"""标准化城市输入并取得其直接下级行政单位（address 子包）。"""
 
 import argparse
 import json
 import sys
 from pathlib import Path
 
-from .address.common import CITY_SUFFIXES
+from .common import CITY_SUFFIXES
 from .amap_client import RequestRateLimiter, fetch_amap_subdivisions
-from .env_utils import read_env_value
+from ..env_utils import read_env_value
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -17,7 +17,9 @@ if hasattr(sys.stdout, 'reconfigure'):
 
 
 DEFAULT_CATALOG_PATH = (
-    Path(__file__).resolve().parent / 'assets' / 'china_city_catalog.json'
+    Path(__file__).resolve().parent.parent
+    / 'assets'
+    / 'china_city_catalog.json'
 )
 
 

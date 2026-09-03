@@ -9,16 +9,22 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from source_readers import normalize_text  # noqa: E402
+from query_city_core.official.readers import normalize_text  # noqa: E402
 from query_city_core.io_utils import write_json_payload  # noqa: E402
-from query_city_core.directory_links import collect_directory_links  # noqa: E402
+from query_city_core.official.collectors.directory_links import (  # noqa: E402
+    collect_directory_links,
+)
 from query_city_core.host_gate import (  # noqa: E402
     DEFAULT_HOST_MAX_WORKERS,
     DEFAULT_HOST_MIN_INTERVAL,
     DEFAULT_MAX_WORKERS,
 )
-from query_city_core.linked_pages import collect_linked_html_pages  # noqa: E402
-from query_city_core.source_files import download_source_files  # noqa: E402
+from query_city_core.official.collectors.linked_pages import (  # noqa: E402
+    collect_linked_html_pages,
+)
+from query_city_core.official.collectors.source_files import (  # noqa: E402
+    download_source_files,
+)
 from extract_school_records import extract_school_records  # noqa: E402
 from inspect_government_source import build_extraction_plan  # noqa: E402
 

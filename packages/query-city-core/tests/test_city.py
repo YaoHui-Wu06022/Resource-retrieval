@@ -9,7 +9,7 @@ COMPONENT_DIR = Path(__file__).resolve().parents[1]
 if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
-from query_city_core.city import (  # noqa: E402
+from query_city_core.address.city import (  # noqa: E402
     build_city_context,
     normalize_city_name,
     read_city_catalog,
