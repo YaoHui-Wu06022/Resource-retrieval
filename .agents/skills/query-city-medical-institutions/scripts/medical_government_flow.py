@@ -195,11 +195,11 @@ def build_medical_extraction_plan(
     )
 
 
-def build_address_records(raw_item):
+def build_address_records(raw_item, city_context=None):
     """把中性原始提取记录拆成公共地址记录。"""
     source_item = raw_item.get('source_item') or {}
     attributes = raw_item.get('attributes') or {}
-    city_context = source_item.get('_city_context') or {}
+    city_context = city_context or source_item.get('_city_context') or {}
     records = []
     source_reference = str(raw_item.get('source_reference') or '')
     original_address = str(raw_item.get('original_address') or '').strip()
@@ -264,7 +264,9 @@ def extract_medical_records(plan_path, output_path):
         Path(plan_path).resolve(),
         plan_stage=PLAN_STAGE,
         terms=MEDICAL_FIELD_TERMS,
-        build_address_records=build_address_records,
+        build_address_records=lambda raw_item: build_address_records(
+            raw_item, city_context
+        ),
     )
     payload = {
         'stage': (
