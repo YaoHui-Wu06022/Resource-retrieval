@@ -13,13 +13,15 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from fetch_official_universities import (
+from university_page_fetch import (
     build_home_identity_warning,
     build_address_candidates,
     build_university_result,
+    build_campus_link_names,
     extract_campus_link_names,
     extract_campus_names,
     fetch_school_pages,
+    fetch_school_pages_with_coverage,
     fetch_university_page,
     filter_related_links,
     has_campus_expansion_signal,
@@ -27,6 +29,7 @@ from fetch_official_universities import (
     run_school_batch,
     run_session,
 )
+from university_campus_rules import clean_address_text
 
 
 def evidence(address, label='', before=(), after=(), raw='', region='semantic_footer'):
@@ -44,7 +47,7 @@ def evidence(address, label='', before=(), after=(), raw='', region='semantic_fo
 
 
 class FetchOfficialPagePluginTests(unittest.TestCase):
-    @patch('fetch_official_universities.fetch_official_page')
+    @patch('university_page_fetch.fetch_official_page')
     def test_university_fetch_enables_both_campus_label_forms(self, fetch_page):
         fetch_page.return_value = {
             'requested_url': 'https://example.edu.cn/',
@@ -62,7 +65,7 @@ class FetchOfficialPagePluginTests(unittest.TestCase):
         self.assertIn('校区', labels)
         self.assertIn('校园', labels)
 
-    @patch('fetch_official_universities.OfficialPageFetcher')
+    @patch('university_page_fetch.OfficialPageFetcher')
     def test_session_reuses_fetcher_for_sequential_requests(self, fetcher_class):
         fetcher = fetcher_class.return_value.__enter__.return_value
         fetcher.fetch.side_effect = [
@@ -102,7 +105,7 @@ class FetchOfficialPagePluginTests(unittest.TestCase):
         results = [json.loads(line) for line in output.getvalue().splitlines()]
         self.assertEqual([item['title'] for item in results], ['甲大学', '乙大学'])
 
-    @patch('fetch_official_universities.OfficialPageFetcher')
+    @patch('university_page_fetch.OfficialPageFetcher')
     def test_session_reuses_context_within_school(self, fetcher_class):
         """同一学校的多页共享浏览器上下文，切换学校后新建。"""
         fetcher = fetcher_class.return_value.__enter__.return_value
@@ -169,6 +172,148 @@ class FetchOfficialPagePluginTests(unittest.TestCase):
         ])
         self.assertEqual(candidates[0]['campus_hint'], '校本部')
 
+    def test_campus_address_label_associates_campus(self):
+        """“东校区地址”标签可直接关联到东校区。"""
+        candidates = build_address_candidates([
+            evidence(
+                '广州市天河区中山大道西293号',
+                label='东校区地址',
+            )
+        ])
+        self.assertEqual(candidates[0]['campus_hint'], '东校区')
+        self.assertEqual(candidates[0]['association_method'], 'dom_context')
+
+    def test_news_headline_is_not_classified_as_campus(self):
+        """含校区词的新闻标题不得再被当作校区详情链接。"""
+        links = [
+            {
+                'text': '关于五山校区临时停水的通知',
+                'url': 'https://www.example.edu.cn/info/1.htm',
+            },
+            {
+                'text': '五山校区',
+                'url': 'https://www.example.edu.cn/campus/wushan.htm',
+            },
+            {
+                'text': '校区概况',
+                'url': 'https://www.example.edu.cn/xyfg/wushan/index.htm',
+            },
+        ]
+        results = filter_related_links(
+            links, ['example.edu.cn'], 'https://www.example.edu.cn/'
+        )
+        self.assertEqual(
+            [item['text'] for item in results],
+            ['五山校区', '校区概况'],
+        )
+        self.assertTrue(all(
+            item['link_type'] == 'campus' for item in results
+        ))
+
+    def test_fee_and_institution_only_candidates_are_dropped(self):
+        """费用行与整串机构名不再作为地址候选。"""
+        candidates = build_address_candidates([
+            evidence(
+                '1600元/生·学年；清远校区：3000元/生·学年',
+                label='广州校区',
+            ),
+            evidence('广州市城市建设职业学校', label='三元里校区'),
+        ])
+        self.assertEqual(candidates, [])
+
+    def test_direction_distance_and_narrative_candidates_are_dropped(self):
+        """方向距离描述与校区职责叙述不再作为地址候选。"""
+        candidates = build_address_candidates([
+            evidence(
+                '广州市增城区增城职教园东行4千米',
+                label='广州校区',
+            ),
+            evidence(
+                '嘉禾校区，主要承担全日制本科生教育任务；'
+                '滨江校区主要承担民警培训和成人教育任务',
+                label='主校区',
+            ),
+        ])
+        self.assertEqual(candidates, [])
+
+    def test_website_module_campus_is_not_a_campus_link(self):
+        """美丽校园等网站栏目不得被当作校区详情链接。"""
+        results = filter_related_links(
+            [
+                {
+                    'text': '美丽校园',
+                    'url': 'https://www.example.edu.cn/beauty.htm',
+                },
+                {
+                    'text': '南医校园',
+                    'url': 'https://www.example.edu.cn/info/news.htm',
+                },
+                {
+                    'text': '滨海校区',
+                    'url': 'https://www.example.edu.cn/campus/binhai.htm',
+                },
+            ],
+            ['example.edu.cn'],
+            'https://www.example.edu.cn/',
+        )
+        self.assertEqual(
+            [item['text'] for item in results],
+            ['滨海校区'],
+        )
+
+    def test_campus_suffix_with_campus_path_still_classified(self):
+        """大学城校园等校园后缀链接带校区路径时仍识别为校区链接。"""
+        results = filter_related_links(
+            [
+                {
+                    'text': '大学城校园',
+                    'url': 'https://www.example.edu.cn/xyfg/dxc.htm',
+                },
+            ],
+            ['example.edu.cn'],
+            'https://www.example.edu.cn/',
+        )
+        self.assertEqual(
+            [(item['text'], item['link_type']) for item in results],
+            [('大学城校园', 'campus')],
+        )
+
+    def test_long_campus_preview_link_with_located_text_is_classified(self):
+        """校区预览长链接（标题+描述含“位于”）仍识别为校区详情。"""
+        results = filter_related_links(
+            [
+                {
+                    'text': (
+                        '广州校区宝岗校园 广东药科大学广州校区宝岗校园位于'
+                        '广州市海珠区，临床医学院设立在该校园。'
+                        '通讯地址:广州市海珠区宝岗光汉直街40号'
+                    ),
+                    'url': 'https://www.example.edu.cn/info/1013/2080.htm',
+                },
+                {
+                    'text': (
+                        '关于五山校区停水的通知 五山校区位于'
+                        '广州市天河区五山路381号'
+                    ),
+                    'url': 'https://www.example.edu.cn/info/1.htm',
+                },
+            ],
+            ['example.edu.cn'],
+            'https://www.example.edu.cn/',
+        )
+        self.assertEqual(len(results), 1)
+        self.assertTrue(results[0]['text'].startswith('广州校区宝岗校园'))
+        self.assertEqual(results[0]['link_type'], 'campus')
+
+    def test_institution_tail_after_house_number_is_stripped(self):
+        """门牌号后的机构名称在地址清洗时截断。"""
+        self.assertEqual(
+            clean_address_text(
+                '广州市白云区鹤龙二路1121号广东省培英职业技术学校'
+            ),
+            '广州市白云区鹤龙二路1121号',
+        )
+
 
 def build_school_page_result(
     url, candidates=None, related_links=None, page_status='ok', campus_hints=None,
@@ -216,6 +361,127 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         pages = fetch_school_pages(self.build_item(), fetch_page, max_pages=5)
         self.assertEqual(len(pages), 1)
         self.assertEqual(len(requested), 1)
+
+    def test_continues_school_info_links_after_home_address(self):
+        """首页命中地址后仍继续抓学校概况与联系页，避免漏掉其他校区。"""
+        item = self.build_item()
+        requested = []
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/'):
+                return build_school_page_result(
+                    url,
+                    candidates=[{'address_text': '广州市天河区示例路1号'}],
+                    related_links=[
+                        {
+                            'text': '学校概况',
+                            'url': 'https://www.example.edu.cn/overview',
+                            'link_type': 'overview',
+                        },
+                        {
+                            'text': '联系我们',
+                            'url': 'https://www.example.edu.cn/contact',
+                            'link_type': 'contact',
+                        },
+                    ],
+                )
+            return build_school_page_result(
+                url,
+                candidates=[{'address_text': '广州市越秀区示例路3号'}],
+            )
+
+        pages = fetch_school_pages(item, fetch_page, max_pages=5)
+        self.assertEqual(
+            requested,
+            [
+                'https://www.example.edu.cn/',
+                'https://www.example.edu.cn/overview',
+                'https://www.example.edu.cn/contact',
+            ],
+        )
+        self.assertEqual(len(pages), 3)
+
+    def test_school_info_link_allowlist_excludes_module_entries(self):
+        """产业学院/原校/队伍等栏目简介不再作为学校概况跟随。"""
+        results = filter_related_links(
+            [
+                {
+                    'text': '原广州业余大学简介',
+                    'url': 'https://www.example.edu.cn/ygdx.htm',
+                },
+                {
+                    'text': '专精特新产业学院简介',
+                    'url': 'https://www.example.edu.cn/cyxy.htm',
+                },
+                {
+                    'text': '队伍概况',
+                    'url': 'https://www.example.edu.cn/dwgk.htm',
+                },
+                {
+                    'text': '学校概况',
+                    'url': 'https://www.example.edu.cn/xxgk.htm',
+                },
+                {
+                    'text': '学校章程',
+                    'url': 'https://www.example.edu.cn/xxzc.htm',
+                },
+                {
+                    'text': '联系我们',
+                    'url': 'https://www.example.edu.cn/lxwm.htm',
+                },
+            ],
+            ['example.edu.cn'],
+            'https://www.example.edu.cn/',
+        )
+        self.assertEqual(
+            [item['text'] for item in results],
+            ['联系我们', '学校概况', '学校章程'],
+        )
+
+    def test_same_path_query_variants_are_not_fetched_twice(self):
+        """同 host+path 不同 query 的自动发现链接只抓第一次。"""
+        item = self.build_item()
+        requested = []
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/'):
+                return build_school_page_result(
+                    url,
+                    related_links=[
+                        {
+                            'text': '学校章程',
+                            'url': (
+                                'https://www.example.edu.cn/'
+                                'schoolrules.html?module=a'
+                            ),
+                            'link_type': 'overview',
+                        },
+                        {
+                            'text': '学校章程',
+                            'url': (
+                                'https://www.example.edu.cn/'
+                                'schoolrules.html?module=b'
+                            ),
+                            'link_type': 'overview',
+                        },
+                    ],
+                )
+            return build_school_page_result(
+                url,
+                candidates=[{'address_text': '广州市天河区示例路1号'}],
+            )
+
+        pages = fetch_school_pages(item, fetch_page, max_pages=5)
+        self.assertEqual(
+            requested,
+            [
+                'https://www.example.edu.cn/',
+                'https://www.example.edu.cn/schoolrules.html?module=a',
+            ],
+        )
+        self.assertEqual(len(pages), 2)
 
     def test_fetches_all_candidates_even_when_home_has_address(self):
         """首页已有地址时仍按 candidate_urls 顺序抓完全部候选页。"""
@@ -381,6 +647,17 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
             'https://www.example.edu.cn/',
             campus_hints=['校本部'],
         )))
+        self.assertTrue(has_campus_expansion_signal(build_school_page_result(
+            'https://www.example.edu.cn/',
+            candidates=[
+                {'address_text': '广州市海珠区昌岗东路257号'},
+                {'address_text': '番禺区广州大学城外环西路168号'},
+            ],
+        )))
+        self.assertFalse(has_campus_expansion_signal(build_school_page_result(
+            'https://www.example.edu.cn/',
+            candidates=[{'address_text': '广州市天河区示例路1号'}],
+        )))
 
     def test_home_identity_warning_flags_title_mismatch(self):
         """首页标题缺少学校名称时给出身份校验警告。"""
@@ -497,8 +774,260 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         )
         self.assertEqual(len(pages), 2)
 
-    @patch('fetch_official_universities.fetch_school_pages')
-    @patch('fetch_official_universities.OfficialPageFetcher')
+    def test_charter_enumeration_does_not_pair_by_context(self):
+        """章程多校区枚举文本不得把法定地址猜测成任一校区。"""
+        candidates = build_address_candidates([
+            evidence(
+                '广州市海珠区宝岗光汉直街40号',
+                raw=(
+                    '第三条 学校法定注册地址为广州市海珠区宝岗光汉直街40号。\n'
+                    '学校设有三个校区五个校园，分别是广州校区'
+                    '（大学城校园、赤岗校园、宝岗校园）、'
+                    '中山校区（校园）和云浮校区（校园）。'
+                ),
+            )
+        ])
+        self.assertEqual(candidates[0]['campus_hint'], '')
+        self.assertEqual(candidates[0]['association_method'], 'unmatched')
+
+    def test_in_city_campus_pages_precede_overview_and_foreign_campus(self):
+        """同城校区详情页优先于概况/章程，外市校区最后抓取。"""
+        item = self.build_item(candidate_urls=[
+            'https://www.example.edu.cn/campuses.htm',
+            'https://www.example.edu.cn/charter.htm',
+        ])
+        item['target_city'] = '广州市'
+        requested = []
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/campuses.htm'):
+                return build_school_page_result(
+                    url,
+                    related_links=[
+                        {
+                            'text': (
+                                '大学城校区 广东药科大学广州校区大学城校园'
+                                '座落在广州市番禺区广州大学城，是学校的主校区。'
+                            ),
+                            'url': 'https://www.example.edu.cn/dxc.htm',
+                            'link_type': 'campus',
+                        },
+                        {
+                            'text': (
+                                '赤岗校区 广东药科大学广州校区赤岗校园位于'
+                                '广州市海珠区赤岗江海大道中。'
+                            ),
+                            'url': 'https://www.example.edu.cn/chigang.htm',
+                            'link_type': 'campus',
+                        },
+                        {
+                            'text': (
+                                '中山校区 广东药科大学中山校区，座落在中山市'
+                                '五桂山风景区。'
+                            ),
+                            'url': 'https://www.example.edu.cn/zhongshan.htm',
+                            'link_type': 'campus',
+                        },
+                        {
+                            'text': '学校概况',
+                            'url': 'https://www.example.edu.cn/overview.htm',
+                            'link_type': 'overview',
+                        },
+                    ],
+                )
+            if url.endswith('/charter.htm') or url.endswith('/overview.htm'):
+                return build_school_page_result(
+                    url,
+                    candidates=[{'address_text': '广州市天河区示例路1号'}],
+                )
+            return build_school_page_result(url)
+
+        pages, coverage = fetch_school_pages_with_coverage(
+            item,
+            fetch_page,
+            max_pages=8,
+            target_city='广州市',
+        )
+        self.assertEqual(
+            requested,
+            [
+                'https://www.example.edu.cn/',
+                'https://www.example.edu.cn/campuses.htm',
+                'https://www.example.edu.cn/dxc.htm',
+                'https://www.example.edu.cn/chigang.htm',
+                'https://www.example.edu.cn/charter.htm',
+                'https://www.example.edu.cn/overview.htm',
+                'https://www.example.edu.cn/zhongshan.htm',
+            ],
+        )
+        self.assertEqual(coverage['enumerated_campus_count'], 3)
+        self.assertEqual(coverage['missing_campus_names'], [])
+
+    def test_campus_link_name_extracts_head_before_long_description(self):
+        """campus 链接文本带长简介时仍取首段校区名。"""
+        link = {
+            'text': (
+                '广州校区宝岗校园 广东药科大学广州校区宝岗校园位于广州市'
+                '海珠区。临床医学院设立在该校园，开设有临床医学等专业。'
+            ),
+            'url': 'https://www.example.edu.cn/info/2080.htm',
+            'link_type': 'campus',
+        }
+        self.assertEqual(
+            build_campus_link_names(link),
+            ['广州校区宝岗校园'],
+        )
+
+    def test_campus_detail_page_does_not_expand_campus_links(self):
+        """校区详情页不再扩展校区子链接，避免挤占其他枚举校区预算。"""
+        item = self.build_item()
+        requested = []
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/'):
+                return build_school_page_result(
+                    url,
+                    related_links=[
+                        {
+                            'text': '佛山校区',
+                            'url': 'https://www.example.edu.cn/foshan.htm',
+                            'link_type': 'campus',
+                        },
+                        {
+                            'text': '汕尾校区',
+                            'url': 'https://www.example.edu.cn/shanwei.htm',
+                            'link_type': 'campus',
+                        },
+                    ],
+                )
+            if url.endswith('/foshan.htm'):
+                return build_school_page_result(
+                    url,
+                    related_links=[
+                        {
+                            'text': '佛山校区南海校园',
+                            'url': (
+                                'https://www.example.edu.cn/'
+                                'foshan-nanhai.htm'
+                            ),
+                            'link_type': 'campus',
+                        },
+                    ],
+                )
+            return build_school_page_result(url)
+
+        pages, coverage = fetch_school_pages_with_coverage(
+            item,
+            fetch_page,
+            max_pages=6,
+            target_city='广州市',
+        )
+        self.assertEqual(
+            requested,
+            [
+                'https://www.example.edu.cn/',
+                'https://www.example.edu.cn/foshan.htm',
+                'https://www.example.edu.cn/shanwei.htm',
+            ],
+        )
+        self.assertEqual(len(pages), 3)
+        self.assertEqual(
+            set(coverage['fetched_campus_names']),
+            {'佛山校区', '汕尾校区'},
+        )
+
+    def test_campus_coverage_reports_missing_in_city_campus(self):
+        """预算不足漏抓同城校区时产生缺失告警且外市校区不计入。"""
+        item = self.build_item(candidate_urls=[
+            'https://www.example.edu.cn/campuses.htm',
+        ])
+        requested = []
+        campus_names = (
+            '大学城', '赤岗', '宝岗', '白云', '天河',
+        )
+        foreign_name = '中山'
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/campuses.htm'):
+                return build_school_page_result(
+                    url,
+                    related_links=[
+                        {
+                            'text': f'{name}校区',
+                            'url': f'https://www.example.edu.cn/{name}.htm',
+                            'link_type': 'campus',
+                        }
+                        for name in campus_names + (foreign_name,)
+                    ],
+                )
+            return build_school_page_result(url)
+
+        pages, coverage = fetch_school_pages_with_coverage(
+            item,
+            fetch_page,
+            max_pages=6,
+            target_city='广州市',
+        )
+        self.assertEqual(len(pages), 6)
+        self.assertEqual(coverage['enumerated_campus_count'], 6)
+        self.assertEqual(
+            set(coverage['fetched_campus_names']),
+            {f'{name}校区' for name in campus_names[:4]},
+        )
+        self.assertEqual(coverage['missing_campus_names'], ['天河校区'])
+
+    def test_campus_coverage_separates_missing_address_from_missing_page(self):
+        """详情页未抓但地址已由其他页面采到时只记录信息字段。"""
+        item = self.build_item(candidate_urls=[
+            'https://www.example.edu.cn/campuses.htm',
+        ])
+        requested = []
+        campus_names = (
+            '大学城', '赤岗', '宝岗', '白云', '天河',
+        )
+
+        def fetch_page(url, domains):
+            requested.append(url)
+            if url.endswith('/campuses.htm'):
+                return build_school_page_result(
+                    url,
+                    candidates=[
+                        {
+                            'campus_hint': f'{name}校区',
+                            'address_text': f'广州市白云区{name}路1号',
+                        }
+                        for name in campus_names
+                    ],
+                    related_links=[
+                        {
+                            'text': f'{name}校区',
+                            'url': f'https://www.example.edu.cn/{name}.htm',
+                            'link_type': 'campus',
+                        }
+                        for name in campus_names
+                    ],
+                )
+            return build_school_page_result(url)
+
+        pages, coverage = fetch_school_pages_with_coverage(
+            item,
+            fetch_page,
+            max_pages=6,
+            target_city='广州市',
+        )
+        self.assertEqual(len(pages), 6)
+        self.assertEqual(coverage['enumerated_campus_count'], 5)
+        self.assertEqual(coverage['missing_campus_names'], [])
+        self.assertEqual(
+            coverage['detail_page_not_fetched'],
+            ['天河校区'],
+        )
+
+    @patch('university_page_fetch.fetch_school_pages_with_coverage')
+    @patch('university_page_fetch.OfficialPageFetcher')
     def test_run_school_batch_writes_completed_result_file(
         self, fetcher_class, fetch_school_pages_mock
     ):
@@ -507,7 +1036,14 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
             'https://www.example.edu.cn/',
             candidates=[{'address_text': '广州市天河区示例路1号'}],
         )]
-        fetch_school_pages_mock.return_value = pages
+        fetch_school_pages_mock.return_value = (
+            pages,
+            {
+                'enumerated_campus_count': 0,
+                'fetched_campus_names': [],
+                'missing_campus_names': [],
+            },
+        )
         fetcher = fetcher_class.return_value.__enter__.return_value
         context = fetcher.new_context.return_value
 
@@ -777,6 +1313,15 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
 
     def test_promotional_sentence_is_not_campus(self):
         self.assertEqual(extract_campus_names('憧憬踏入美丽的示例大学校园'), [])
+
+    def test_campus_prefix_before_located_sentence_is_extracted(self):
+        """“学校名+校区名位于…”句式可提取校区名供标题节关联。"""
+        self.assertEqual(
+            extract_campus_names(
+                '广东药科大学广州校区宝岗校园位于广州市海珠区。'
+            ),
+            ['广州校区宝岗校园'],
+        )
 
     def test_long_news_link_does_not_create_campus_hint(self):
         self.assertEqual(

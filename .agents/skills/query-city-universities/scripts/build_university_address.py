@@ -11,12 +11,27 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from query_city_core.address.city import read_city_catalog, validate_city_context
-from query_city_core.address.common import address_detail_key
+from query_city_core.address.common import (
+    address_detail_key,
+    address_equivalence_key,
+)
 from query_city_core.address.normalize import (
     detect_foreign_city_campus,
     normalize_address_value,
 )
 from query_city_core.io_utils import read_json_payload, write_json_payload
+from university_campus_rules import (
+    ASSOCIATION_METHOD_CONFIDENCE,
+    canonical_campus_name,
+    classify_page_source,
+    clean_address_text,
+    convert_chinese_number,
+    has_house_number,
+    is_office_noise_address as is_office_noise_address_rule,
+    is_rejected_university_address,
+    normalize_compact_text,
+    road_name,
+)
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -82,20 +97,6 @@ HOMEPAGE_PATHS = (
     '/index.php',
     '/default.aspx',
 )
-OFFICE_NOISE_PATTERN = re.compile(
-    r'公司|集团|有限公司|大厦|写字楼|商务中心|广场|商城|'
-    r'菜鸟驿站|快递|后勤处|收发室|小红楼|校友会|'
-    r'招生办|就业办|函授|报名点|学习中心|星光映景|南方财经|办公|自编|'
-    r'学费|收费标准|元/|生·学年|'
-    r'号\s*\d+[、，,]\s*\d+|\d+(?:层|室|房)'
-)
-
-
-def normalize_compact_text(value):
-    """删除名称或地址中的全部空白。"""
-    return re.sub(r'\s+', '', str(value or ''))
-
-
 def campus_match_token(value):
     """取得可与地址原文直接比对的明确校区核心词。"""
     value = normalize_compact_text(value)
@@ -108,10 +109,14 @@ def campus_match_token(value):
 
 def campus_equivalence_key(value):
     """折叠“广州校区校园”一类冗余后缀为“广州校区”。"""
-    value = normalize_compact_text(value)
-    if value.endswith('校区校园'):
-        value = value[:-2]
-    return value
+    return canonical_campus_name(value)
+
+
+def university_address_equivalence_key(value):
+    """同址比较键：先统一中文数字门牌再取道路门牌。"""
+    return address_equivalence_key(
+        convert_chinese_number(normalize_compact_text(value))
+    )
 
 
 def page_navigation_campus_hints(page):
@@ -144,14 +149,6 @@ def address_contains_campus_token(address, campus, allow_district_suffix=False):
         return True
     suffix = address[next_index]
     return suffix not in '省市区县' or (allow_district_suffix and suffix in '区县')
-
-
-def address_equivalence_key(address):
-    """取得用于识别同址变体的详细道路和门牌键。"""
-    value = normalize_compact_text(address)
-    value = re.sub(r'^中国', '', value)
-    value = re.sub(r'^[^省]{1,12}省', '', value)
-    return address_detail_key(value)
 
 
 def validate_page_result(page):
@@ -409,11 +406,11 @@ def is_office_noise_address(record, labeled_address_keys):
     address = str(record.get('original_address') or '').strip()
     if not address:
         return False
-    if address_equivalence_key(address) in labeled_address_keys:
+    if university_address_equivalence_key(address) in labeled_address_keys:
         return False
     if is_homepage_source_url(record.get('source_reference')):
         return False
-    return bool(OFFICE_NOISE_PATTERN.search(address))
+    return is_office_noise_address_rule(address)
 
 
 def preferred_university_record(current, incoming, current_order, incoming_order):
@@ -451,7 +448,9 @@ def clean_school_address_records(records, city_context):
             continue
         filtered.append(record)
     labeled_address_keys = {
-        address_equivalence_key(str(record.get('original_address') or ''))
+        university_address_equivalence_key(
+            str(record.get('original_address') or '')
+        )
         for record in filtered
         if record_campus_name(record)
         and str(record.get('original_address') or '').strip()
@@ -467,7 +466,7 @@ def clean_school_address_records(records, city_context):
             not record_campus_name(record)
             and has_labeled_campus
             and not is_homepage_source_url(record.get('source_reference'))
-            and address_equivalence_key(
+            and university_address_equivalence_key(
                 str(record.get('original_address') or '')
             )
             not in labeled_address_keys
@@ -477,7 +476,7 @@ def clean_school_address_records(records, city_context):
         if not address:
             empty_records.append((order, record))
             continue
-        address_key = address_equivalence_key(address)
+        address_key = university_address_equivalence_key(address)
         existing_index = addressed_index.get(address_key)
         if existing_index is not None:
             existing = retained[existing_index]
@@ -529,6 +528,8 @@ def collect_school_page_results(pages):
                 raise ValueError('address_candidates 中的候选必须是对象')
             campus = normalize_compact_text(candidate.get('campus_hint'))
             address = str(candidate.get('address_text') or '').strip()
+            if is_rejected_university_address(address):
+                continue
             address_key = normalize_compact_text(address)
             if not address_key:
                 raise ValueError('地址候选的 address_text 不能为空')
@@ -541,6 +542,16 @@ def collect_school_page_results(pages):
                 'address': address,
                 'address_key': address_key,
                 'source_reference': source_reference,
+                'association_method': str(
+                    candidate.get('association_method') or ''
+                ).strip(),
+                'source_region': str(
+                    candidate.get('source_region') or ''
+                ).strip(),
+                'page_type': classify_page_source(
+                    source_reference,
+                    page.get('title') or '',
+                ),
             })
         for hint in page['campus_hints']:
             campus = normalize_compact_text(hint)
@@ -555,6 +566,10 @@ def collect_school_page_results(pages):
             hints.append({
                 'campus': campus,
                 'source_reference': source_reference,
+                'page_type': classify_page_source(
+                    source_reference,
+                    page.get('title') or '',
+                ),
             })
 
     for candidate in candidates:
@@ -568,9 +583,11 @@ def collect_school_page_results(pages):
                 matches.append(hint['campus'])
         if len(matches) == 1:
             candidate['campus'] = matches[0]
+            if candidate.get('association_method') == 'unmatched':
+                candidate['association_method'] = 'cross_page_hint'
 
     labeled_address_keys = {
-        address_equivalence_key(candidate['address'])
+        university_address_equivalence_key(candidate['address'])
         for candidate in candidates
         if candidate['campus']
     }
@@ -578,7 +595,9 @@ def collect_school_page_results(pages):
         candidate
         for candidate in candidates
         if candidate['campus']
-        or address_equivalence_key(candidate['address']) not in labeled_address_keys
+        or university_address_equivalence_key(
+            candidate['address']
+        ) not in labeled_address_keys
     ]
     addressed_campuses = {
         candidate['campus'] for candidate in candidates if candidate['campus']
@@ -607,24 +626,54 @@ def build_school_address_records(item):
     candidates, hints = collect_school_page_results(pages)
     records = []
     for candidate in candidates:
-        campus = candidate['campus']
+        raw_campus = candidate['campus']
+        campus = canonical_campus_name(raw_campus)
+        attributes = build_school_attributes(school, campus)
+        if raw_campus and raw_campus != campus:
+            attributes['campus_name_raw'] = raw_campus
+        attributes['source_page_type'] = str(
+            candidate.get('page_type') or ''
+        ).strip()
+        attributes['association_method'] = str(
+            candidate.get('association_method') or ''
+        ).strip()
+        attributes['association_confidence'] = int(
+            ASSOCIATION_METHOD_CONFIDENCE.get(
+                attributes['association_method'],
+                0,
+            )
+        )
+        attributes['source_region'] = str(
+            candidate.get('source_region') or ''
+        ).strip()
+        cleaned_address = clean_address_text(
+            candidate['address'],
+            school_name,
+        ) or candidate['address']
         records.append({
             'place_name': build_place_name(school_name, campus),
-            'original_address': candidate['address'],
+            'original_address': cleaned_address,
             'address_mode': 'web_search',
             'source_nature': 'web_search',
             'source_reference': candidate['source_reference'],
-            'attributes': build_school_attributes(school, campus),
+            'attributes': attributes,
         })
     for hint in hints:
-        campus = hint['campus']
+        raw_campus = hint['campus']
+        campus = canonical_campus_name(raw_campus)
+        attributes = build_school_attributes(school, campus)
+        if raw_campus and raw_campus != campus:
+            attributes['campus_name_raw'] = raw_campus
+        attributes['source_page_type'] = str(
+            hint.get('page_type') or ''
+        ).strip()
         records.append({
             'place_name': build_place_name(school_name, campus),
             'original_address': '',
             'address_mode': 'web_search',
             'source_nature': 'web_search',
             'source_reference': hint['source_reference'],
-            'attributes': build_school_attributes(school, campus),
+            'attributes': attributes,
         })
     if not records:
         source_reference = validate_page_result(pages[0])
@@ -737,11 +786,38 @@ def postprocess_university_address_records(records):
     """按校区分组择优，再按同址合并校区写法重复行。"""
     campus_records = []
     campus_seen = {}
+    school_campus_values = defaultdict(set)
+    labeled_schools = set()
+    for record in records:
+        attributes = record.get('attributes') or {}
+        campus_name = str(attributes.get('campus_name') or '').strip()
+        if campus_name:
+            school_identifier = str(
+                attributes.get('school_identifier') or ''
+            ).strip()
+            school_campus_values[school_identifier].add(campus_name)
+            labeled_schools.add(school_identifier)
+
+    def group_campus_name(school_identifier, campus_name):
+        """单校区学校把校本部与无名校区视为同一组。"""
+        if (
+            campus_name == '校本部'
+            and school_campus_values[school_identifier] <= {'校本部'}
+        ):
+            return ''
+        return campus_name
+
     for order, record in enumerate(records):
         attributes = record.get('attributes') or {}
         school_identifier = str(attributes.get('school_identifier') or '').strip()
         campus_name = str(attributes.get('campus_name') or '').strip()
-        group_key = (school_identifier, campus_name)
+        group_key = (
+            school_identifier,
+            group_campus_name(school_identifier, campus_name),
+        )
+        if not group_key[1] and school_identifier not in labeled_schools:
+            campus_records.append(record)
+            continue
         existing_index = campus_seen.get(group_key)
         if existing_index is None:
             campus_seen[group_key] = len(campus_records)
@@ -752,6 +828,7 @@ def postprocess_university_address_records(records):
             existing, campus_seen[group_key]
         ):
             campus_records[existing_index] = record
+    campus_records = drop_unlabeled_incomplete_addresses(campus_records)
     retained = []
     location_seen = {}
     for order, record in enumerate(campus_records):
@@ -782,9 +859,52 @@ def postprocess_university_address_records(records):
     return retained
 
 
+def drop_unlabeled_incomplete_addresses(records):
+    """丢弃同校“同路有门牌”并存的无门牌无校区名地址变体。"""
+    numbered_roads = defaultdict(set)
+    for record in records:
+        attributes = record.get('attributes') or {}
+        school_identifier = str(
+            attributes.get('school_identifier') or ''
+        ).strip()
+        location_address = str(
+            record.get('map_address') or record.get('final_address') or ''
+        ).strip()
+        if has_house_number(location_address):
+            numbered_roads[school_identifier].add(road_name(location_address))
+    retained = []
+    for record in records:
+        attributes = record.get('attributes') or {}
+        school_identifier = str(
+            attributes.get('school_identifier') or ''
+        ).strip()
+        location_address = str(
+            record.get('map_address') or record.get('final_address') or ''
+        ).strip()
+        road = road_name(location_address)
+        if (
+            not record_campus_name(record)
+            and location_address
+            and not has_house_number(location_address)
+            and road
+            and any(
+                road == numbered
+                or road.endswith(numbered)
+                or numbered.endswith(road)
+                for numbered in numbered_roads.get(school_identifier, ())
+            )
+        ):
+            continue
+        retained.append(record)
+    return retained
+
+
 def record_quality(record, order):
     """给一条高校地址记录计算最终证据质量分。"""
     final_address = str(record.get('final_address') or '').strip()
+    address_text = final_address or str(
+        record.get('map_address') or ''
+    ).strip()
     map_match_status = str(record.get('map_match_status') or '').strip()
     final_address_source = str(
         record.get('final_address_source') or ''
@@ -792,9 +912,10 @@ def record_quality(record, order):
     return (
         1 if final_address else 0,
         0 if map_match_status in {'conflict', 'error'} else 1,
+        1 if map_match_status in {'consistent', 'partial', 'poi_match'} else 0,
         1 if final_address_source == 'official' else 0,
-        1 if re.search(r'\d+号', final_address) else 0,
-        len(final_address),
+        1 if re.search(r'\d+号', address_text) else 0,
+        len(address_text),
         -order,
     )
 

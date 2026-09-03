@@ -10,11 +10,13 @@ if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
 from query_city_core.address.amap_client import RequestRateLimiter  # noqa: E402
+from query_city_core.address.common import MISSING_ADMIN_REASON  # noqa: E402
 from query_city_core.address.verify import (  # noqa: E402
     build_map_components,
     build_source_components,
     judge_address_match,
     normalize_place_name,
+    resolve_final_address_choice,
     resolve_map_address,
     resolve_poi_address,
     select_poi_candidate,
@@ -210,6 +212,85 @@ class VerifyAddressTests(unittest.TestCase):
             result['map_address'], '广州市天河区黄埔大道西601号'
         )
         self.assertEqual(result['map_match_status'], 'consistent')
+
+    def test_missing_admin_with_auxiliary_poi_map_text_keeps_official(self):
+        """地图补区遇到公交站等辅助 POI 文本时保留官网地址并待复核。"""
+        record = {
+            'place_name': '测试院校',
+            'original_address': '广州市沙太中路大源北28号',
+            'source_nature': 'web_search',
+            'source_reference': 'https://example.com/source',
+            'attributes': {},
+            'normalized_address': '广州市沙太中路大源北28号',
+            'normalization_status': 'partial',
+            'normalization_reason': MISSING_ADMIN_REASON,
+        }
+
+        def fetch_geocodes(address, city, api_key, rate_limiter):
+            """返回把大源北解析成公交站的地图候选。"""
+            return [build_candidate(
+                '广东省广州市白云区大源北（公交站）28号',
+                district='白云区',
+                street='',
+                number='28号',
+            )], ''
+
+        result, request_count = verify_map_address(
+            record,
+            build_city_context(),
+            'test-key',
+            RequestRateLimiter(0),
+            fetch_geocodes,
+        )
+        self.assertEqual(request_count, 1)
+        choice = resolve_final_address_choice(
+            record, result, '广州市'
+        )
+        self.assertEqual(choice['map_match_status'], 'needs_review')
+        self.assertEqual(choice['final_address_source'], 'official')
+        self.assertEqual(
+            choice['final_address'], '广州市沙太中路大源北28号'
+        )
+
+    def test_missing_admin_with_road_confirmation_still_supplements(self):
+        """地图自带相同道路与门牌时仍正常补下级行政区。"""
+        record = {
+            'place_name': '测试院校',
+            'original_address': '广州市沙太中路大源北28号',
+            'source_nature': 'web_search',
+            'source_reference': 'https://example.com/source',
+            'attributes': {},
+            'normalized_address': '广州市沙太中路大源北28号',
+            'normalization_status': 'partial',
+            'normalization_reason': MISSING_ADMIN_REASON,
+        }
+
+        def fetch_geocodes(address, city, api_key, rate_limiter):
+            """返回包含道路与门牌的完整地图地址。"""
+            return [build_candidate(
+                '广东省广州市白云区沙太中路大源北28号',
+                district='白云区',
+                street='沙太中路',
+                number='28号',
+            )], ''
+
+        result, request_count = verify_map_address(
+            record,
+            build_city_context(),
+            'test-key',
+            RequestRateLimiter(0),
+            fetch_geocodes,
+        )
+        self.assertEqual(request_count, 1)
+        choice = resolve_final_address_choice(
+            record, result, '广州市'
+        )
+        self.assertEqual(choice['map_match_status'], 'partial')
+        self.assertEqual(choice['final_address_source'], 'map')
+        self.assertIn(
+            '白云区沙太中路大源北28号',
+            choice['final_address'],
+        )
 
 
 class PoiAddressTests(unittest.TestCase):
@@ -612,6 +693,64 @@ class MapResolutionTests(unittest.TestCase):
         self.assertEqual(result['final_address'], record['normalized_address'])
         self.assertEqual(result['final_address_source'], 'official')
 
+    def test_web_missing_admin_keeps_official_when_map_poi_unrelated(self):
+        """官网地址缺区且地图模糊命中无关 POI 时保留官网原文并标记复核。"""
+        record = self.build_record(
+            '广东药科大学广州校区大学城校园',
+            '广州市广州大学城外环东路280号',
+            'web_search',
+            'partial',
+        )
+        record['normalization_reason'] = '地址缺少下级行政区'
+
+        def fetch_geocodes(*args):
+            return [build_candidate(
+                '广东省广州市越秀区广州大学（菜鸟驿站）',
+                district='越秀区',
+            )], ''
+
+        def fetch_pois(*args):
+            raise AssertionError('不应调用 POI fetch')
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(result['map_match_status'], 'needs_review')
+        self.assertEqual(result['final_address'], record['normalized_address'])
+        self.assertEqual(result['final_address_source'], 'official')
+
+    def test_web_missing_admin_adopts_map_when_road_number_confirmed(self):
+        """官网地址缺区但地图道路门牌可确证时仍用地图补区。"""
+        record = self.build_record(
+            '广东药科大学广州校区大学城校园',
+            '广州市广州大学城外环东路280号',
+            'web_search',
+            'partial',
+        )
+        record['normalization_reason'] = '地址缺少下级行政区'
+
+        def fetch_geocodes(*args):
+            return [build_candidate(
+                '广东省广州市番禺区大学城外环东路280号',
+                district='番禺区',
+                street='外环东路',
+                number='280号',
+            )], ''
+
+        def fetch_pois(*args):
+            raise AssertionError('不应调用 POI fetch')
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(result['map_match_status'], 'partial')
+        self.assertEqual(
+            result['final_address'], '广州市番禺区大学城外环东路280号'
+        )
+        self.assertEqual(result['final_address_source'], 'map')
+
     def test_name_only_records_use_poi_fetch_result(self):
         """空地址或仅校区名称时使用唯一 POI fetch 返回地址。"""
         empty_record = self.build_record('地点丁', '', 'government_information')
@@ -644,8 +783,8 @@ class MapResolutionTests(unittest.TestCase):
             campus_result['final_address'], '广州市番禺区大学城外环东路382号'
         )
 
-    def test_web_vague_address_keeps_official_when_poi_misses(self):
-        """官网描述性地址且 POI 未命中时保留官网地址。"""
+    def test_web_vague_address_marks_review_when_poi_misses(self):
+        """官网描述性地址且 POI 未命中时保留官网地址并标记待复核。"""
         record = self.build_record(
             '广州珠江职业技术学院',
             '广州市增城区增城职教园东行4千米',
@@ -663,7 +802,61 @@ class MapResolutionTests(unittest.TestCase):
         self.assertEqual(request_count, 1)
         self.assertEqual(result['final_address'], record['normalized_address'])
         self.assertEqual(result['final_address_source'], 'official')
-        self.assertEqual(result['map_match_status'], 'not_found')
+        self.assertEqual(result['map_match_status'], 'needs_review')
+
+    def test_web_complete_roadless_address_uses_poi_and_marks_review_on_miss(self):
+        """区完整但无道路门牌的官网地址经 POI 未命中时保留官网并待复核。"""
+        record = self.build_record(
+            '广州康大职业技术学院',
+            '广州市黄埔区龙湖街道广州康大职业技术学院',
+            'web_search',
+            'complete',
+        )
+        record['resolved_city'] = '广州市'
+        record['address_mode'] = 'web_search'
+
+        def fetch_geocodes(*args):
+            raise AssertionError('不应调用地理编码 fetch')
+
+        def fetch_pois(*args):
+            return [], ''
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(result['map_match_status'], 'needs_review')
+        self.assertEqual(result['final_address'], record['normalized_address'])
+        self.assertEqual(result['final_address_source'], 'official')
+
+    def test_web_complete_roadless_address_adopts_matched_poi(self):
+        """区完整但无道路门牌的官网地址可用严格名称匹配 POI 补齐。"""
+        record = self.build_record(
+            '广州康大职业技术学院',
+            '广州市黄埔区龙湖街道广州康大职业技术学院',
+            'web_search',
+            'complete',
+        )
+        record['resolved_city'] = '广州市'
+        record['address_mode'] = 'web_search'
+
+        def fetch_geocodes(*args):
+            raise AssertionError('不应调用地理编码 fetch')
+
+        def fetch_pois(*args):
+            return [build_poi(
+                '广州康大职业技术学院',
+                '龙湖街道汤村大道中206号',
+                '黄埔区',
+            )], ''
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(result['map_match_status'], 'poi_match')
+        self.assertEqual(result['final_address_source'], 'map')
+        self.assertIn('汤村大道中206号', result['final_address'])
 
     def test_web_admin_only_address_stays_empty_when_poi_misses(self):
         """仅区级官网地址且 POI 未命中时留空，不把整区当地址。"""
@@ -678,6 +871,64 @@ class MapResolutionTests(unittest.TestCase):
         result, _ = self.resolve(record, fetch_geocodes, fetch_pois)
         self.assertEqual(result['map_match_status'], 'not_found')
         self.assertEqual(result['final_address'], '')
+
+    def test_government_detailed_address_missing_admin_is_filled_by_geocode(self):
+        """政府详细地址缺区名时应用地理编码补出下级行政区。"""
+        record = self.build_record(
+            '示例医院',
+            '广州市花地大道南30-32号',
+            'government_information',
+            'partial',
+        )
+        record['normalization_reason'] = '地址缺少下级行政区'
+
+        def fetch_geocodes(*args):
+            return [build_candidate(
+                '广东省广州市荔湾区花地大道南30-32号',
+                district='荔湾区',
+                street='花地大道南',
+                number='30-32号',
+            )], ''
+
+        def fetch_pois(*args):
+            raise AssertionError('不应调用 POI fetch')
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(result['map_match_status'], 'partial')
+        self.assertEqual(result['map_reason'], '地图补充下级行政区')
+        self.assertEqual(
+            result['final_address'],
+            '广州市荔湾区花地大道南30-32号',
+        )
+        self.assertEqual(result['final_address_source'], 'map')
+
+    def test_government_detailed_address_keeps_official_when_geocode_misses(self):
+        """政府详细地址缺区名且地理编码未命中时保留官方地址。"""
+        record = self.build_record(
+            '示例医院',
+            '广州市花地大道南30-32号',
+            'government_information',
+            'partial',
+        )
+        record['normalization_reason'] = '地址缺少下级行政区'
+
+        def fetch_geocodes(*args):
+            return [], ''
+
+        def fetch_pois(*args):
+            raise AssertionError('不应调用 POI fetch')
+
+        result, request_count = self.resolve(
+            record, fetch_geocodes, fetch_pois
+        )
+        self.assertEqual(request_count, 1)
+        self.assertEqual(
+            result['final_address'], record['normalized_address']
+        )
+        self.assertEqual(result['final_address_source'], 'official')
 
 
 if __name__ == '__main__':

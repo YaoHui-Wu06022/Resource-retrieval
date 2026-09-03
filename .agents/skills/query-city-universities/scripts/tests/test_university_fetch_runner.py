@@ -11,7 +11,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from run_university_fetch import (
+from university_fetch_runner import (
     build_fetch_report,
     build_slices,
     parse_process_summaries,
@@ -241,6 +241,42 @@ class FetchReportTests(unittest.TestCase):
             'no_official_site',
         )
         self.assertEqual(by_identifier['1003']['processing_status'], 'missing')
+
+    def test_build_fetch_report_carries_campus_coverage(self):
+        """抓取摘要中的校区覆盖告警并入 fetch_report 条目。"""
+        city = build_city_payload(['1001'])
+        city_index = {
+            school['school_identifier']: school
+            for school in city['schools']
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            (run_dir / 'school_results').mkdir()
+            write_json_payload(
+                run_dir / 'school_results' / '1001.json',
+                {
+                    'school_identifier': '1001',
+                    'processing_status': 'completed',
+                    'pages': [{
+                        'stage': 'address_candidates',
+                        'requested_url': 'https://www.a.edu.cn/',
+                        'address_candidates': [],
+                        'campus_hints': [],
+                    }],
+                },
+            )
+            coverage = {
+                'enumerated_campus_count': 3,
+                'fetched_campus_names': ['大学城校区'],
+                'missing_campus_names': ['赤岗校区'],
+            }
+            report_items = build_fetch_report(
+                run_dir,
+                city_index,
+                {'1001': coverage},
+            )
+
+        self.assertEqual(report_items[0]['campus_coverage'], coverage)
 
     def test_run_university_fetch_with_static_manifest_only(self):
         """全静态清单（无浏览器项）可完整跑通并产出报告。"""

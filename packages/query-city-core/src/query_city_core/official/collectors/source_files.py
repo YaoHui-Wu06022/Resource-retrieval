@@ -17,6 +17,7 @@ from ...host_gate import (
     extract_url_host,
 )
 from ...io_utils import read_json_payload, write_json_payload
+from .archive_files import extract_zip_archive
 
 
 SOURCE_DOWNLOAD_STAGE = 'source_download_manifest'
@@ -79,7 +80,7 @@ def download_source_file(
     finally:
         if host_gate is not None:
             host_gate.release(host)
-    return {
+    download_result = {
         'file': manifest_item['file'],
         'url': source_url,
         'final_url': final_url,
@@ -87,6 +88,12 @@ def download_source_file(
         'size_bytes': output_path.stat().st_size,
         'access_attempts': access_attempts,
     }
+    if output_path.suffix.lower() == '.zip':
+        extraction = extract_zip_archive(output_path, output_path.parent)
+        download_result['extracted_files'] = extraction['extracted_files']
+        if extraction['skipped_entries']:
+            download_result['skipped_entries'] = extraction['skipped_entries']
+    return download_result
 
 
 def download_source_files(
@@ -139,9 +146,21 @@ def download_source_files(
                 })
     downloaded_items.sort(key=lambda result: result['file'])
     manifest['errors'] = errors
+    zip_output_paths = [
+        output_path
+        for _manifest_item, output_path in resolved_items
+        if output_path.suffix.lower() == '.zip'
+    ]
     manifest['metrics'] = {
         'item_count': len(manifest_items),
         'downloaded_count': len(downloaded_items),
+        'archive_count': sum(
+            1 for output_path in zip_output_paths if output_path.is_file()
+        ),
+        'extracted_file_count': sum(
+            len(manifest_item.get('extracted_files') or [])
+            for manifest_item in manifest_items
+        ),
         'error_count': len(errors),
     }
     write_json_payload(manifest_path, manifest)

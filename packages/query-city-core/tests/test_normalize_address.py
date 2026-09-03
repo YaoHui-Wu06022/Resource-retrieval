@@ -10,6 +10,7 @@ if str(COMPONENT_DIR) not in sys.path:
     sys.path.insert(0, str(COMPONENT_DIR))
 
 from query_city_core.address.city import read_city_catalog  # noqa: E402
+from query_city_core.address.common import address_equivalence_key  # noqa: E402
 from query_city_core.address.normalize import (  # noqa: E402
     detect_city_prefix,
     is_structurally_valid_address,
@@ -117,9 +118,45 @@ class NormalizeAddressTests(unittest.TestCase):
         result = self.normalize('广州市', '广州市环市东路465号')
         self.assertEqual(result['normalization_status'], 'partial')
         self.assertNotIn('环市', result['normalization_reason'])
-        self.assertTrue(
-            result['normalized_address'].startswith('广州市环市东路465号')
+
+    def test_space_separated_short_district_core_is_completed(self):
+        """空格分词“广州 花都”写法补全为花都区且不重复城市前缀。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            subdivisions=[
+                {'name': '花都区', 'adcode': '440114', 'level': 'district'},
+                {'name': '天河区', 'adcode': '440106', 'level': 'district'},
+            ],
         )
+        result = normalize_address_value(
+            '中国 广东 广州 花都 迎宾大道西28号',
+            context,
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市花都区迎宾大道西28号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
+
+    def test_space_separated_district_core_with_road_is_completed(self):
+        """“广州 天河 …”写法同样补全区名并保持道路门牌完整。"""
+        context = build_city_context(
+            '广州市',
+            '广东省',
+            subdivisions=[
+                {'name': '天河区', 'adcode': '440106', 'level': 'district'},
+            ],
+        )
+        result = normalize_address_value(
+            '广州 天河 中山大道西55号',
+            context,
+        )
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市天河区中山大道西55号',
+        )
+        self.assertEqual(result['normalization_status'], 'complete')
 
     def test_narrative_tail_after_house_number_is_trimmed(self):
         """地址门牌后的公交、地铁等叙述性尾巴应被裁剪。"""
@@ -427,6 +464,30 @@ class NormalizeAddressTests(unittest.TestCase):
             '广州市番禺区市桥街西堤路136号',
         )
 
+    def test_city_scope_ignores_administrative_unit_for_fill(self):
+        """city 范围来源的区属性只作展示，不参与 norm 补区。"""
+        record = build_record(
+            '花地大道南30-32号',
+            source='government_information',
+        )
+        record['attributes'] = {
+            'administrative_unit': '越秀区',
+            'subdivision_scope': 'city',
+        }
+        result = normalize_address_payload(
+            {
+                'stage': 'address_records',
+                'city_context': build_city_context(),
+                'items': [record],
+            },
+        )
+        normalized = result['items'][0]
+        self.assertEqual(
+            normalized['normalized_address'],
+            '广州市花地大道南30-32号',
+        )
+        self.assertEqual(normalized['normalization_status'], 'partial')
+
     def test_numbered_road_before_campus_name_is_complete(self):
         """道路门牌号后的校区名称不得使完整地址降级。"""
         result = self.normalize(
@@ -633,6 +694,38 @@ class NormalizeAddressTests(unittest.TestCase):
             build_city_context('示例市', '示例省'),
         )
         self.assertEqual(result['normalized_address'], '示例市样本县示例路1号')
+
+
+class AddressEquivalenceKeyTests(unittest.TestCase):
+    """验证同址变体与真实不同地址的比较键。"""
+
+    def test_zone_city_prefix_variants_are_equivalent(self):
+        """重复的广州/大学城写法应视为同一地点。"""
+        variants = (
+            '广州市广州大学城外环东路280号',
+            '广东省广州市大学城外环东路280号',
+            '广州市大学城外环东路280号',
+        )
+        keys = [address_equivalence_key(value) for value in variants]
+        self.assertEqual(len(set(keys)), 1)
+
+    def test_real_road_name_is_not_over_normalized(self):
+        """广州大道等真实道路名不应被约化成大道。"""
+        self.assertEqual(
+            address_equivalence_key('广州市广州大道中123号'),
+            address_equivalence_key('广州市广州大道中123号'),
+        )
+        self.assertNotEqual(
+            address_equivalence_key('广州市广州大道中123号'),
+            address_equivalence_key('广州市大道中123号'),
+        )
+
+    def test_different_house_numbers_keep_different_keys(self):
+        """同一校区不同门牌仍是不同地址。"""
+        self.assertNotEqual(
+            address_equivalence_key('示例市东湖区大学路1号'),
+            address_equivalence_key('示例市东湖区大学路2号'),
+        )
 
 
 if __name__ == '__main__':

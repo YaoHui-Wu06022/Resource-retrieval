@@ -19,7 +19,7 @@ from query_city_core.excel_output import (
     write_result_workbook_atomically,
 )
 from query_city_core.excel_style import format_date_cell
-from normalize_school_records import merge_school_types
+from school_common import merge_school_types
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -202,14 +202,24 @@ def build_school_output_records(
         if not isinstance(address_record, dict):
             raise ValueError(f'{administrative_unit_name}包含非对象地址记录')
         final_address = str(address_record.get('final_address') or '').strip()
-        if not final_address:
-            continue
         place_name = str(address_record.get('place_name') or '').strip()
         source_reference = str(
             address_record.get('source_reference') or ''
         ).strip()
-        record_attributes = address_record.get('attributes') or {}
-        if not place_name or not source_reference or not isinstance(record_attributes, dict):
+        raw_attributes = address_record.get('attributes')
+        record_attributes = (
+            raw_attributes if isinstance(raw_attributes, dict) else {}
+        )
+        if (
+            not final_address
+            or str(record_attributes.get('address_ambiguity') or '').strip()
+        ):
+            continue
+        if (
+            not place_name
+            or not source_reference
+            or not isinstance(raw_attributes, dict)
+        ):
             raise ValueError(
                 f'{administrative_unit_name}存在缺少名称、来源或属性的有效记录'
             )
@@ -243,18 +253,32 @@ def build_school_output_records(
     )
 
 
-def _domain_values_from_record(record):
-    """从整理后的学校展示记录取公共领域列值。"""
+def _domain_values(
+    administrative_unit, place_name, school_type, school_nature,
+    publication_date,
+):
+    """统一整理公共领域列值。"""
     return [
-        str(record.get('administrative_unit') or '').strip(),
-        str(record.get('place_name') or '').strip(),
-        str(record.get('school_type') or '').strip(),
-        str(record.get('school_nature') or '').strip(),
-        str(record.get('publication_date') or '').strip(),
+        str(administrative_unit or '').strip(),
+        str(place_name or '').strip(),
+        str(school_type or '').strip(),
+        str(school_nature or '').strip(),
+        str(publication_date or '').strip(),
     ]
 
 
-def _main_common_rows(output_records):
+def _domain_values_from_record(record):
+    """从整理后的学校展示记录取公共领域列值。"""
+    return _domain_values(
+        record.get('administrative_unit') or '',
+        record.get('place_name') or '',
+        record.get('school_type') or '',
+        record.get('school_nature') or '',
+        record.get('publication_date') or '',
+    )
+
+
+def build_worksheet_rows(output_records):
     """把学校展示记录转换为公共生成器输入。"""
     rows = []
     for record in output_records:
@@ -275,30 +299,44 @@ def _main_common_rows(output_records):
 
 def _domain_values_from_address_record(address_record):
     attributes = address_record.get('attributes') or {}
-    return [
-        str(attributes.get('administrative_unit') or '').strip(),
-        str(address_record.get('place_name') or '').strip(),
-        str(attributes.get('school_type') or '').strip(),
-        str(attributes.get('school_nature') or '').strip(),
+    return _domain_values(
+        attributes.get('administrative_unit') or '',
+        address_record.get('place_name') or '',
+        attributes.get('school_type') or '',
+        attributes.get('school_nature') or '',
         format_date_cell(
             attributes.get('publication_date'),
             date.today().isoformat(),
         ),
-    ]
+    )
 
 
 def _abnormal_reason_from_record(address_record):
+    """生成可读的异常原因，跨区冲突优先展示原始地址。"""
+    attributes = address_record.get('attributes') or {}
+    ambiguity_note = str(
+        attributes.get('address_ambiguity') or ''
+    ).strip()
+    if ambiguity_note:
+        return ambiguity_note
+    if (
+        address_record.get('normalization_status') == 'conflict'
+        and address_record.get('original_address')
+    ):
+        conflict_reason = str(
+            address_record.get('normalization_reason') or ''
+        ).strip()
+        return (
+            f'行政区冲突（原始地址：'
+            f"{address_record.get('original_address')}）"
+            + (f'：{conflict_reason}' if conflict_reason else '')
+        )
     return str(
         address_record.get('map_reason')
         or address_record.get('normalization_reason')
         or address_record.get('final_address_reason')
         or ''
     ).strip()
-
-
-def build_worksheet_rows(output_records):
-    """返回公共生成器使用的 (领域值, 地址记录) 行。"""
-    return _main_common_rows(output_records)
 
 
 def build_abnormal_rows(administrative_unit_name, address_records):
@@ -309,7 +347,14 @@ def build_abnormal_rows(administrative_unit_name, address_records):
             raise ValueError(
                 f'{administrative_unit_name}包含非对象地址记录'
             )
-        if str(address_record.get('final_address') or '').strip():
+        attributes = address_record.get('attributes') or {}
+        ambiguity_note = str(
+            attributes.get('address_ambiguity') or ''
+        ).strip()
+        if (
+            str(address_record.get('final_address') or '').strip()
+            and not ambiguity_note
+        ):
             continue
         place_name = str(address_record.get('place_name') or '').strip()
         source_reference = str(
@@ -319,7 +364,6 @@ def build_abnormal_rows(administrative_unit_name, address_records):
             raise ValueError(
                 f'{administrative_unit_name}存在缺少名称或来源的异常记录'
             )
-        attributes = address_record.get('attributes') or {}
         if str(attributes.get('administrative_unit') or '') != (
             administrative_unit_name
         ):
@@ -342,7 +386,7 @@ def write_workbook(output_path, sheet_records):
         if sheet_name == ABNORMAL_SHEET_NAME:
             abnormal_rows = list(rows)
         else:
-            main_sheets.append((sheet_name, _main_common_rows(rows)))
+            main_sheets.append((sheet_name, build_worksheet_rows(rows)))
     return write_result_workbook_atomically(
         _spec(),
         SHEET_NAME,

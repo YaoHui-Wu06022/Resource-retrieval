@@ -12,7 +12,7 @@ ADDRESS_MODE_BY_SOURCE_NATURE = {
 }
 MAP_MATCH_STATUS_VALUES = {
     'consistent', 'partial', 'conflict', 'poi_match', 'not_found',
-    'ambiguous', 'error', 'skipped',
+    'ambiguous', 'error', 'skipped', 'needs_review',
 }
 MAP_MATCH_STATUS_LABELS = {
     'consistent': '一致',
@@ -23,9 +23,16 @@ MAP_MATCH_STATUS_LABELS = {
     'ambiguous': '多个候选',
     'error': '查询错误',
     'skipped': '未查询',
+    'needs_review': '部分匹配·待复核',
 }
 COMPARISON_PUNCTUATION_PATTERN = re.compile(r'[\s，,。；;：:（）()]+')
 DISTRICT_PATTERN = re.compile(r'^(.{1,15}?(?:区|县|旗))')
+PROVINCE_PREFIX_PATTERN = re.compile(r'^[^省]{1,12}省')
+LEADING_CITY_PATTERN = re.compile(r'^[^省市区县]{1,12}市')
+ZONE_CITY_PREFIX_PATTERN = re.compile(
+    r'^[\u4e00-\u9fff]{2,6}(?=大学城|高教园区|高校园区|大学园|职教园|'
+    r'教育园区|科教城)'
+)
 CITY_SUFFIXES = ('市', '地区', '自治州', '盟')
 ADMIN_UNIT_SUFFIXES = ('街道', '苏木', '区', '县', '旗', '镇', '乡', '市')
 SUB_LEVEL_SUFFIXES = ('街道', '镇', '乡', '苏木')
@@ -34,6 +41,12 @@ DISTRICT_LEVEL_SUFFIXES = frozenset(ADMIN_UNIT_SUFFIXES) - frozenset(
 )
 PLACE_NAME_SUFFIXES = ('校区', '校园', '分院', '分行', '支行', '分部')
 MISSING_ADMIN_REASON = '地址缺少下级行政区'
+SUBDIVISION_SCOPE_SUBDIVISION = 'subdivision'
+SUBDIVISION_SCOPE_CITY = 'city'
+SUBDIVISION_SCOPES = {
+    SUBDIVISION_SCOPE_SUBDIVISION,
+    SUBDIVISION_SCOPE_CITY,
+}
 _ADMIN_UNIT_PATTERN = re.compile(
     r'^(.{1,20}?(?:' + '|'.join(
         re.escape(suffix)
@@ -77,10 +90,28 @@ def address_detail_key(value):
     return value[detail_start:number_match.end()]
 
 
+def address_equivalence_key(value):
+    """取得用于同址比较的道路与门牌键，去除省份前缀。"""
+    value = re.sub(r'\s+', '', str(value or ''))
+    value = re.sub(r'^中国', '', value)
+    value = PROVINCE_PREFIX_PATTERN.sub('', value)
+    value = LEADING_CITY_PATTERN.sub('', value)
+    value = ZONE_CITY_PREFIX_PATTERN.sub('', value)
+    return address_detail_key(value)
+
+
 def strip_city_prefix(value, city):
     """移除地址开头的目标城市前缀。"""
     value = str(value or '')
     return value[len(city):] if value.startswith(city) else value
+
+
+def resolve_target_administrative_unit(address_record):
+    """按下级行政区检索来源返回目标区，否则不限制行政区。"""
+    attributes = address_record.get('attributes') or {}
+    if attributes.get('subdivision_scope') == SUBDIVISION_SCOPE_CITY:
+        return ''
+    return str(attributes.get('administrative_unit') or '').strip()
 
 
 def validate_address_record(address_record):

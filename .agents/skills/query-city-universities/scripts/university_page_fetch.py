@@ -18,6 +18,12 @@ from query_city_core.web.fetch_official_page import (
     is_url_in_domains,
 )
 from query_city_core.io_utils import read_json_payload, write_json_payload
+from university_campus_rules import (
+    find_foreign_city_campus,
+    has_multi_campus_enumeration,
+    is_rejected_university_address,
+    physical_location_key,
+)
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -49,9 +55,35 @@ GENERIC_CAMPUS_PATTERN = re.compile(
     r'^.+(?:大学|学院)校园$'
 )
 RELATED_LINK_RULES = (
-    ('campus', re.compile(r'校区|校园(?:介绍|分布)|学校导游|办学地点|走进校园|campus', re.IGNORECASE)),
     ('contact', re.compile(r'联系|地址|contact', re.IGNORECASE)),
     ('overview', re.compile(r'概况|简介|章程|about', re.IGNORECASE)),
+)
+SCHOOL_INFO_LINK_PATTERN = re.compile(
+    r'^(?:学校|大学|学院)?(?:概况|简介|章程|介绍|地址|校区|导游|办学地点)$|'
+    r'^(?:联系我们|联系方式|招生章程|学校校区)$'
+)
+CAMPUS_NAV_LABELS = frozenset({
+    '学校导游',
+    '办学地点',
+    '走进校园',
+    '校区分布',
+    '校园分布',
+})
+GENERIC_CAMPUS_NAV_PATTERN = re.compile(
+    r'^(?:数字|智慧|网上|虚拟|云|掌上|魅力|阳光|平安|绿色|美丽|文明|'
+    r'活力|书香|青春|园林)?校园'
+    r'(?:生活|文化|安全|新闻|服务|平台|系统|中心|门户)?$'
+)
+NEWS_CAMPUS_KEYWORD_PATTERN = re.compile(
+    r'通知|公告|新闻|动态|检查|揭幕|开学|停水|采购|成交|活动|会议|仪式|'
+    r'培训|成绩|考试|开班|雕塑'
+)
+CAMPUS_NAV_TEXT_PATTERN = re.compile(
+    r'^[\u4e00-\u9fffA-Za-z0-9·]{0,20}?(?:校区|校园)'
+    r'(?:介绍|概况|简介|主页|官网)?$'
+)
+CAMPUS_PATH_MARKER_PATTERN = re.compile(
+    r'(?:校区|校园|campus|aboutcampus|xyfg)', re.IGNORECASE
 )
 EXCLUDED_LINK_TEXT = re.compile(r'地图|风光|生活|文化|看点|媒体')
 EXCLUDED_LINK_PATH = re.compile(
@@ -68,6 +100,12 @@ EXPANDED_MAX_PAGES_PER_SCHOOL = 6
 def _normalized_url_key(url):
     """取得用于去重的规范化 URL。"""
     return urldefrag(str(url or ''))[0].rstrip('/')
+
+
+def _path_url_key(url):
+    """取得用于自动发现链接去重的 host+path 键。"""
+    parsed = urlparse(str(url or ''))
+    return f'{parsed.scheme.lower()}://{parsed.netloc.lower()}{parsed.path}'.rstrip('/')
 
 
 def has_usable_address_candidate(page_result):
@@ -95,7 +133,16 @@ def has_campus_expansion_signal(page_result):
         for link in page_result.get('related_links') or []
         if str(link.get('link_type') or '') == 'campus'
     )
-    return len(campus_hints) >= 2 or campus_link_count >= 2
+    address_keys = {
+        physical_location_key(str(candidate.get('address_text') or '').strip())
+        for candidate in page_result.get('address_candidates') or []
+        if str(candidate.get('address_text') or '').strip()
+    }
+    return (
+        len(campus_hints) >= 2
+        or campus_link_count >= 2
+        or len(address_keys) >= 2
+    )
 
 
 IDENTITY_WARNING_PREFIX = '页面身份校验：'
@@ -136,7 +183,17 @@ def extract_campus_names(value):
         compact = re.sub(r'^.+?(?:大学(?!城)|学院)(?=.+(?:校区|校园)$)', '', compact)
         match = CAMPUS_PATTERN.fullmatch(compact)
         if not match:
-            continue
+            stripped = re.sub(
+                r'^.+?(?:大学(?!城)|学院)(?=.*(?:校区|校园))', '', compact
+            )
+            location = re.match(
+                rf'^(?P<name>{CAMPUS_NAME_EXPRESSION})(?=位于|坐落|座落)',
+                stripped,
+            )
+            if location and CAMPUS_PATTERN.fullmatch(location.group('name')):
+                match = location
+            else:
+                continue
         name = match.group(0).replace('(', '（').replace(')', '）')
         if (not re.search(r'设立|位于|坐落|座落|开设', name)
                 and not GENERIC_CAMPUS_PATTERN.fullmatch(name)):
@@ -171,12 +228,25 @@ def extract_evidence_campus(evidence):
     if len(label_parts) > 1 and any(
             marker in label_parts[-1] for marker in ('校区', '校园', '校本部')):
         label = label_parts[-1]
-    sources = [label]
+    label_names = extract_campus_names(label)
+    if label_names:
+        return label_names[0]
     raw_text = str(evidence.get('raw_text') or '')
+    context_texts = [
+        str(item.get('text') or '')
+        for item in evidence.get('context_before') or []
+    ] + [
+        str(item.get('text') or '')
+        for item in evidence.get('context_after') or []
+    ]
+    if has_multi_campus_enumeration(raw_text) or any(
+        has_multi_campus_enumeration(text) for text in context_texts
+    ):
+        return ''
+    sources = []
     suffixes = re.findall(r'[（(]([^（）()]{1,30}(?:校区|校园|校本部))[^（）()]*[）)]', raw_text)
     sources.extend(suffixes)
-    sources.extend(item.get('text') for item in evidence.get('context_before') or [])
-    sources.extend(item.get('text') for item in evidence.get('context_after') or [])
+    sources.extend(context_texts)
     for source in sources:
         names = extract_campus_names(source)
         if names:
@@ -303,6 +373,8 @@ def build_address_candidate(evidence, title_campus='', title_core=''):
         address = re.sub(r'\s+\d{6}$', '', address).strip()
     if not address:
         return None
+    if is_rejected_university_address(address):
+        return None
     return {
         'campus_hint': campus,
         'address_text': address,
@@ -340,11 +412,56 @@ def build_address_candidates(address_evidence, page_title=''):
 
 def classify_related_link(text, url):
     """判断高校相关页面链接类型。"""
-    value = f'{text} {urlparse(url).path}'
-    for priority, (link_type, pattern) in enumerate(RELATED_LINK_RULES):
-        if pattern.search(value):
+    path = urlparse(url).path
+    if is_campus_nav_link(text, path):
+        return 0, 'campus'
+    value = f'{text} {path}'
+    for priority, (link_type, pattern) in enumerate(
+        RELATED_LINK_RULES, start=1
+    ):
+        if pattern.search(value) and (
+            link_type not in {'contact', 'overview'}
+            or SCHOOL_INFO_LINK_PATTERN.fullmatch(
+                re.sub(r'\s+', '', str(text or ''))
+            )
+        ):
             return priority, link_type
     return None
+
+
+def is_campus_nav_link(text, path=''):
+    """判断链接是否属于导航式校区详情链接而非含校区词的新闻标题。"""
+    compact = re.sub(r'\s+', '', str(text or ''))
+    compact = compact.strip('|｜/·—_')
+    if not compact or len(compact) > 240:
+        return False
+    if NEWS_CAMPUS_KEYWORD_PATTERN.search(compact):
+        return False
+    if len(compact) > 24:
+        leading = re.match(
+            r'^[\u4e00-\u9fffA-Za-z0-9·]{0,20}?(?:校区|校园)'
+            r'(?:介绍|概况|简介|主页|官网)?',
+            compact,
+        )
+        if leading and re.search(
+            r'位于|座落|坐落|通讯地址|地址[:：]',
+            compact[leading.end():],
+        ):
+            return True
+        return False
+    if compact in CAMPUS_NAV_LABELS:
+        return True
+    if GENERIC_CAMPUS_NAV_PATTERN.fullmatch(compact):
+        return False
+    if CAMPUS_NAV_TEXT_PATTERN.fullmatch(compact) and (
+        '校区' in compact or CAMPUS_PATH_MARKER_PATTERN.search(str(path or ''))
+    ):
+        return True
+    if compact.endswith(('校区', '校园')) and CAMPUS_PATH_MARKER_PATTERN.search(
+        str(path or '')
+    ):
+        return True
+    return False
 
 
 def filter_related_links(links, domains, current_url):
@@ -419,39 +536,41 @@ def fetch_university_page(url, official_domains, fetcher=None, context=None, pag
     return build_university_result(common_result)
 
 
-def build_school_followup_urls(
-    page_result, domains, pending, visited, queued_campuses
+def build_campus_link_names(link):
+    """返回校区链接文本中可识别的校区名列表。"""
+    if str(link.get('link_type') or '') != 'campus':
+        return []
+    names = extract_campus_link_names(link.get('text'))
+    if names:
+        return names
+    text = normalize_lines(link.get('text')).strip()
+    if not text:
+        return []
+    head = re.split(r'\s+', text, maxsplit=1)[0].strip(' \t|｜，,；;。-—')
+    return extract_campus_names(head[:40])
+
+
+def build_followup_priority(campus_names, target_city):
+    """按校区所在城市返回校区链接抓取优先级。"""
+    if campus_names and target_city and any(
+        find_foreign_city_campus(name, target_city)
+        for name in campus_names
+    ):
+        return 2
+    return 0
+
+
+def fetch_school_pages_with_coverage(
+    school_item,
+    fetch_page,
+    max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL,
+    target_city='',
 ):
-    """把页面返回的相关链接追加为待抓 URL（同域、未访问、未排队）。"""
-    for link in page_result.get('related_links') or []:
-        url = str(link.get('url') or '').strip()
-        campus_names = (
-            extract_campus_link_names(link.get('text'))
-            if str(link.get('link_type') or '') == 'campus'
-            else []
-        )
-        if (
-            url
-            and is_url_in_domains(url, domains)
-            and _normalized_url_key(url) not in visited
-            and (
-                not campus_names
-                or campus_names[0] not in queued_campuses
-            )
-        ):
-            if campus_names:
-                queued_campuses.add(campus_names[0])
-            pending.append(url)
+    """按“同城校区优先”策略抓取官网并返回校区覆盖信息。
 
-
-def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL):
-    """按“校区覆盖优先”固定策略抓取一所学校的官网页面。
-
-    先抓 home_url；存在域名确认阶段给出的 candidate_urls 时，
-    即使首页已命中地址也会继续补抓候选页（章程/校区/联系方式等
-    汇总页），候选页全部抓完且无多校区线索时才停止。页面出现
-    ≥2 个校区提示或校区链接时放宽到 ≤6 页，并按校区去重补抓。
-    页面访问失败也保留页面对象并计入页数预算。
+    校区详情链接优先于概况/章程/联系页；明确属于其他城市的校区
+    链接排最后，预算剩余才抓。每校页数仍以 ≤6 页为上限，预算耗尽
+    仍未抓完的疑似同城校区记入 missing_campus_names 供复核。
     """
     home_url = str(school_item.get('home_url') or '').strip()
     official_domains = [
@@ -462,22 +581,50 @@ def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_
     if not home_url or not is_url_in_domains(home_url, official_domains):
         raise ValueError('school_item 必须包含属于 official_domains 的 home_url')
 
-    pending = [home_url]
+    pending = []
+    queued_urls = set()
+    visited_urls = set()
+    queued_paths = set()
+    visited_paths = set()
+    queued_campuses = set()
+    enumerated_campuses = set()
+    fetched_campuses = set()
+    order_counter = 0
+
+    def enqueue_url(url, priority, campus_names=(), by_path=False):
+        """把未访问未排队的同域 URL 加入待抓队列。"""
+        nonlocal order_counter
+        url = str(url or '').strip()
+        url_key = _normalized_url_key(url)
+        path_key = _path_url_key(url)
+        if (
+            not url
+            or not is_url_in_domains(url, official_domains)
+            or url_key in visited_urls
+            or url_key in queued_urls
+            or (by_path and (path_key in visited_paths or path_key in queued_paths))
+        ):
+            return
+        queued_urls.add(url_key)
+        if by_path:
+            queued_paths.add(path_key)
+        pending.append({
+            'priority': priority,
+            'order': order_counter,
+            'url': url,
+            'campus_names': list(campus_names),
+        })
+        order_counter += 1
+
     home_key = _normalized_url_key(home_url)
+    enqueue_url(home_url, -1)
     explicit_keys = []
     for raw_url in school_item.get('candidate_urls') or []:
         url = str(raw_url).strip()
         key = _normalized_url_key(url)
-        if (
-            url
-            and is_url_in_domains(url, official_domains)
-            and key != home_key
-            and key not in explicit_keys
-        ):
+        if url and key != home_key and key not in explicit_keys:
             explicit_keys.append(key)
-            pending.append(url)
-    visited = set()
-    queued_campuses = set()
+            enqueue_url(url, 1)
     pages = []
     effective_max_pages = max(
         max_pages,
@@ -485,12 +632,26 @@ def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_
     )
     campus_expanded = False
     while pending and len(pages) < effective_max_pages:
-        url = pending.pop(0)
-        url_key = _normalized_url_key(url)
-        if url_key in visited:
+        pending.sort(key=lambda entry: (entry['priority'], entry['order']))
+        entry = pending.pop(0)
+        url_key = _normalized_url_key(entry['url'])
+        if url_key in visited_urls:
             continue
-        visited.add(url_key)
-        page_result = fetch_page(url, official_domains)
+        visited_urls.add(url_key)
+        fetched_campuses.update(entry['campus_names'])
+        page_is_campus_detail = bool(entry.get('campus_names'))
+        page_result = fetch_page(entry['url'], official_domains)
+        requested_path = _path_url_key(entry['url'])
+        final_path = _path_url_key(
+            page_result.get('final_url') or entry['url']
+        )
+        if (
+            final_path in visited_paths
+            and requested_path != final_path
+        ):
+            continue
+        visited_paths.add(requested_path)
+        visited_paths.add(final_path)
         pages.append(page_result)
         if url_key == home_key:
             warning = build_home_identity_warning(
@@ -503,17 +664,78 @@ def fetch_school_pages(school_item, fetch_page, max_pages=DEFAULT_MAX_PAGES_PER_
             effective_max_pages = max(
                 effective_max_pages, EXPANDED_MAX_PAGES_PER_SCHOOL
             )
-        remaining_explicit = any(key not in visited for key in explicit_keys)
-        has_address = any(
-            has_usable_address_candidate(item) for item in pages
-        )
-        if has_address and not remaining_explicit and not campus_expanded:
-            break
-        build_school_followup_urls(
-            page_result, official_domains, pending, visited, queued_campuses
-        )
+        for link in page_result.get('related_links') or []:
+            link_url = str(link.get('url') or '').strip()
+            campus_names = build_campus_link_names(link)
+            if str(link.get('link_type') or '') == 'campus':
+                if page_is_campus_detail:
+                    continue
+                enumerated_campuses.update(campus_names)
+                for campus_name in campus_names:
+                    if campus_name in queued_campuses:
+                        continue
+                    queued_campuses.add(campus_name)
+                    enqueue_url(
+                        link_url,
+                        build_followup_priority(campus_names, target_city),
+                        [campus_name],
+                        by_path=True,
+                    )
+                if not campus_names:
+                    enqueue_url(link_url, 1, by_path=True)
+                continue
+            enqueue_url(link_url, 1, by_path=True)
     if not pages:
         raise ValueError('school_item 未抓取到任何页面')
+    address_covered_campuses = {
+        str(candidate.get('campus_hint') or '').strip()
+        for page in pages
+        for candidate in page.get('address_candidates') or []
+        if str(candidate.get('campus_hint') or '').strip()
+    }
+    detail_not_fetched = []
+    missing_campus_names = []
+    for campus_name in sorted(enumerated_campuses):
+        if campus_name in fetched_campuses:
+            continue
+        if (
+            target_city
+            and find_foreign_city_campus(campus_name, target_city)
+        ):
+            continue
+        covered_by_address = any(
+            campus_name == hint
+            or hint.startswith(campus_name)
+            or hint.endswith(campus_name)
+            for hint in address_covered_campuses
+        )
+        if covered_by_address:
+            detail_not_fetched.append(campus_name)
+        else:
+            missing_campus_names.append(campus_name)
+    coverage = {
+        'enumerated_campus_count': len(enumerated_campuses),
+        'fetched_campus_names': sorted(fetched_campuses),
+        'missing_campus_names': missing_campus_names,
+    }
+    if detail_not_fetched:
+        coverage['detail_page_not_fetched'] = detail_not_fetched
+    return pages, coverage
+
+
+def fetch_school_pages(
+    school_item,
+    fetch_page,
+    max_pages=DEFAULT_MAX_PAGES_PER_SCHOOL,
+    target_city='',
+):
+    """按固定策略抓取一所学校官网并只返回页面对象。"""
+    pages, _ = fetch_school_pages_with_coverage(
+        school_item,
+        fetch_page,
+        max_pages=max_pages,
+        target_city=target_city,
+    )
     return pages
 
 
@@ -542,7 +764,7 @@ def run_school_batch(school_items, output_dir, max_pages=DEFAULT_MAX_PAGES_PER_S
                 context = fetcher.new_context()
                 try:
                     page = context.new_page()
-                    pages = fetch_school_pages(
+                    pages, coverage = fetch_school_pages_with_coverage(
                         school_item,
                         lambda url, domains: fetch_university_page(
                             url,
@@ -552,6 +774,7 @@ def run_school_batch(school_items, output_dir, max_pages=DEFAULT_MAX_PAGES_PER_S
                             page=page,
                         ),
                         max_pages=max_pages,
+                        target_city=str(school_item.get('target_city') or ''),
                     )
                 finally:
                     context.close()
@@ -569,6 +792,8 @@ def run_school_batch(school_items, output_dir, max_pages=DEFAULT_MAX_PAGES_PER_S
                         has_usable_address_candidate(page) for page in pages
                     ),
                 })
+                if coverage.get('enumerated_campus_count', 0) >= 2:
+                    summary['campus_coverage'] = coverage
             except Exception as error:
                 summary.update({
                     'processing_status': 'error',

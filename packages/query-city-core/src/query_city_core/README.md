@@ -23,6 +23,7 @@
 | `access.py` | HTTP 直连兜底：urllib/curl 依次尝试、访问审计、浏览器指纹常量（`USER_AGENT`、`BROWSER_HEADERS`）。 |
 | `env_utils.py` | 从进程环境或工作区 `.env` 读取配置。 |
 | `excel_style.py` | 查询结果工作簿统一格式、地址输出列、来源超链接与工作表校验。 |
+| `excel_output.py` | 通用结果工作簿生成器（`ResultWorkbookSpec`、原子保存与自动复核）。 |
 | `host_gate.py` | 进程内按主机节流的调度门：同主机并发上限与最小请求间隔，供批量抓取/下载共用。 |
 | `io_utils.py` | 公共 JSON 文件读写（`read_json_payload`/`write_json_payload`）。 |
 | `official/` | 官方来源读取器、栏目链接/来源文件/详情页收集器与通用提取引擎，详见 `official/README.md`。 |
@@ -32,6 +33,10 @@
 
 ### 2026-09-03
 
+- 医疗机构 Skill 迁入 `official/extract` 公共检查/提取链路；三个 Skill
+  `build_excel.py` 均使用 `excel_output` 生成器。
+- `address/common.py` 新增 `address_equivalence_key`，医疗与高校删除
+  各自本地重复实现。
 - `city.py`、`amap_client.py` 移入 `address/`，命令入口同步为
   `python -m query_city_core.address.city`，不再保留根目录同名模块。
 

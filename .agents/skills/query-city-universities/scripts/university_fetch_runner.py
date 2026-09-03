@@ -10,7 +10,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-from fetch_official_universities import has_usable_address_candidate
+from university_page_fetch import has_usable_address_candidate
 from query_city_core.io_utils import read_json_payload, write_json_payload
 
 
@@ -144,7 +144,7 @@ def write_static_results(no_site_items, skipped_items, output_dir):
 
 def build_fetch_command(slice_path, output_dir, max_pages):
     """构造独立抓取进程的命令与环境。"""
-    script = Path(__file__).resolve().parent / 'fetch_official_universities.py'
+    script = Path(__file__).resolve().parent / 'university_page_fetch.py'
     environment = dict(os.environ)
     environment['PYTHONIOENCODING'] = 'utf-8'
     return [
@@ -171,10 +171,11 @@ def parse_process_summaries(returncode, stdout):
     return summaries
 
 
-def build_fetch_report(run_dir, city_index):
+def build_fetch_report(run_dir, city_index, coverage_by_identifier=None):
     """按城市名录顺序汇总逐校抓取状态。"""
     school_results_dir = Path(run_dir) / 'school_results'
     report_items = []
+    coverage_by_identifier = coverage_by_identifier or {}
     for identifier, school in city_index.items():
         result_path = school_results_dir / f'{identifier}.json'
         if not result_path.is_file():
@@ -190,12 +191,13 @@ def build_fetch_report(run_dir, city_index):
         result = read_json_payload(result_path)
         status = str(result.get('processing_status') or '').strip()
         pages = result.get('pages') or []
+        coverage = coverage_by_identifier.get(identifier)
         identity_warning = any(
             str(warning or '').startswith('页面身份校验：')
             for page in pages
             for warning in page.get('warnings') or []
         )
-        report_items.append({
+        report_item = {
             'school_identifier': identifier,
             'school_name': school['school_name'],
             'processing_status': status,
@@ -205,7 +207,10 @@ def build_fetch_report(run_dir, city_index):
             ),
             'identity_warning': identity_warning,
             'error': '',
-        })
+        }
+        if coverage:
+            report_item['campus_coverage'] = coverage
+        report_items.append(report_item)
     return report_items
 
 
@@ -227,6 +232,11 @@ def run_university_fetch(
     fetch_items, no_site_items, skipped_items, city_index = validate_manifest(
         manifest_payload, city_universities_payload
     )
+    target_city = str(
+        (city_universities_payload.get('city_context') or {}).get('city_name') or ''
+    )
+    for item in fetch_items:
+        item['target_city'] = target_city
 
     retry_identifiers = set()
     if only_failures:
@@ -252,6 +262,16 @@ def run_university_fetch(
     write_static_results(no_site_items, skipped_items, run_dir)
 
     slice_failures = []
+    coverage_by_identifier = {}
+    if only_failures:
+        previous_report_path = run_dir / 'fetch_report.json'
+        if previous_report_path.is_file():
+            previous_report = read_json_payload(previous_report_path)
+            coverage_by_identifier = {
+                str(item.get('school_identifier') or ''): item['campus_coverage']
+                for item in (previous_report.get('items') or [])
+                if item.get('campus_coverage')
+            }
     if fetch_items:
         with tempfile.TemporaryDirectory(
             prefix='fetch_slices_', dir=run_dir
@@ -282,6 +302,11 @@ def run_university_fetch(
                 summaries = parse_process_summaries(returncode, stdout)
                 for summary in summaries:
                     if str(summary.get('processing_status') or '') == 'completed':
+                        coverage = summary.get('campus_coverage')
+                        if coverage:
+                            coverage_by_identifier[str(
+                                summary.get('school_identifier') or ''
+                            )] = coverage
                         continue
                     slice_failures.append({
                         'school_identifier': str(
@@ -313,7 +338,9 @@ def run_university_fetch(
                         ),
                     })
 
-    report_items = build_fetch_report(run_dir, city_index)
+    report_items = build_fetch_report(
+        run_dir, city_index, coverage_by_identifier
+    )
     check_items = report_items
     if only_failures:
         check_items = [

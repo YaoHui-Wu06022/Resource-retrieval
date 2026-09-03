@@ -2,46 +2,48 @@
 
 ## 本层职责
 
-按中国城市检索政府公开的持证/备案医疗机构（医院、诊所、门诊部、
-社区健康服务中心/站、村卫生室、医学检验实验室等），整理机构名称、
-官方类型、官方级别和执业地址并生成 Excel。工作流与基础教育一致：
-检索政府官网信息 → 获取来源文件 → 提取列 → 处理地址 → 生成工作簿。
+按中国城市直接下级行政单位检索政府公开的持证/备案医疗机构名单，整理机构
+名称、官方类型、级别和执业地址并生成区级与城市汇总 Excel。执行流程见
+`SKILL.md`，遵循政府资料 Skill 模板（`doc/government-source-skill-template.md`）。
 
 ## 目录结构
 
-- `references/`：政府来源格式与记录字段规范。
-- `scripts/`：固定处理脚本与来源解析器。
+- `references/`：政府来源与提取阶段格式规范。
+- `scripts/`：固定处理脚本（角色见 `scripts/README.md`）。
 - `scripts/tests/`：脚本测试。
+- `requirements.txt`：锁定共享运行库 `query-city-core==0.1.0`。
 
 ## 文件功能
 
 | 文件 | 功能 |
 | --- | --- |
-| `SKILL.md` | 执行规范与命令。 |
-| `references/medical-source-format.md` | `government_source.json` 与记录字段规范。 |
-| `scripts/medical_common.py` | 地址拆分、外市剔除、行政单位推导、跨来源去重。 |
-| `scripts/medical_government_flow.py` | 政府来源通用 inspect/extract 命令入口。 |
-| `scripts/build_excel.py` | 生成城市总表与区级工作簿。 |
-
-## 执行边界
-
-Agent 负责政府官网检索、机构类别覆盖核对和来源质量判断；脚本负责按
-官方字段解析、地址拆分、去重、排序与工作簿格式。任何城市均可按相同
-流程运行：先找到卫健委/中医药局/区政府公示来源，再交给固定脚本。
+| `SKILL.md` | 执行规范：来源检索、提取计划复核、地址处理与工作簿生成。 |
+| `AGENTS.md` | 本 Skill Python 代码操作规范。 |
+| `references/medical-source-format.md` | `government_source.json`（每区一份）与提取阶段格式规范。 |
+| `scripts/medical_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `inspect` / `extract`。 |
+| `scripts/medical_common.py` | 医疗记录构造、执业地址拆分、外市剔除、跨来源去重。 |
+| `scripts/build_excel.py` | 收集各行政单位 processed 结果并生成区级工作簿与城市总表。 |
 
 ## 修改记录
 
 ### 2026-09-03
 
-- 移除城市专属种子清单与试点表述，Skill 文档改为通用流程说明。
-- 删除城市专用适配器，解析改为按 `source_type` 文件形态分派
-  （工作簿、网页内嵌列表、机构卡片、查询结果）。
-
-- 在线查询解析补充登记号 yyid 字段回退，便于平台快照与发证工作簿跨来源合并。
-
-### 2026-09-02
-
-- 新增本 Skill；
-- 首次实现两座城市的政府来源解析、地址拆分、去重与 Excel 输出，作为
-  通用解析流程的验证样本；
-- 公共层不新增医疗语义，只复用官方读取、地址记录和 Excel 能力。
+- 删除自研来源解析器（`medical_source_parsers.py`、
+  `build_medical_address_records.py`），统一走
+  `medical_government_flow.py` 的公共 inspect/extract 链路；
+  废除 `anomaly_records.json` 阶段，异常行由 `build_excel.py` 从
+  processed 结果推导；`extract` 重新接入跨来源去重。
+- `government_source.json` 顶层改为内嵌完整 `city_context`；
+  `medical_government_flow.py` 补齐与基础教育一致的
+  `list-links` / `download` / `collect-details` 子命令。
+- 医疗流程改为按直接下级行政单位默认分区检索：每区目录一份
+  `government_source.json`（顶层 `city_context` + `administrative_unit`），
+  地址记录 `subdivision_scope=subdivision`，`build_excel.py` 改为
+  `--input-dir` 汇总各行政单位结果并生成区级与城市工作簿。
+- 城市总表改为“机构信息”汇总表 + 各区工作表结构，异常机构表只保留在
+  每区工作簿，总表不再包含异常机构表。
+- 工作簿显示规则：机构级别为“未定级/无定级/无级别”时输出为空列，
+  地址记录 JSON 中仍保留官方原文。
+- SKILL.md 检索规则补充精简的“检索位置与顺序”：区级全量名单位置、
+  市级批次/检索平台、省级补充与统一搜索定位边界，只描述栏目类型与
+  查找次序，不写具体网址。

@@ -16,6 +16,7 @@ from .common import (
     SUB_LEVEL_SUFFIXES,
     extract_admin_unit_components,
     resolve_address_mode,
+    resolve_target_administrative_unit,
     validate_address_record,
 )
 
@@ -217,6 +218,7 @@ def extract_target_city_detail(address, city_context):
                 '原始地址中的省级单位与目标城市不一致：'
                 f'{province_match.group("province")}'
             )
+    address = complete_short_subdivision_prefix(address, city_context)
 
     target_short = min(_city_short_names(city), key=len)
     if address.startswith(city):
@@ -254,6 +256,37 @@ def extract_target_city_detail(address, city_context):
                 f'{short_city_match.group("city")}'
             )
     return address, ''
+
+
+def complete_short_subdivision_prefix(address, city_context):
+    """把“城市简称 + 无后缀子区名”的空格分词写法补全为完整子区名。"""
+    city = str(city_context.get('city_name') or '').strip()
+    if not city:
+        return address
+    target_short = min(_city_short_names(city), key=len)
+    if not address.startswith(target_short):
+        return address
+    remainder = address[len(target_short):]
+    core_to_full = {}
+    for item in city_context.get('subdivisions') or []:
+        name = str(item.get('name') or '').strip()
+        core = name
+        for suffix in (
+            '特别行政区', '自治区', '自治州', '地区', '盟', '区', '县', '旗'
+        ):
+            if name.endswith(suffix):
+                core = name[: -len(suffix)]
+                break
+        if core and core != name:
+            core_to_full.setdefault(core, name)
+    for core, full_name in sorted(
+        core_to_full.items(), key=lambda item: len(item[0]), reverse=True
+    ):
+        if remainder.startswith(core) and not remainder[len(core):].startswith(
+            ('区', '县', '旗')
+        ):
+            return f'{full_name}{remainder[len(core):]}'
+    return address
 
 
 def is_non_administrative_zone(zone_name):
@@ -405,7 +438,7 @@ def normalize_address_record(address_record, city_context):
     normalized_fields = normalize_address_value(
         address_record.get('original_address'),
         city_context,
-        attributes.get('administrative_unit'),
+        resolve_target_administrative_unit(address_record),
     )
     foreign_city = detect_foreign_city_campus(place_name, city_context)
     if foreign_city and not normalized_fields.get('normalized_address'):

@@ -19,9 +19,12 @@
 }
 ```
 
-`pages` 按访问顺序保存每次 `fetch_official_universities.py` 返回的完整原始页面对象，原样保留，不重建、删改或只摘录候选字段。
+`pages` 按访问顺序保存每次 `university_page_fetch.py` 返回的完整原始页面对象，原样保留，不重建、删改或只摘录候选字段。
 
-- 至少 1 页；通常 ≤ 3 页；页面出现多校区汇总线索（≥ 2 个校区提示或校区链接）且尚无地址时，运行器自动把预算放宽到 ≤ 6 页，同一校区详情只补抓一次。
+- 至少 1 页；通常 ≤ 3 页；存在候选页或页面出现多校区汇总线索（≥ 2 个
+  校区提示或校区链接，或单页 ≥ 2 个不同物理地址）时，运行器自动把预算
+  放宽到 ≤ 6 页；首页命中地址后不提前停止，白名单相关链接在预算内继续
+  补抓，同一校区详情只补抓一次。
 - 页面访问失败但未确认合并/停办时仍为 `completed`，并保留失败页。
 - 只允许 `school_identifier`、`processing_status`、`pages` 三个字段。
 
@@ -60,5 +63,5 @@
 
 ## 汇总边界
 
-- 批量抓取由 `scripts/run_university_fetch.py` 统一写入 `school_results/<学校标识码>.json`，`no_official_site` 结果由同一运行器直接写出；主 Agent 不手工改写。
-- 共享汇总文件只由 `scripts/merge_university_results.py` 生成，以脚本校验结果为准。
+- 批量抓取由 `scripts/university_fetch_runner.py` 统一写入 `school_results/<学校标识码>.json`，`no_official_site` 结果由同一运行器直接写出；主 Agent 不手工改写。
+- 共享汇总文件只由 `scripts/university_results_merge.py` 生成，以脚本校验结果为准。

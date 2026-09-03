@@ -11,7 +11,7 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from extract_school_records import extract_school_records  # noqa: E402
+from school_government_flow import extract_school_records  # noqa: E402
 
 
 class VisionExtractRecordsTest(unittest.TestCase):

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""汇总并行域名确认批次，校验覆盖并输出官方域名清单。"""
+"""高校域名阶段命令：探测主页现用性并汇总批次输出官方域名清单。"""
 
 import argparse
 import json
@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from query_city_core.io_utils import read_json_payload, write_json_payload
+from query_city_core.web.probe_domains import probe_domain_items
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -97,6 +98,54 @@ def normalize_school_batch_item(item):
     return 'fetch', identifier, result
 
 
+def probe_domain_batches(run_dir, fetch=None):
+    """把高校域名批次映射为通用记录并输出探测报告。"""
+    run_dir = Path(run_dir).resolve()
+    city_payload = read_json_payload(run_dir / 'city_universities.json')
+    if city_payload.get('stage') != 'city_universities':
+        raise ValueError('运行目录中 city_universities.json 阶段不正确')
+    city_index = {}
+    for school in city_payload.get('schools') or []:
+        identifier = str(school.get('school_identifier') or '').strip()
+        if identifier:
+            city_index[identifier] = school
+    domain_items = []
+    for batch_payload in read_domain_batches(run_dir):
+        if batch_payload.get('stage') != 'domain_batch':
+            raise ValueError('domain_batches 文件 stage 必须是 domain_batch')
+        for entry in batch_payload.get('items') or []:
+            identifier = str(entry.get('school_identifier') or '').strip()
+            if not identifier or identifier not in city_index:
+                raise ValueError(f'批次出现名录外学校：{identifier}')
+            if (
+                entry.get('no_official_site')
+                or str(entry.get('processing_status') or '') == 'skipped'
+                or str(entry.get('failure_reason') or '').strip()
+                or not str(entry.get('home_url') or '').strip()
+            ):
+                continue
+            domain_items.append({
+                'place_id': identifier,
+                'place_name': str(
+                    city_index[identifier].get('school_name') or ''
+                ),
+                'home_url': str(entry.get('home_url') or '').strip(),
+                'official_domains': entry.get('official_domains') or [],
+            })
+    items = probe_domain_items(domain_items, fetch=fetch)
+    output_path = run_dir / 'domain_probe_report.json'
+    write_json_payload(output_path, {
+        'stage': 'domain_probe_report',
+        'run_dir': str(run_dir),
+        'items': items,
+    })
+    return {
+        'output': str(output_path),
+        'probed_count': len(items),
+        'issue_count': sum(1 for item in items if item.get('suggestion')),
+    }
+
+
 def merge_domain_batches(run_dir):
     """汇总域名批次并按城市名录顺序输出清单；有 failure 时拒绝。"""
     run_dir = Path(run_dir).resolve()
@@ -164,14 +213,27 @@ def merge_domain_batches(run_dir):
 
 
 def main():
-    """解析参数并汇总域名批次。"""
+    """解析子命令并执行域名探测或批次汇总。"""
     parser = argparse.ArgumentParser(
-        description='汇总并行域名确认批次并输出官方域名清单'
+        description='高校域名阶段：探测主页现用性并汇总官方域名清单'
     )
-    parser.add_argument('--run-dir', required=True)
+    subparsers = parser.add_subparsers(dest='command', required=True)
+    probe_parser = subparsers.add_parser(
+        'probe',
+        description='探测高校域名清单主页的可达性与跳转终域',
+    )
+    probe_parser.add_argument('--run-dir', required=True)
+    merge_parser = subparsers.add_parser(
+        'merge',
+        description='汇总并行域名确认批次并输出官方域名清单',
+    )
+    merge_parser.add_argument('--run-dir', required=True)
     args = parser.parse_args()
     try:
-        result = merge_domain_batches(args.run_dir)
+        if args.command == 'probe':
+            result = probe_domain_batches(args.run_dir)
+        else:
+            result = merge_domain_batches(args.run_dir)
     except (FileNotFoundError, json.JSONDecodeError, OSError, ValueError) as error:
         parser.error(str(error))
     print(json.dumps(result, ensure_ascii=False))

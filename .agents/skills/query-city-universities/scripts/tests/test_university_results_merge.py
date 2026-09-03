@@ -11,7 +11,7 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from merge_university_results import merge_school_results
+from university_results_merge import merge_school_results
 
 
 def build_city_universities_payload():

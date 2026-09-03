@@ -223,6 +223,98 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         self.assertEqual(result['metrics']['original_address_count'], 1)
         self.assertEqual(result['metrics']['missing_original_address_count'], 1)
 
+    def test_fee_candidate_does_not_create_duplicate_address_row(self):
+        """同校区费用行不再与真实地址并列成第二条记录。"""
+        school = build_school()
+        page = build_page(
+            'https://example.edu.cn/',
+            candidates=[
+                {
+                    'campus_hint': '东湖校区',
+                    'address_text': '示例市东湖区大学路166号',
+                },
+                {
+                    'campus_hint': '东湖校区',
+                    'address_text': (
+                        '1600元/生·学年；清远校区：3000元/生·学年'
+                    ),
+                },
+            ],
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school]),
+        )
+        self.assertEqual(len(result['items']), 1)
+        self.assertEqual(
+            result['items'][0]['original_address'],
+            '示例市东湖区大学路166号',
+        )
+        self.assertEqual(result['warnings'], [])
+
+    def test_direction_and_narrative_candidates_do_not_create_rows(self):
+        """方向距离与职责叙述候选不产生假行。"""
+        school = build_school()
+        page = build_page(
+            'https://example.edu.cn/',
+            candidates=[
+                {
+                    'campus_hint': '',
+                    'address_text': '广州市天河区迎福路527号',
+                },
+                {
+                    'campus_hint': '广州校区',
+                    'address_text': '广州市增城区增城职教园东行4千米',
+                },
+                {
+                    'campus_hint': '主校区',
+                    'address_text': (
+                        '嘉禾校区，主要承担全日制本科生教育任务；'
+                        '滨江校区主要承担民警培训和成人教育任务'
+                    ),
+                },
+            ],
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(len(result['items']), 1)
+        self.assertEqual(
+            result['items'][0]['original_address'],
+            '广州市天河区迎福路527号',
+        )
+
+    def test_institution_only_candidate_does_not_create_fake_campus(self):
+        """招生章程页里的合作学校校区名（整串机构名）不再产生假记录。"""
+        school = build_school()
+        page = build_page(
+            'https://example.edu.cn/zhaosheng.htm',
+            candidates=[
+                {
+                    'campus_hint': '东湖校区',
+                    'address_text': '示例市东湖区大学路166号',
+                },
+                {
+                    'campus_hint': '三元里校区',
+                    'address_text': '示例市城市建设职业学校',
+                },
+                {
+                    'campus_hint': '赤沙校区',
+                    'address_text': '示例市城市建设职业学校',
+                },
+            ],
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school]),
+        )
+        self.assertEqual(len(result['items']), 1)
+        self.assertEqual(
+            result['items'][0]['place_name'],
+            '示例大学东湖校区',
+        )
+
     def test_website_module_hint_does_not_create_record(self):
         """数字校园等网站栏目线索不得生成兜底记录。"""
         school = build_school()
@@ -233,7 +325,7 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [page])]),
-            build_city_universities_payload([school]),
+            build_city_universities_payload([school], city='广州市'),
         )
         self.assertEqual(
             [item['place_name'] for item in result['items']],
@@ -267,13 +359,15 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
                 (
                     item['place_name'],
                     item['attributes']['campus_name'],
+                    item['attributes'].get('campus_name_raw'),
                     item['original_address'],
                 )
                 for item in result['items']
             ],
             [
                 (
-                    '广东药科大学广州校区宝岗校园',
+                    '广东药科大学宝岗校园',
+                    '宝岗校园',
                     '广州校区宝岗校园',
                     '广州市海珠区宝岗光汉直街40号',
                 )
@@ -370,7 +464,7 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [page])]),
-            build_city_universities_payload([school]),
+            build_city_universities_payload([school], city='广州市'),
         )
         self.assertEqual(len(result['items']), 1)
         self.assertEqual(result['items'][0]['place_name'], '示例大学东湖校区')
@@ -636,6 +730,102 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         self.assertEqual(len(result['items']), 2)
         self.assertEqual(result['metrics']['warning_count'], 1)
 
+    def test_zone_city_prefix_variants_merge_before_warning(self):
+        """同校区同门牌的广州/大学城写法变体应在生成阶段合并。"""
+        school = build_school(
+            school_name='广东药科大学',
+            school_identifier='4144010573',
+        )
+        page = build_page(
+            'https://example.edu.cn/',
+            candidates=[
+                {
+                    'campus_hint': '广州校区大学城校园',
+                    'address_text': '广州市广州大学城外环东路280号',
+                },
+                {
+                    'campus_hint': '广州校区大学城校园',
+                    'address_text': '广东省广州市大学城外环东路280号',
+                },
+            ],
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(result['metrics']['item_count'], 1)
+        self.assertEqual(result['metrics']['warning_count'], 0)
+        self.assertEqual(
+            result['items'][0]['original_address'],
+            '广州市广州大学城外环东路280号',
+        )
+
+    def test_hierarchical_campus_names_share_one_canonical_record(self):
+        """父校区子校园写法与子校园简称合并为同一记录。"""
+        school = build_school(
+            school_name='广东药科大学',
+            school_identifier='4144010573',
+        )
+        page = build_page(
+            'https://www.gdpu.edu.cn/info/1013/2077.htm',
+            candidates=[
+                {
+                    'campus_hint': '广州校区大学城校园',
+                    'address_text': '广州市广州大学城外环东路280号',
+                },
+                {
+                    'campus_hint': '大学城校园',
+                    'address_text': '广东省广州市大学城外环东路280号',
+                },
+            ],
+            title='广州校区大学城校园-广东药科大学',
+        )
+        result = build_address_payload(
+            build_payload([build_completed_item(school, [page])]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(result['metrics']['item_count'], 1)
+        item = result['items'][0]
+        self.assertEqual(item['attributes']['campus_name'], '大学城校园')
+        self.assertEqual(
+            item['attributes'].get('campus_name_raw'),
+            '广州校区大学城校园',
+        )
+        self.assertEqual(item['place_name'], '广东药科大学大学城校园')
+
+    def test_department_room_address_merges_to_homepage_address(self):
+        """学院页带房间码的地址与主页中文门牌地址合并且不留噪音。"""
+        school = build_school(school_name='广州城市理工学院')
+        pages = [
+            build_page(
+                'https://www.gcut.edu.cn/',
+                candidates=[{
+                    'campus_hint': '',
+                    'address_text': '广州市花都区学府路一号',
+                }],
+                title='广州城市理工学院',
+            ),
+            build_page(
+                'https://jx.gcut.edu.cn/jsjgcxy/list.htm',
+                candidates=[{
+                    'campus_hint': '',
+                    'address_text': (
+                        '广州市花都区学府路1号广州城市理工学院B6-312'
+                    ),
+                }],
+                title='计算机工程学院',
+            ),
+        ]
+        result = build_address_payload(
+            build_payload([build_completed_item(school, pages)]),
+            build_city_universities_payload([school], city='广州市'),
+        )
+        self.assertEqual(result['metrics']['item_count'], 1)
+        item = result['items'][0]
+        self.assertEqual(item['original_address'], '广州市花都区学府路一号')
+        self.assertNotIn('B6', item['original_address'])
+        self.assertNotIn('计算机工程', item['original_address'])
+
     def test_skipped_school_counts_without_address_records(self):
         """有证据跳过的学校参与完整性核对但不生成地址记录。"""
         completed_school = build_school()
@@ -823,6 +1013,54 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
 class UniversityAddressPostprocessTests(unittest.TestCase):
     """覆盖地图同址去重规则。"""
 
+    def build_final_record(self, school_identifier, campus_name, final_address):
+        """构造一条已解析最终地址的记录。"""
+        return {
+            'final_address': final_address,
+            'final_address_source': 'official',
+            'map_match_status': '',
+            'attributes': {
+                'school_identifier': school_identifier,
+                'campus_name': campus_name,
+            },
+        }
+
+    def test_unlabeled_distinct_addresses_are_all_kept(self):
+        """同校多条无校区名不同物理地址全部保留，不再只留一条。"""
+        records = [
+            self.build_final_record(
+                '4144010861', '', '广州市天河区天源路789号'
+            ),
+            self.build_final_record(
+                '4144010861', '', '广州市花都区工业大道11号'
+            ),
+            self.build_final_record(
+                '4144010861', '', '广州市天河区龙洞街道迎龙路481号'
+            ),
+            self.build_final_record(
+                '4144010861', '', '广州市天河区天源路818号'
+            ),
+        ]
+
+        result = postprocess_university_address_records(records)
+
+        self.assertEqual(len(result), 4)
+
+    def test_unlabeled_no_number_variant_is_dropped_with_numbered_road(self):
+        """同校同路已有门牌时，无门牌无校区名的变体不再成行。"""
+        numbered = self.build_final_record(
+            '4144011540', '', '广州市天河区迎福路527号'
+        )
+        incomplete = self.build_final_record(
+            '4144011540', '', '广州市天河区沙河龙洞迎福路'
+        )
+
+        result = postprocess_university_address_records(
+            [numbered, incomplete]
+        )
+
+        self.assertEqual(result, [numbered])
+
     def test_same_school_and_map_detail_prefers_labeled_campus(self):
         """同校同地图同址时优先保留带校区名的记录。"""
         unlabeled = build_map_record(
@@ -848,6 +1086,58 @@ class UniversityAddressPostprocessTests(unittest.TestCase):
         result = postprocess_university_address_records([first, second])
 
         self.assertEqual(result, [first, second])
+
+    def test_sole_campus_unlabeled_and_benbu_merge_to_one_row(self):
+        """单校区学校的无名主页地址与校本部地址合并保留更完整一条。"""
+        homepage = {
+            'final_address': '广州市白云区太和镇穗丰水均田路363号',
+            'final_address_source': 'official',
+            'map_match_status': '',
+            'attributes': {
+                'school_identifier': '4144014362',
+                'campus_name': '',
+            },
+        }
+        benbu = {
+            'final_address': '广州市白云区水均田路363号',
+            'final_address_source': 'official',
+            'map_match_status': '',
+            'attributes': {
+                'school_identifier': '4144014362',
+                'campus_name': '校本部',
+            },
+        }
+
+        result = postprocess_university_address_records([homepage, benbu])
+
+        self.assertEqual(len(result), 1)
+        self.assertIn('太和镇穗丰水均田路363号', result[0]['final_address'])
+
+    def test_same_campus_prefers_map_confirmed_address(self):
+        """同校区多地址时地图可确证的一条优先于未验证官网地址。"""
+        unverified = {
+            'final_address': '广州市番禺区广州大学城外环东路208号',
+            'final_address_source': 'official',
+            'map_match_status': 'skipped',
+            'attributes': {
+                'school_identifier': '4144010573',
+                'campus_name': '大学城校园',
+            },
+        }
+        verified = {
+            'final_address': '广州市番禺区大学城外环东路280号',
+            'final_address_source': 'map',
+            'map_match_status': 'partial',
+            'attributes': {
+                'school_identifier': '4144010573',
+                'campus_name': '大学城校园',
+            },
+        }
+
+        result = postprocess_university_address_records([unverified, verified])
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0], verified)
 
 
 if __name__ == '__main__':

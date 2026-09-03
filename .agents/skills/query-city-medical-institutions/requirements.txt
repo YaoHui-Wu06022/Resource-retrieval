@@ -1,0 +1,2 @@
+# 锁定共享运行库；其余脚本依赖（openpyxl）按 SKILL.md「输入与运行条件」安装。
+query-city-core==0.1.0

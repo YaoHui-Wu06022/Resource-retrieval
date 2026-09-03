@@ -14,10 +14,183 @@ SCRIPT_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-import extract_school_records as EXTRACTOR  # noqa: E402
-import inspect_government_source as INSPECTOR  # noqa: E402
-import normalize_school_records as NORMALIZER  # noqa: E402
+import school_common as COMMON  # noqa: E402
+import school_common as NORMALIZER  # noqa: E402
+import school_government_flow as FLOW  # noqa: E402
+import school_government_flow as INSPECTOR  # noqa: E402
 from query_city_core.io_utils import write_json_payload  # noqa: E402
+
+
+class SchoolSourceAndTypeFillTests(unittest.TestCase):
+    """验证来源引用与跨校区类型补全规则。"""
+
+    def test_unit_name_header_is_recognized(self):
+        """官方“单位名称”表头应能被规则推断识别。"""
+        rule = FLOW.infer_table_rule(
+            [
+                ['序号', '单位名称', '办学类型', '办学性质', '地址'],
+                ['1', '示例学校', '小学', '公办', '示例路1号'],
+            ],
+            '名录.html',
+            'table',
+            {'table_index': 1},
+        )
+        self.assertIsNotNone(rule)
+        self.assertIn(2, rule['place_name_columns'])
+
+    def test_source_reference_is_not_wrapped_twice(self):
+        """记录来源引用应直接使用引擎定位文本。"""
+        record = COMMON.build_school_record(
+            '示例学校',
+            '示例路1号',
+            '小学',
+            '公办',
+            {
+                'content_url': 'https://example.gov/list',
+                'publication_date': '2026-01-01',
+            },
+            'https://example.gov/list | 名录.html | row 2',
+            '示例区',
+        )
+        self.assertEqual(
+            record['source_reference'],
+            'https://example.gov/list | 名录.html | row 2',
+        )
+        self.assertEqual(
+            record['source_reference'].count('https://example.gov/list'),
+            1,
+        )
+
+    def test_missing_campus_type_is_filled_from_unique_sibling(self):
+        """同一学校基础名下的唯一非空类型应回填空类型校区。"""
+        records = [
+            {
+                'place_name': '广州市海珠区华立学校（大沙校区）',
+                'original_address': '海珠区南洲路1002号',
+                'source_reference': 'https://example.gov/xls | row 1',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '九年一贯制',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '广州市海珠区华立学校（赤沙校区）',
+                'original_address': '海珠区新滘镇赤沙村茶岗（坊里巷）院内',
+                'source_reference': 'https://example.gov/xls | row 2',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '',
+                    'poi_name_aliases': [],
+                },
+            },
+        ]
+        filled = NORMALIZER.fill_missing_school_type_from_siblings(records)
+        self.assertEqual(
+            filled[1]['attributes']['school_type'],
+            '九年一贯制',
+        )
+
+    def test_cross_source_conflict_does_not_block_same_source_fill(self):
+        """其他来源的不同类型不应阻止同来源内的唯一类型回填。"""
+        records = [
+            {
+                'place_name': '华立学校（大沙校区）',
+                'original_address': '海珠区南洲路1002号',
+                'source_reference': 'https://example.gov/xls | row 1',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '九年一贯制',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '华立学校（赤沙校区）',
+                'original_address': '海珠区新滘镇赤沙村茶岗（坊里巷）院内',
+                'source_reference': 'https://example.gov/xls | row 2',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '华立学校（赤沙校区）',
+                'original_address': '海珠区新滘东路赤沙村茶园（坊望巷）院内',
+                'source_reference': 'https://example.gov/jpg | row 3',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '初中',
+                    'poi_name_aliases': [],
+                },
+            },
+        ]
+        filled = NORMALIZER.fill_missing_school_type_from_siblings(records)
+        self.assertEqual(filled[1]['attributes']['school_type'], '九年一贯制')
+        self.assertEqual(filled[2]['attributes']['school_type'], '初中')
+
+    def test_missing_address_is_filled_from_unique_sibling(self):
+        """同校区存在唯一官方地址时回填空地址记录。"""
+        records = [
+            {
+                'place_name': '示例中学（逸景校区）',
+                'original_address': '海珠区逸景路1号',
+                'source_reference': 'https://a | row 1',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '初中',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '示例中学（逸景校区）',
+                'original_address': '',
+                'source_reference': 'https://b | row 2',
+                'attributes': {
+                    'administrative_unit': '海珠区',
+                    'school_type': '初中',
+                    'poi_name_aliases': [],
+                },
+            },
+        ]
+        filled = NORMALIZER.fill_missing_original_address_from_siblings(
+            records
+        )
+        self.assertEqual(filled[1]['original_address'], '海珠区逸景路1号')
+
+    def test_conflicting_sibling_types_do_not_fill_blank(self):
+        """同一基础名下非空类型不唯一时不得推断。"""
+        records = [
+            {
+                'place_name': '示例学校（东校区）',
+                'original_address': '示例路1号',
+                'attributes': {
+                    'administrative_unit': '示例区',
+                    'school_type': '小学',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '示例学校（西校区）',
+                'original_address': '示例路2号',
+                'attributes': {
+                    'administrative_unit': '示例区',
+                    'school_type': '完全中学',
+                    'poi_name_aliases': [],
+                },
+            },
+            {
+                'place_name': '示例学校（南校区）',
+                'original_address': '示例路3号',
+                'attributes': {
+                    'administrative_unit': '示例区',
+                    'school_type': '',
+                    'poi_name_aliases': [],
+                },
+            },
+        ]
+        filled = NORMALIZER.fill_missing_school_type_from_siblings(records)
+        self.assertEqual(filled[2]['attributes']['school_type'], '')
 
 
 class CampusAddressTests(unittest.TestCase):
@@ -78,7 +251,7 @@ class CampusAddressTests(unittest.TestCase):
             ('示例学校高中部', '高中'),
         ):
             with self.subTest(campus_name=campus_name):
-                record = EXTRACTOR.build_school_record(
+                record = COMMON.build_school_record(
                     campus_name,
                     '南山区测试路1号',
                     '完全中学',
@@ -90,6 +263,45 @@ class CampusAddressTests(unittest.TestCase):
                 self.assertEqual(
                     record['attributes']['school_type'], expected_type
                 )
+
+    def test_name_marker_infers_year_consistent_school_type(self):
+        """校名中的官方一贯制标记应推断为对应学校类型。"""
+        cases = {
+            '广州市示例学校（九年一贯制）': '九年一贯制学校',
+            '广州市示例学校（十二年一贯制）': '十二年一贯制学校',
+            '广州市示例学校（十五年一贯制）': '十五年一贯制学校',
+        }
+        for place_name, expected_type in cases.items():
+            with self.subTest(place_name=place_name):
+                self.assertEqual(
+                    COMMON.infer_school_type_from_name_marker(place_name),
+                    expected_type,
+                )
+                record = COMMON.build_school_record(
+                    place_name,
+                    '越秀区甲路1号',
+                    '小学',
+                    '公办',
+                    {},
+                    '来源.html',
+                    '越秀区',
+                )
+                self.assertEqual(
+                    record['attributes']['school_type'], expected_type
+                )
+
+    def test_absent_marker_keeps_source_school_type(self):
+        """校名不含官方一贯制标记时保持来源提供的学校类型。"""
+        record = COMMON.build_school_record(
+            '广州市越秀区示例小学',
+            '越秀区甲路1号',
+            '小学',
+            '公办',
+            {},
+            '来源.html',
+            '越秀区',
+        )
+        self.assertEqual(record['attributes']['school_type'], '小学')
 
     def test_poi_name_aliases_are_generated_for_single_stage_records(self):
         """单学段记录生成同学段学部全名别名，多学段与校区名不生成。"""
@@ -244,6 +456,202 @@ class CampusAddressTests(unittest.TestCase):
             ],
         )
 
+    def test_nested_prefix_and_parenthesized_campuses_are_split(self):
+        """学部校区地址内仍含括号校区标签时应逐级拆分为独立记录。"""
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '广州市知用学校（九年一贯制）',
+                '中学部校区：广州市百灵路83号'
+                '小学部校区：（净慧校区）广州市越秀区净慧路39号'
+                '（光孝校区）广州市越秀区净慧路90号'
+                '（祝寿校区）广州市越秀区海珠北路祝寿巷11号',
+            ),
+            [
+                (
+                    '广州市知用学校（九年一贯制）中学部校区',
+                    '广州市百灵路83号',
+                ),
+                (
+                    '广州市知用学校（九年一贯制）小学部校区净慧校区',
+                    '广州市越秀区净慧路39号',
+                ),
+                (
+                    '广州市知用学校（九年一贯制）小学部校区光孝校区',
+                    '广州市越秀区净慧路90号',
+                ),
+                (
+                    '广州市知用学校（九年一贯制）小学部校区祝寿校区',
+                    '广州市越秀区海珠北路祝寿巷11号',
+                ),
+            ],
+        )
+
+    def test_prefix_campus_chain_without_separator_is_split(self):
+        """连续校区前缀标签应拆开且不被长标签吞并。"""
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '广州市八一实验学校（九年一贯制）',
+                '南校区：广州市越秀区达道路'
+                '北校区：广州市越秀区共和路8巷24号共和苑内',
+            ),
+            [
+                (
+                    '广州市八一实验学校（九年一贯制）南校区',
+                    '广州市越秀区达道路',
+                ),
+                (
+                    '广州市八一实验学校（九年一贯制）北校区',
+                    '广州市越秀区共和路8巷24号共和苑内',
+                ),
+            ],
+        )
+
+    def test_ben_jia_and_ben_xiao_campus_prefixes_are_split(self):
+        """本校/分校与南/北校区地址标签应正确拆开。"""
+        cases = [
+            (
+                '广州市越秀区朝天小学',
+                '本校：广州市越秀区朝天路81号 '
+                '分校：广州市越秀区光孝路陶家巷9-11号',
+                [
+                    ('广州市越秀区朝天小学本校', '广州市越秀区朝天路81号'),
+                    (
+                        '广州市越秀区朝天小学分校',
+                        '广州市越秀区光孝路陶家巷9-11号',
+                    ),
+                ],
+            ),
+            (
+                '广州市越秀区秉正小学',
+                '南校区地址：广州市越秀区德政中路担杆巷21号'
+                '北校区地址：广州市越秀区中山四路秉政街42号',
+                [
+                    (
+                        '广州市越秀区秉正小学南校区',
+                        '广州市越秀区德政中路担杆巷21号',
+                    ),
+                    (
+                        '广州市越秀区秉正小学北校区',
+                        '广州市越秀区中山四路秉政街42号',
+                    ),
+                ],
+            ),
+        ]
+        for place_name, original_address, expected in cases:
+            with self.subTest(place_name=place_name):
+                self.assertEqual(
+                    NORMALIZER.split_explicit_campus_addresses(
+                        place_name, original_address
+                    ),
+                    expected,
+                )
+
+    def test_dash_separated_directional_campuses_are_split(self):
+        """破折号分隔的东/西校区地址应拆为独立记录。"""
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '广州市越秀区红火炬小学',
+                '东校区—东华西路海月东街93号'
+                '西校区—东华西路永安横街24号',
+            ),
+            [
+                (
+                    '广州市越秀区红火炬小学东校区',
+                    '东华西路海月东街93号',
+                ),
+                (
+                    '广州市越秀区红火炬小学西校区',
+                    '东华西路永安横街24号',
+                ),
+            ],
+        )
+
+    def test_multi_branch_campus_chain_is_split(self):
+        """正校与多个分校连写时应逐段拆开。"""
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '广州市越秀区海珠中路小学',
+                '海珠中正校：广州市海珠中路15号'
+                '纸行分校：广州市纸行路34号'
+                '七株榕分校：广州市海珠中路七株榕街9号'
+                '天成分校：广州市天成路濠畔街370号',
+            ),
+            [
+                (
+                    '广州市越秀区海珠中路小学海珠中正校',
+                    '广州市海珠中路15号',
+                ),
+                (
+                    '广州市越秀区海珠中路小学纸行分校',
+                    '广州市纸行路34号',
+                ),
+                (
+                    '广州市越秀区海珠中路小学七株榕分校',
+                    '广州市海珠中路七株榕街9号',
+                ),
+                (
+                    '广州市越秀区海珠中路小学天成分校',
+                    '广州市天成路濠畔街370号',
+                ),
+            ],
+        )
+
+    def test_zheng_xiao_parenthesized_prefix_is_split(self):
+        """括号前缀中的正校标签应作为独立校区拆开。"""
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '广州市越秀区广中路小学',
+                '（广中校区）越秀区广中路22号'
+                '（广中正校）越秀区正南路锦荣街23号'
+                '（越华校区）越秀区越华路小东营3号之一',
+            ),
+            [
+                (
+                    '广州市越秀区广中路小学广中校区',
+                    '越秀区广中路22号',
+                ),
+                (
+                    '广州市越秀区广中路小学广中正校',
+                    '越秀区正南路锦荣街23号',
+                ),
+                (
+                    '广州市越秀区广中路小学越华校区',
+                    '越秀区越华路小东营3号之一',
+                ),
+            ],
+        )
+
+    def test_unresolved_campus_boundary_marks_ambiguity(self):
+        """校区边界无法唯一确定时应保留原文并标记待复核。"""
+        original_address = '广州市越秀区甲路1号（东校区）乙路2号'
+        records = COMMON.build_records_for_locations(
+            '示例学校',
+            original_address,
+            '小学',
+            '公办',
+            {},
+            '来源.html | row 2',
+            '越秀区',
+        )
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]['original_address'], original_address)
+        self.assertIn(
+            '校区边界无法确定', records[0]['attributes']['address_ambiguity']
+        )
+
+    def test_degenerate_nested_labels_do_not_split_or_loop(self):
+        """相邻嵌套标签无实际地址时不拆分且不得进入死循环。"""
+        original_address = (
+            '总校区：南校区：天河区甲路1号'
+        )
+        self.assertEqual(
+            NORMALIZER.split_explicit_campus_addresses(
+                '示例学校',
+                original_address,
+            ),
+            [('示例学校', original_address)],
+        )
+
     def test_parenthesized_suffix_stage_addresses_are_split(self):
         """地址末尾标注的中学部和小学部应拆为独立学段记录。"""
         self.assertEqual(
@@ -318,7 +726,7 @@ class CampusAddressTests(unittest.TestCase):
             {'column': 6, 'value': '初中'},
         ]
         self.assertEqual(
-            EXTRACTOR.classify_school_type_from_presence(
+            COMMON.classify_school_type_from_presence(
                 ['1', '示例学校', '5', '220', '6', '280'], column_mappings
             ),
             '小学、初中',
@@ -326,11 +734,11 @@ class CampusAddressTests(unittest.TestCase):
 
     def test_source_publication_date_is_preserved(self):
         """来源发布日期应保留，缺失时应使用当天日期。"""
-        dated_record = EXTRACTOR.build_school_record(
+        dated_record = COMMON.build_school_record(
             '示例小学', '荔湾区甲路1号', '小学', '公办',
             {'publication_date': '2026-08-01'}, '来源.html | row 1', '荔湾区'
         )
-        blank_record = EXTRACTOR.build_school_record(
+        blank_record = COMMON.build_school_record(
             '示例中学', '荔湾区乙路2号', '初中', '公办',
             {}, '来源.html | row 2', '荔湾区'
         )
@@ -409,7 +817,7 @@ class CampusAddressTests(unittest.TestCase):
             plan_path.write_text(
                 json.dumps(plan, ensure_ascii=False), encoding='utf-8'
             )
-            payload, exit_code = EXTRACTOR.extract_school_records(plan_path)
+            payload, exit_code = FLOW.extract_school_records(plan_path)
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload['metrics']['item_count'], 2)
         self.assertEqual(payload['metrics']['original_address_count'], 2)
@@ -552,6 +960,46 @@ class SourceManifestTests(unittest.TestCase):
             items[0]['local_file_urls']['幼儿园详情/详情1.html'],
             'https://www.example.gov.cn/detail/1',
         )
+
+    def test_source_item_accepts_no_text_alternative_reason(self):
+        """无文本替代的图片来源应能登记 source_form_reason。"""
+        source_manifest = self.build_source_manifest()
+        source_manifest['processing_status'] = 'partial'
+        source_manifest['school_type_coverage']['小学'] = 'covered'
+        source_manifest['items'] = [{
+            'source_title': '小学名录（扫描版）',
+            'publisher': '越秀区教育局',
+            'publication_date': '2026-08-01',
+            'landing_page_url': 'https://www.example.gov.cn/notice/1',
+            'content_url': 'https://www.example.gov.cn/files/list.png',
+            'covered_school_types': ['小学'],
+            'contains_address': True,
+            'local_files': ['小学名录.png'],
+            'source_form_reason': 'no_text_alternative',
+        }]
+        _, _, items = INSPECTOR.validate_source_manifest(source_manifest)
+        self.assertEqual(
+            items[0]['source_form_reason'], 'no_text_alternative'
+        )
+
+    def test_source_item_rejects_invalid_source_form_reason(self):
+        """source_form_reason 只接受 no_text_alternative。"""
+        source_manifest = self.build_source_manifest()
+        source_manifest['processing_status'] = 'partial'
+        source_manifest['school_type_coverage']['小学'] = 'covered'
+        source_manifest['items'] = [{
+            'source_title': '小学名录（扫描版）',
+            'publisher': '越秀区教育局',
+            'publication_date': '2026-08-01',
+            'landing_page_url': 'https://www.example.gov.cn/notice/1',
+            'content_url': 'https://www.example.gov.cn/files/list.png',
+            'covered_school_types': ['小学'],
+            'contains_address': True,
+            'local_files': ['小学名录.png'],
+            'source_form_reason': 'vision_ocr',
+        }]
+        with self.assertRaisesRegex(ValueError, 'source_form_reason'):
+            INSPECTOR.validate_source_manifest(source_manifest)
 
     def test_inspect_consolidates_identical_key_value_detail_pages(self):
         """inspect 应把同目录同结构详情页合并为一条文件模式规则。"""
@@ -754,6 +1202,122 @@ class InspectionRuleSuggestionTests(unittest.TestCase):
             if item['field'] == 'school_nature'
         )
         self.assertEqual(school_nature_entry['column'], 1)
+
+
+class PreviewExtractionPlanTests(unittest.TestCase):
+    """验证提取计划的行覆盖与重叠复核。"""
+
+    def build_table_rule(self, file_name, exclude_rows, school_type='小学'):
+        """构造已批准的表格提取规则。"""
+        return {
+            'file': file_name,
+            'kind': 'table',
+            'location': {'table_index': 1},
+            'header_row': 1,
+            'data_start_row': 2,
+            'data_end_row': None,
+            'place_name_columns': [1],
+            'place_name_separator': '',
+            'original_address_column': 2,
+            'attribute_fields': [
+                {
+                    'field': 'school_type',
+                    'column': None,
+                    'value': school_type,
+                    'selector': '',
+                    'labels': [],
+                },
+                {
+                    'field': 'school_nature',
+                    'column': None,
+                    'value': '公办',
+                    'selector': '',
+                    'labels': [],
+                },
+            ],
+            'fill_down_columns': [],
+            'required_cell_values': [],
+            'exclude_rows': exclude_rows,
+            'approved': True,
+        }
+
+    def write_preview_plan(self, source_dir, extraction_rules):
+        """写入供复核的最小提取计划与来源表格。"""
+        file_name = '名录.html'
+        (source_dir / file_name).write_text(
+            '<table><thead><tr><th>名称</th><th>地址</th></tr></thead>'
+            '<tbody><tr><td>示例小学一</td><td>甲路1号</td></tr>'
+            '<tr><td>示例小学二</td><td>乙路2号</td></tr>'
+            '<tr><td>示例小学三</td><td>丙路3号</td></tr></tbody></table>',
+            encoding='utf-8',
+        )
+        plan_path = source_dir / 'extraction_plan.json'
+        write_json_payload(plan_path, {
+            'stage': 'basic_education_extraction_plan',
+            'items': [{
+                'local_files': [file_name],
+                'derived_files': [],
+                'extraction_rules': extraction_rules,
+            }],
+        })
+        return plan_path
+
+    def test_preview_reports_complete_coverage(self):
+        """全部数据行都被规则覆盖时复核通过。"""
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source_dir = Path(temporary_dir)
+            plan_path = self.write_preview_plan(
+                source_dir,
+                [self.build_table_rule('名录.html', [])],
+            )
+            preview_payload, exit_code = FLOW.preview_extraction_plan(
+                plan_path
+            )
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(preview_payload['candidate_row_count'], 3)
+        self.assertEqual(preview_payload['covered_row_count'], 3)
+        self.assertEqual(preview_payload['uncovered_row_count'], 0)
+        self.assertEqual(preview_payload['overlap_row_count'], 0)
+        self.assertEqual(preview_payload['type_counts'], {'小学': 3})
+
+    def test_preview_reports_overlapping_rows(self):
+        """多条规则重复命中同一行时复核不通过。"""
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source_dir = Path(temporary_dir)
+            first_rule = self.build_table_rule(
+                '名录.html', [3, 4], school_type='小学'
+            )
+            second_rule = self.build_table_rule(
+                '名录.html', [], school_type='初中'
+            )
+            plan_path = self.write_preview_plan(
+                source_dir, [first_rule, second_rule]
+            )
+            preview_payload, exit_code = FLOW.preview_extraction_plan(
+                plan_path
+            )
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(preview_payload['uncovered_row_count'], 0)
+        self.assertEqual(
+            preview_payload['files'][0]['overlap_rows'], [2]
+        )
+
+    def test_preview_reports_uncovered_rows(self):
+        """存在未被任何规则覆盖的数据行时复核不通过。"""
+        with tempfile.TemporaryDirectory() as temporary_dir:
+            source_dir = Path(temporary_dir)
+            plan_path = self.write_preview_plan(
+                source_dir,
+                [self.build_table_rule('名录.html', [3, 4])],
+            )
+            preview_payload, exit_code = FLOW.preview_extraction_plan(
+                plan_path
+            )
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            preview_payload['files'][0]['uncovered_rows'], [3, 4]
+        )
+        self.assertEqual(preview_payload['covered_row_count'], 1)
 
 
 if __name__ == '__main__':

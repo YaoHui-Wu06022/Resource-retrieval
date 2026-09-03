@@ -485,6 +485,34 @@ class OfficialPageExtractorTests(unittest.TestCase):
         nodes = self.collect('<main><p>通讯地址：广州市海珠区宝岗光...</p></main>')
         self.assertEqual(nodes, [])
 
+    def test_inline_address_label_after_description_is_recognized(self):
+        """长句描述后的“通讯地址：”标签应被识别并提取地址。"""
+        nodes = self.collect(
+            '<main><p>广东药科大学广州校区宝岗校园位于广州市海珠区，'
+            '临床医学院设立在该校园并设有直属门诊部等。'
+            '通讯地址：广州市海珠区宝岗光汉直街40号</p></main>'
+        )
+        self.assertEqual(
+            [item['address_text'] for item in nodes],
+            ['广州市海珠区宝岗光汉直街40号'],
+        )
+        self.assertEqual(nodes[0]['label_text'], '通讯地址')
+
+    def test_campus_address_is_sentence_labels_are_recognized(self):
+        """“东校区地址是…”一类标签句应被识别并逐校区提取。"""
+        nodes = self.collect(
+            '<main><p>学校现有五个校区。'
+            '东校区地址是广州市天河区中山大道西293号。'
+            '白云校区地址是广州市白云区江高镇环镇西路155号。</p></main>'
+        )
+        self.assertEqual(
+            [(item['label_text'], item['address_text']) for item in nodes],
+            [
+                ('东校区地址', '广州市天河区中山大道西293号'),
+                ('白云校区地址', '广州市白云区江高镇环镇西路155号'),
+            ],
+        )
+
     def test_address_keeps_previous_sibling_as_context(self):
         nodes = self.collect(
             '<footer><div><h3>第一地点</h3><h4>北京市朝阳区平乐园100号</h4></div>'

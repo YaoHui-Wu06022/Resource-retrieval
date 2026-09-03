@@ -148,7 +148,9 @@ def collect_official_page_data(page, extra_address_labels=()):
       function isLabel(v) { const x=normLabel(v); return (x.length<=40&&[...extras].some(label=>x.endsWith(label)))||x==='地址'||(x.endsWith('地址')&&x.length<=14&&/^[\p{Script=Han}A-Za-z0-9（）()]+$/u.test(x)); }
       function gluedLabel(left) {
         const boundary=Math.max(
-          left.lastIndexOf('号'),left.lastIndexOf('）'),left.lastIndexOf(')')
+          left.lastIndexOf('号'),left.lastIndexOf('）'),left.lastIndexOf(')'),
+          left.lastIndexOf('。'),left.lastIndexOf('，'),left.lastIndexOf(','),
+          left.lastIndexOf('；'),left.lastIndexOf(';'),left.lastIndexOf('、')
         );
         if(boundary<0)return '';
         const candidate=left.slice(boundary+1).trim();
@@ -167,7 +169,7 @@ def collect_official_page_data(page, extra_address_labels=()):
               const glued=gluedLabel(left);
               label=(glued|| (isLabel(tail)?tail
                 :(spaced?spaced[0]:(isLabel(left)?left:''))));
-            }else if(line[i]==='为'){
+            }else if(line[i]==='为'||line[i]==='是'){
               const boundary=Math.max(
                 left.lastIndexOf('，'),left.lastIndexOf(','),
                 left.lastIndexOf('。'),left.lastIndexOf('；'),left.lastIndexOf(';')
@@ -317,7 +319,7 @@ def build_page_result(requested_url, domains, **values):
 
 
 class OfficialPageFetcher:
-    """复用 Chromium，并为每所学校建立隔离浏览器上下文。"""
+    """复用 Chromium，并为每个查询对象建立隔离浏览器上下文。"""
 
     def __init__(self):
         self.playwright = None
@@ -461,7 +463,7 @@ class OfficialPageFetcher:
                 context.close()
 
     def fetch_pages(self, page_requests, extra_address_labels=()):
-        """顺序抓取同一学校的多页，复用一个 context 和 page。"""
+        """顺序抓取同一查询对象的多页，复用一个 context 和 page。"""
         if self.browser is None:
             raise RuntimeError('OfficialPageFetcher 必须在 with 语句中使用')
         context = self.new_context()

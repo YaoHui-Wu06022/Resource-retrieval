@@ -74,6 +74,22 @@ class SourceReaderTests(unittest.TestCase):
             tables, _ = load_source_tables(csv_path)
         self.assertEqual(tables[0]['rows'][1][0], '示例幼儿园')
 
+    def test_html_thead_header_row_is_restored_as_data(self):
+        """HTML thead 表头被 pandas 当列名时应回插为首行数据。"""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            html_path = Path(temp_dir) / '名录.html'
+            html_path.write_text(
+                '<html><body><table><thead><tr>'
+                '<th>学校名称</th><th>学校地址</th></tr></thead>'
+                '<tbody><tr><td>示例小学</td><td>广州市越秀区甲路1号</td>'
+                '</tr></tbody></table></body></html>',
+                encoding='utf-8',
+            )
+            tables, _metadata = load_source_tables(html_path)
+        self.assertEqual(len(tables), 1)
+        self.assertEqual(tables[0]['rows'][0], ['学校名称', '学校地址'])
+        self.assertEqual(tables[0]['rows'][1][0], '示例小学')
+
 
 if __name__ == '__main__':
     unittest.main()

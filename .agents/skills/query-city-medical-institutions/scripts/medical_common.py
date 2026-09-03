@@ -2,8 +2,11 @@
 
 import re
 
-from query_city_core.address.common import address_detail_key
-from query_city_core.address.city import read_city_catalog, validate_city_context
+from query_city_core.address.common import (
+    SUBDIVISION_SCOPE_SUBDIVISION,
+    address_equivalence_key,
+)
+from query_city_core.address.city import read_city_catalog
 
 
 ADDRESS_SPLIT_PATTERN = re.compile(r'[、，,；;\r\n]+')
@@ -11,21 +14,12 @@ ADDRESS_MARKER_PATTERN = re.compile(
     r'大道|大路|公路|路|街|巷|道|号|村|城|大厦|花园|花苑|苑|'
     r'广场|中心|工业区|产业园|社区|小区|院|大楼'
 )
-PROVINCE_PREFIX_PATTERN = re.compile(r'^[^省]{1,12}省')
 _CITY_CATALOG = None
 
 
 def normalize_compact_text(value):
     """删除文本中的全部空白。"""
     return re.sub(r'\s+', '', str(value or ''))
-
-
-def address_equivalence_key(address):
-    """取得用于同址比较的道路门牌键。"""
-    value = normalize_compact_text(address)
-    value = re.sub(r'^中国', '', value)
-    value = PROVINCE_PREFIX_PATTERN.sub('', value)
-    return address_detail_key(value)
 
 
 def split_address_segments(value):
@@ -101,8 +95,11 @@ def build_medical_record(
     source_authority='',
     snapshot_date='',
     merge_priority=10,
+    license_administrative_unit=None,
 ):
     """构造单条公共地址记录。"""
+    if license_administrative_unit is None:
+        license_administrative_unit = administrative_unit
     return {
         'place_name': normalize_compact_text(place_name),
         'original_address': address_segment.strip(),
@@ -115,6 +112,10 @@ def build_medical_record(
                 administrative_unit,
                 city_context,
             ),
+            'subdivision_scope': SUBDIVISION_SCOPE_SUBDIVISION,
+            'license_administrative_unit': str(
+                license_administrative_unit or ''
+            ).strip(),
             'institution_type': str(institution_type or '').strip(),
             'institution_level': str(institution_level or '').strip(),
             'license_no': str(license_no or '').strip(),
@@ -175,31 +176,3 @@ def deduplicate_records(records):
         ) > record_quality_score(existing, existing_priority):
             retained[existing_index] = record
     return retained
-
-
-def build_medical_address_payload(
-    city_context,
-    records,
-    removed_foreign_count=0,
-    empty_record_count=0,
-):
-    """把已去重记录构造为公共 address_records 输入。"""
-    city_context = validate_city_context(city_context)
-    items = []
-    for record in records:
-        clean_record = {
-            key: value
-            for key, value in record.items()
-            if key != '_merge_priority'
-        }
-        items.append(clean_record)
-    return {
-        'stage': 'address_records',
-        'city_context': city_context,
-        'items': items,
-        'metrics': {
-            'split_record_count': len(items),
-            'removed_foreign_segment_count': removed_foreign_count,
-            'empty_address_record_count': empty_record_count,
-        },
-    }

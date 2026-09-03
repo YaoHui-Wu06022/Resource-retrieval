@@ -88,9 +88,15 @@
 
 `allowed_domain` 可选：给出时只接受最终地址在该域名（含子域）下的文件，跳转出域按失败记录。
 
-命令：`scripts/build_school_address.py download --manifest <清单路径> --output-dir <行政单位目录>`
+命令：`scripts/school_government_flow.py download --manifest <清单路径> --output-dir <行政单位目录>`
 
 结果写回同一清单：每项增加 `final_url`、`http_status`、`size_bytes`、`access_attempts`，失败项增加 `error`；顶层 `errors` 与 `metrics` 汇总。Agent 再把文件名、最终网址与访问审计写入 `government_source.json` 对应来源项的 `local_files`、`local_file_urls`、`access_attempts`。
+
+`.zip` 附件：下载落盘后自动安全解压一层，仅提取 HTML/Word/Excel/CSV/PDF/图片等可读来源，按 zip 内相对路径保存（登记名用 `/` 分隔），zip 原件保留。成功项增加 `extracted_files`（每项含 `file`、`size_bytes`）与可选 `skipped_entries`；顶层 `metrics` 增加 `archive_count`、`extracted_file_count`。
+
+解压失败（非法/损坏包、加密、路径越界、目标重名、超量/超限、无可读文件）时该 zip 项进入顶层 `errors` 且命令返回非零；zip 原文件保留，由 Agent 复核后人工处理。
+
+登记规则：把 `extracted_files` 中每个 `file` 写入对应来源的 `local_files`，并在 `local_file_urls` 中将其映射为来源 zip 的 `final_url`；zip 本身不登记进 `local_files`。
 
 ## 目录页链接清单
 
@@ -112,7 +118,7 @@
 
 `link_pattern`、`allowed_domain` 均可选：前者按正则过滤链接，后者限定允许域名。
 
-命令：`scripts/build_school_address.py list-links --input <清单路径> --output <链接清单路径>`
+命令：`scripts/school_government_flow.py list-links --input <清单路径> --output <链接清单路径>`
 
 输出：`stage = directory_links`，每个输入 URL 对应一个 `items[]`，`links[]` 为按页面顺序去重后的绝对地址候选。
 
@@ -161,13 +167,17 @@ Agent 复核 `links[]` 与 `errors` 后决定把哪些页面写入下载清单�
 | `local_files` | array | 相对行政单位目录的原始文件名，至少一项。 |
 | `local_file_urls` | object | 可选；按 `local_files` 文件名记录每个文件的实际政府网址。 |
 | `derived_files` | array | 可选；视觉处理等步骤生成的派生文件名。 |
+| `source_form_reason` | string | 可选；仅当来源确无文本替代、只能采用扫描图片/PDF 时填 `no_text_alternative`。文本形态来源不填。 |
 | `access_attempts` | array | 可选；来源或详情页访问审计。 |
 
 文件格式由读取脚本按 `local_files` / `derived_files` 后缀识别，Agent 不重复填写。分页 HTML 或同构详情页的全部本地页面写入同一来源的 `local_files`；详情页用 `local_file_urls` 保留逐页证据网址。候选页面、无名录通知和未采用来源不得写入 `items`。
 
 ## 视觉来源
 
-有视觉能力时，对 `needs_vision` 文件生成 `<原文件名>.vision.json`：
+只有确认同一名录无网页表格、Excel、CSV、Word 或可直接提取文本的 PDF
+替代，并在来源项登记 `source_form_reason = "no_text_alternative"` 后，
+才允许把扫描图片/PDF 作为来源进入视觉分支。有视觉能力时，对
+`needs_vision` 文件生成 `<原文件名>.vision.json`：
 
 ```json
 {

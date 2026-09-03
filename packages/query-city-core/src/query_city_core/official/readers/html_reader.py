@@ -86,11 +86,31 @@ def extract_html_tables(
         )
     except ValueError:
         frames = []
+    restored_frames = []
+    for dataframe in frames:
+        if not isinstance(dataframe.columns, pd.RangeIndex):
+            column_labels = [
+                (
+                    ' '.join(str(part) for part in label)
+                    if isinstance(label, tuple)
+                    else str(label)
+                )
+                for label in dataframe.columns
+            ]
+            dataframe.columns = range(len(column_labels))
+            dataframe = pd.concat(
+                [
+                    pd.DataFrame([column_labels]),
+                    dataframe,
+                ],
+                ignore_index=True,
+            )
+        restored_frames.append(dataframe)
     return [
         {
             'kind': 'table',
             'location': {'table_index': index},
             'rows': extract_dataframe_rows(dataframe),
         }
-        for index, dataframe in enumerate(frames, start=1)
+        for index, dataframe in enumerate(restored_frames, start=1)
     ]

@@ -33,7 +33,15 @@ Skill references 自行登记，公共层不解释、不校验其 key。
 | `source_nature` | string | `government_information`、`web_search` 或 `map_search`，只作来源证据。 |
 | `source_reference` | string | 取得该地址/地点线索的来源定位。 |
 | `source_date` | string | 可选；来源发布日期或数据截止日期，格式 `YYYY-MM-DD`。 |
-| `attributes` | object | 不透明业务对象。核心只读取 `administrative_unit` 作为通用地理约束。 |
+| `attributes` | object | 不透明业务对象。核心读取其中通用地理字段（见下）。 |
+
+`attributes` 内通用地理字段：
+
+| 字段名 | 类型 | 说明 |
+| --- | --- | --- |
+| `administrative_unit` | string | 行政区名称；含义由 `subdivision_scope` 决定。 |
+| `subdivision_scope` | string | `subdivision`=按下级行政区检索，`administrative_unit` 是 norm 目标区；`city`=全市检索，`administrative_unit` 仅作展示/兜底，不参与 norm 补区。缺省时兼容旧记录，视为 `subdivision`。 |
+| `license_administrative_unit` | string | 可选；医疗等来源的执照登记区，仅供 Excel 无法从最终地址取区时兜底。 |
 
 地址处理输出在保留输入字段基础上固定增加：
 
@@ -81,3 +89,9 @@ Skill references 自行登记，公共层不解释、不校验其 key。
 | `attribute_fields` | 场景属性定位数组；每项含 `field`、`column/value/selector/labels`。 |
 
 `field` 名称由场景层提供，公共层不登记具体业务字段。
+
+## 地址比较辅助
+
+`query_city_core.address.common.address_equivalence_key` 为公共同址比较
+键函数：去除空白与 `中国`/省份前缀、冗余城市/园区前缀后，提取最后
+道路与门牌作为比较键；各 Skill 不再保留本地重复实现。

@@ -13,6 +13,11 @@ from pathlib import Path
 import openpyxl
 
 
+SCRIPTS_DIR = Path(__file__).resolve().parents[1]
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+
 SCRIPT_PATH = Path(__file__).resolve().parents[1] / 'build_excel.py'
 SPEC = importlib.util.spec_from_file_location('basic_education_build_excel', SCRIPT_PATH)
 BUILD_EXCEL = importlib.util.module_from_spec(SPEC)
@@ -305,6 +310,52 @@ class BuildExcelTests(unittest.TestCase):
         self.assertEqual(rows[0][2], '高德服务正常但未找到结果')
         self.assertEqual(rows[1][0][1], '异地幼儿园')
         self.assertIn('不属于目标城市', rows[1][2])
+
+    def test_build_abnormal_rows_prefers_readable_conflict_reason(self):
+        """跨区冲突异常应展示原始地址与冲突说明而非地图兜底文案。"""
+        address_record = build_address_record(
+            '越秀区',
+            place_name='广州市第十六中学水荫校区',
+            final_address='',
+            map_match_status='not_found',
+            map_reason='未找到名称、城市和地址均匹配的 POI',
+            normalization_reason=(
+                '原始地址中的下级行政区与检索单元不一致：天河区 != 越秀区'
+            ),
+        )
+        address_record['original_address'] = (
+            '广州市天河区水荫一横路38号'
+        )
+        address_record['normalization_status'] = 'conflict'
+        rows = BUILD_EXCEL.build_abnormal_rows(
+            '越秀区', [address_record]
+        )
+        self.assertEqual(len(rows), 1)
+        self.assertIn('行政区冲突', rows[0][2])
+        self.assertIn('广州市天河区水荫一横路38号', rows[0][2])
+        self.assertIn('不一致', rows[0][2])
+
+    def test_ambiguous_campus_record_goes_to_abnormal_sheet(self):
+        """校区边界无法确定的记录不进学校信息且异常原因保留原文。"""
+        address_record = build_address_record(
+            '越秀区',
+            place_name='示例学校',
+            final_address='广州市越秀区甲路1号（东校区）乙路2号',
+        )
+        address_record['attributes']['address_ambiguity'] = (
+            '校区边界无法确定：广州市越秀区甲路1号（东校区）乙路2号'
+        )
+        output_records = BUILD_EXCEL.build_school_output_records(
+            '越秀区', [address_record]
+        )
+        self.assertEqual(output_records, [])
+        abnormal_rows = BUILD_EXCEL.build_abnormal_rows(
+            '越秀区', [address_record]
+        )
+        self.assertEqual(len(abnormal_rows), 1)
+        self.assertIn(
+            '校区边界无法确定', abnormal_rows[0][2]
+        )
 
     def test_unit_workbook_contains_abnormal_sheet(self):
         """行政单位工作簿应包含学校信息和异常校两个工作表。"""

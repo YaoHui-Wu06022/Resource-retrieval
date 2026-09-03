@@ -14,10 +14,9 @@ def normalize_text(raw_text: Any) -> str:
 
 # normalize_text 必须先于读取器导入定义，供读取器相对导入，避免包级循环导入。
 from .html_reader import extract_html_tables, load_source_html as load_html_document
-from .image_reader import inspect_image_source
 from .pdf_reader import extract_pdf_tables
 from .spreadsheet_reader import extract_spreadsheet_tables
-from .vision_reader import extract_vision_tables
+from .vision_reader import extract_vision_tables, inspect_image_source
 
 
 FORMAT_BY_SUFFIX = {
