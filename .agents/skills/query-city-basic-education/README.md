@@ -26,8 +26,29 @@ Skill 模板（`doc/government-source-skill-template.md`）。
 
 ## 修改记录
 
+### 2026-09-04（文档去重）
+
+- SKILL.md 与 `references/government-source-format.md` 去重：状态语义与
+  `coverage_notes` 填写内容要求只保留在执行规范；参考文档只保留字段与
+  文件格式约束。
+- SKILL.md `download` 小节不再重复 zip 解压规则（见参考文档下载清单）；
+  视觉来源小节改为指向参考文档视觉一节，无视觉配置的兜底（不创建
+  `<原文件名>.vision.json`、不运行本地 OCR、显式 `no_vision_capability`
+  跳过）保留在 SKILL.md。
+
 ### 2026-09-04
 
+- 扫描图片/PDF 转录改由 MinerU v4 API 完成：新增
+  `school_government_flow.py mineru-parse`（逐页 URL/上传任务 →
+  `<原名>.pdf.vision.json`，自动写回 `derived_files`）与可选
+  `mineru-inspect`（整档逐页表格摘要）；凭据为 `.env` 的
+  `MINERU_ACCESS_KEY/MINERU_SECRET_KEY`（OpenXLab AK/SK → JWT），
+  原 `VISION_*` 配置与 DashScope 兼容 VLM 代码路径移除。
+- 新增 `scripts/review.py` 收编复核辅助：支持页/表定位、校名与地址列、
+  固定类型/性质、类型列、排除行、向下填充与“区单元格缺失即剔除规则”，
+  取代运行目录内的 `approve_plan2.py` 临时脚本。
+- `school_common.py` 非校名识别补纯数字行与“招生计划/计划招生”前缀，
+  避免 MinerU 对合计/续表行的列合并产生伪记录。
 - SKILL.md 检索起点按学段分层：高中以市级（上级教育部门 / 市招生考试机构 /
   市政府数据平台）为首要层级，区级只作补充核验；幼儿园/小学/初中以区级为
   首要层级，缺失时回退市级。市级名录无“校址所在区”等可拆分字段时不得

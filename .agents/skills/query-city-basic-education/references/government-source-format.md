@@ -32,10 +32,8 @@
 | `administrative_unit` | 必须原样取自 `city_context.subdivisions` 的一项。 |
 | `processing_status` | 本行政单位整体检索结果，取值见下。 |
 | `school_type_coverage` | 至少含幼儿园、小学、初中、高中；状态限 `covered`/`partial`/`no_official_source`/`source_unusable`。 |
-| `coverage_notes` | 可选对象；键为学段，值为非空说明。某学段状态不是 `covered` 时必填该学段说明，写清已完成检索层级与结论。 |
+| `coverage_notes` | 可选对象；键为学段，值为非空说明。某学段状态不是 `covered` 时必填该学段说明。 |
 | `items` | 已确认采用并保存到本地的来源。 |
-
-`no_official_source`/`source_unusable` 只表示按该学段首选与回退层级完成核验后仍无可用政府名录，不等于该行政单位没有该学段学校。学段检索起点：高中以市级（上级教育部门 / 市招生考试机构 / 市政府数据平台）为首要层级；幼儿园/小学/初中以区级为首要层级，缺失时再回退市级。市级名录若带“校址所在区 / 行政区”等字段，应按行政单位过滤后作为该单位来源采用，不能因名录覆盖全市而跳过；市级名录若无可拆分行政单位字段，不得整表归入任一行政单位，须在 `coverage_notes` 说明并继续找区级或可拆分来源。
 
 `processing_status` 与 `items`/覆盖的组合：
 
@@ -106,11 +104,17 @@
 ```json
 {
   "stage": "vision_source_result",
-  "source_file": "原文件名",
+  "source_file": "名录.pdf.vision",
   "pages": [{"page": 1, "rows": [["学校", "地址"], ["学校名称", "地址文字"]]}]
 }
 ```
 
-`rows` 保留原始行列，不添加来源不存在的地址。生成后把文件加入对应来源的 `derived_files` 并重跑检查；没有视觉能力时不创建该文件、不运行本地 OCR。
+`rows` 保留原始行列，不添加来源不存在的地址。生成后把文件加入对应来源的 `derived_files` 并重跑检查。
 
-已配置视觉模型（`VISION_API_KEY`/`VISION_API_BASE_URL`/`VISION_MODEL`）时，可用核心库函数 `query_city_core.official.readers.vision_reader.transcribe_image_to_vision_result(图片路径, 输出路径)` 自动转录，输出路径写 `<原文件名>.vision.json`。
+扫描图片/PDF 的解析统一由 MinerU v4 API 完成（不再调用 OpenAI 兼容视觉模型）：
+
+- 运行 `scripts/school_government_flow.py mineru-parse --source <government_source.json> --local-file <PDF文件名> --pages 15-33 [--output-dir <行政单位目录>]`。
+- 命令对每个目标页提交 MinerU URL 任务（`model_version=vlm`、`is_ocr=true`、`enable_table=true`），把返回的 `table_body` HTML 还原为二维 `rows`；政府 URL 不可达时回退本地上传。
+- 派生文件名规则：PDF 文件名为 `<原名>.pdf` 时输出 `<原名>.pdf.vision.json`，JSON 内 `source_file` 为 `<原名>.pdf.vision`；命令自动把输出文件名加入该来源项 `derived_files`。
+- 凭据从 `.env` 读取 `MINERU_ACCESS_KEY`/`MINERU_SECRET_KEY`（OpenXLab AK/SK，运行时换取并缓存 JWT），不写入输出与日志。
+- 需要先确定整档 PDF 中哪些页含名录表时，可运行 `scripts/school_government_flow.py mineru-inspect --source <government_source.json> --local-file <PDF文件名> [--pages <可选范围>]` 查看逐页“是否有表/表题”摘要。

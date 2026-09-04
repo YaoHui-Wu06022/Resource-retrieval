@@ -9,7 +9,7 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 
 - 环境未确认先询问；确认后全程使用同一环境。依赖：`beautifulsoup4`、`lxml`、`pandas`、`openpyxl`、`xlrd`、`PyMuPDF`；Word 还需 LibreOffice。
 - `requirements.txt` 只锁定 `query-city-core` 版本；其余依赖按上条安装，版本由运行环境管理。
-- 城市查询与地址处理从环境变量或 `.env` 读取 `AMAP_KEY`。
+- 城市查询与地址处理从环境变量或 `.env` 读取 `AMAP_KEY`；扫描图片/PDF 的表格解析使用 MinerU API，凭据为 `.env` 中的 `MINERU_ACCESS_KEY`/`MINERU_SECRET_KEY`（OpenXLab AK/SK，运行时换取 JWT，不写入输出）。
 - 缺依赖、密钥或公共组件时停下说明缺项；不自装、不写临时脚本复制固定逻辑。
 - 执行约定：命令示例的相对路径相对 skill 根目录；文中脚本命令为简写，实际执行按仓库 AGENTS.md 约定加解释器（`conda run --no-capture-output -n py3.10 python -X utf8 ...`）。
 
@@ -26,7 +26,10 @@ description: "按中国城市的直接下级行政单位检索政府公开的非
 | 保存入选来源文件 | `scripts/school_government_flow.py download` |
 | 保存名录链接的同构详情页 | `scripts/school_government_flow.py collect-details` |
 | 检查来源、生成提取计划 | `scripts/school_government_flow.py inspect` |
+| 扫描 PDF 逐页解析为视觉结果 | `scripts/school_government_flow.py mineru-parse` |
+| 整档扫描 PDF 页表摘要（可选） | `scripts/school_government_flow.py mineru-inspect` |
 | 复核提取计划行覆盖 | `scripts/school_government_flow.py preview` |
+| 按配置批准提取规则 | `scripts/review.py <提取计划> <复核配置>` |
 | 按已复核计划提取学校 | `scripts/school_government_flow.py extract` |
 | 规范化地址与地图兜底 | `python -m query_city_core.address.process` |
 | 生成区级与城市工作簿 | `scripts/build_excel.py` |
@@ -53,24 +56,24 @@ python -m query_city_core.address.city --city <用户城市>
 **检索规则**
 
 - 检索来源：采用政府或教育部门发布、且正文/附件/分页实际含学校名录的来源；通知仅在含名录时采用。禁用地图、百科、择校网站等第三方学校信息。
-- 来源形态优先文本：优先使用（网页表格/Excel/CSV/Word/可提取文本 PDF），确无文本替代再使用扫描图片/PDF，并登记 `source_form_reason = no_text_alternative`。
+- 来源形态优先文本：优先使用（网页表格/Excel/CSV/Word/可提取文本 PDF），没有信息的情况下兜底使用扫描图片/PDF，并登记 `source_form_reason = no_text_alternative`。
 - 检索起点按学段发布层级分两类，均优先当年/去年：
-  - 高中：市级优先——上级教育部门 → 市招生考试机构/中考服务平台 → 市政府数据平台；区教育部门、区政府门户只作补充核验，区级没有独立高中名录不能当作检索终点。
+  - 高中：市级优先——市级教育部门 → 市招生考试机构/中考服务平台 → 市政府数据平台；
   - 幼儿园/小学/初中：区级优先——本区教育部门 → 区政府门户；缺失时继续回退到上级教育部门 → 市招生考试机构/中考服务平台 → 市政府数据平台。
-- 只有超两年旧名录时，须再核对当年/去年招生或办学名单，确实没有则标 `partial` 并保留旧名录。
-- 层级回退不可省略：某一学段在首选层级找不到可用名录时，必须沿该学段路径继续核验（高中典型是市级名录；幼儿园/小学/初中典型是区级名录）。市级名录若带“校址所在区 / 行政区”等可区分字段，应按行政单位过滤后作为该单位来源采用，不能因名录覆盖全市而放弃采用；市级名录若没有可区分行政单位的字段，不能整表归入任一行政单位，须在 `coverage_notes` 说明并继续找区级或可拆分来源。
-- `no_official_source` 只表示“按该学段首选层级与回退层级完成核验后仍无政府名录”，不等于该行政单位没有该学段学校；不得把“某层级没有发布名录”写成“该区没有该类学校”。
+- 只有超两年旧名录时，须再核对当年/去年的资源，确实没有则标 `partial` 并保留旧名录。
+- 层级回退不可省略：某一学段在首选层级找不到可用名录时，必须沿该学段路径继续核验。市级名录若带“校址所在区 / 行政区”等可区分字段，应按行政单位过滤后作为该单位来源采用，不能因名录覆盖全市而放弃采用；市级名录若没有可区分行政单位的字段，不能整表归入任一行政单位，须在 `coverage_notes` 说明并继续找区级或可拆分来源。
+- `no_official_source`/`source_unusable` 只表示按该学段首选层级与回退层级完成核验后仍无可用政府名录，不等于该行政单位没有该学段学校；不得把“某层级没有发布名录”写成“该区没有该类学校”。
 - 四类必查：幼儿园、小学、初中、高中。来源列出的其他非高校类型（一贯制、完全中学、特殊教育、中等职业、技工、专门学校等）一并纳入。
 - 一贯制/完中按覆盖学段计入四类覆盖：完全中学 = 初中 + 高中；九年一贯制 = 小学 + 初中；十二年一贯制 = 小学 + 初中 + 高中；十五年一贯制 = 幼儿园 + 小学 + 初中 + 高中。`school_type_coverage`、`covered_school_types` 据此填写，不按名称字面推断。
 
-凡 `school_type_coverage` 存在非 `covered` 状态（`partial`、`no_official_source`、`source_unusable`），必须在 `government_source.json` 顶层 `coverage_notes` 中按学段写明已核验层级与结论（例如“高中已核验市级普通高中招生名单（含校址所在区）并按区采用 / 幼儿园已完成区级与市级核验仍未找到名录”），供复核判断缺口是否合理。
+凡 `school_type_coverage` 存在非 `covered` 状态（`partial`、`no_official_source`、`source_unusable`），必须在 `government_source.json` 顶层 `coverage_notes` 中按学段写明已核验层级与结论，供复核判断缺口是否合理。
 
 访问兜底：`download`、`collect-details`、`list-links` 内置 urllib → curl 直连并记录尝试；需执行脚本或登录的内容才用浏览器并同样记录。访问失败 ≠ 没有官方来源。
 
 **保存来源文件（按需）**
 
 - `list-links`：栏目页筛候选。输入 `directory_link_manifest.json` （items 给 `url`，可选 `link_pattern`、`allowed_domain`）→ `directory_links.json`，复核后收录。
-- `download`：保存入选来源。输入 `source_download_manifest.json` （items 给 `file`、`url`，可选 `allowed_domain`）→ 本地文件 + 写回清单； zip 自动安全解压并把 `extracted_files` 写回清单，入选来源用解压结果， 不登记 zip 本身。
+- `download`：保存入选来源。输入 `source_download_manifest.json` （items 给 `file`、`url`，可选 `allowed_domain`）→ 本地文件 + 写回清单。
 - `collect-details`：名录页链接到同构详情页时使用
 
   `collect-details --input <名录页.html> --link-selector <选择器> --output-dir <详情页目录> --manifest <清单.json> --allowed-domain <域名>`
@@ -93,7 +96,8 @@ python -m query_city_core.address.city --city <用户城市>
 - 单一覆盖类型且无类型列时自动预填固定类型；多学段来源不预填。
 - 批准前运行 `preview --plan <extraction_plan.json>`；缺行、重叠或待批准时非零 = 复核未通过。
 - 正确规则设 `approved = true`，来源设 `review_status = ready`； 不手工抄写最终记录。
-- 图片/PDF 先登记 `source_form_reason = no_text_alternative`，再按[政府来源结果格式](references/government-source-format.md)的视觉一节生成 `<原文件名>.vision.json` 并加入 `derived_files` 重跑；无视觉配置时按 `no_vision_capability` 跳过。
+- 图片/扫描 PDF（`source_form_reason = no_text_alternative`）按[政府来源结果格式](references/government-source-format.md)的视觉一节执行：用 `mineru-parse` 生成 `<原文件名>.vision.json` 并写回该来源 `derived_files`；缺 MinerU 凭据时不创建该文件、不运行本地 OCR，显式按 `no_vision_capability` 跳过。
+- 规则批准使用 `scripts/review.py <extraction_plan.json> <plan_config_<区>.json>`；复核配置固定 `district`、`approved_pdf_pages`（高中可选）与 `files[].rules[]`（页/表定位、校名列、地址列、固定类型与性质、排除行、向下填充）。
 
 ## 4. 提取学校记录
 

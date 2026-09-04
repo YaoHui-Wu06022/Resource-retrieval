@@ -800,6 +800,118 @@ def preview_extraction_plan(plan_path: Path) -> tuple[dict[str, Any], int]:
     return preview_payload, 1 if has_issues else 0
 
 
+def parse_pages_argument(raw_pages: str) -> list[int]:
+    """解析 15-33 / 15,17,20 / 15 形式的页参数。"""
+    pages: set[int] = set()
+    for token in str(raw_pages).replace('，', ',').split(','):
+        token = token.strip()
+        if not token:
+            continue
+        if '-' in token:
+            start_text, _, end_text = token.partition('-')
+            start = int(start_text.strip())
+            end = int(end_text.strip())
+            if start <= 0 or end < start:
+                raise ValueError(f'无效页范围：{token}')
+            pages.update(range(start, end + 1))
+        else:
+            page = int(token)
+            if page <= 0:
+                raise ValueError(f'无效页码：{token}')
+            pages.add(page)
+    if not pages:
+        raise ValueError('--pages 必须至少指定一页')
+    return sorted(pages)
+
+
+def _find_source_item(
+    source_payload: dict[str, Any], local_file: str
+) -> dict[str, Any]:
+    for item in source_payload.get('items') or []:
+        local_files = item.get('local_files') or []
+        if any(
+            normalize_text(name) == normalize_text(local_file)
+            for name in local_files
+        ):
+            return item
+    raise ValueError(
+        f'government_source 中找不到 local_files 含 {local_file} 的来源'
+    )
+
+
+def run_mineru_parse(arguments: argparse.Namespace) -> int:
+    """用 MinerU 逐页解析扫描 PDF 并生成 vision_source_result。"""
+    from query_city_core.official.readers.mineru_reader import (
+        MineruClient,
+        build_vision_payload,
+    )
+
+    source_path = Path(arguments.source).resolve()
+    source_payload = read_json_payload(source_path)
+    item = _find_source_item(source_payload, arguments.local_file)
+    content_url = normalize_text(item.get('content_url'))
+    if not content_url:
+        raise ValueError(f'来源 {arguments.local_file} 缺少 content_url')
+    output_dir = (
+        Path(arguments.output_dir).resolve()
+        if arguments.output_dir
+        else source_path.parent
+    )
+    local_pdf = output_dir / arguments.local_file
+    if not local_pdf.is_file():
+        local_pdf = source_path.parent / arguments.local_file
+    pages = parse_pages_argument(arguments.pages)
+    client = MineruClient.from_env()
+    rows_by_page = client.parse_pdf_pages(
+        pages,
+        url=content_url,
+        pdf_path=local_pdf if local_pdf.is_file() else None,
+    )
+    vision_stem = f'{arguments.local_file}.vision'
+    payload = build_vision_payload(vision_stem, rows_by_page)
+    output_name = f'{vision_stem}.json'
+    write_json_payload(output_dir / output_name, payload)
+    derived_files = item.get('derived_files')
+    if not isinstance(derived_files, list):
+        derived_files = []
+        item['derived_files'] = derived_files
+    if output_name not in derived_files:
+        derived_files.append(output_name)
+    write_json_payload(source_path, source_payload)
+    row_counts = {
+        str(page): len(rows)
+        for page, rows in sorted(rows_by_page.items())
+    }
+    metrics = {
+        'output_file': output_name,
+        'page_count': len(payload['pages']),
+        'row_count': sum(len(rows) for rows in rows_by_page.values()),
+        'rows_by_page': row_counts,
+    }
+    print(json.dumps(metrics, ensure_ascii=False))
+    return 0
+
+
+def run_mineru_inspect(arguments: argparse.Namespace) -> int:
+    """整档 MinerU 解析并输出逐页表格摘要。"""
+    from query_city_core.official.readers.mineru_reader import inspect_pdf_pages
+
+    source_path = Path(arguments.source).resolve()
+    source_payload = read_json_payload(source_path)
+    item = _find_source_item(source_payload, arguments.local_file)
+    content_url = normalize_text(item.get('content_url'))
+    if not content_url:
+        raise ValueError(f'来源 {arguments.local_file} 缺少 content_url')
+    pages = (
+        parse_pages_argument(arguments.pages)
+        if arguments.pages
+        else None
+    )
+    summary = inspect_pdf_pages(content_url, pages=pages)
+    print(json.dumps(summary, ensure_ascii=False))
+    return 0
+
+
 def build_argument_parser() -> argparse.ArgumentParser:
     """创建命令行参数解析器。"""
     parser = argparse.ArgumentParser(description='检查并提取基础教育学校地址')
@@ -873,6 +985,36 @@ def build_argument_parser() -> argparse.ArgumentParser:
     extract_command = commands.add_parser('extract', help='执行已复核计划')
     extract_command.add_argument('--plan', required=True, help='提取计划路径')
     extract_command.add_argument('--output', required=True, help='地址记录输出路径')
+    mineru_parse_command = commands.add_parser(
+        'mineru-parse', help='用 MinerU 逐页解析扫描 PDF 并生成 vision JSON'
+    )
+    mineru_parse_command.add_argument(
+        '--source', required=True, help='government_source.json 路径'
+    )
+    mineru_parse_command.add_argument(
+        '--local-file', required=True,
+        help='本地 PDF 文件名（与来源项 local_files 一致）',
+    )
+    mineru_parse_command.add_argument(
+        '--pages', required=True, help='页范围，如 15-33 或 15,17,20'
+    )
+    mineru_parse_command.add_argument(
+        '--output-dir', default='',
+        help='vision JSON 输出目录（默认来源文件所在目录）',
+    )
+    mineru_inspect_command = commands.add_parser(
+        'mineru-inspect', help='整档 MinerU 解析并输出逐页表格摘要'
+    )
+    mineru_inspect_command.add_argument(
+        '--source', required=True, help='government_source.json 路径'
+    )
+    mineru_inspect_command.add_argument(
+        '--local-file', required=True,
+        help='本地 PDF 文件名（与来源项 local_files 一致）',
+    )
+    mineru_inspect_command.add_argument(
+        '--pages', default='', help='可选页范围，如 15-33'
+    )
     return parser
 
 
@@ -953,6 +1095,10 @@ def main() -> int:
                     file=sys.stderr,
                 )
             return exit_code
+        if arguments.command == 'mineru-parse':
+            return run_mineru_parse(arguments)
+        if arguments.command == 'mineru-inspect':
+            return run_mineru_inspect(arguments)
         output_path = Path(arguments.output).resolve()
         if arguments.command == 'inspect':
             output_payload, exit_code = build_extraction_plan(

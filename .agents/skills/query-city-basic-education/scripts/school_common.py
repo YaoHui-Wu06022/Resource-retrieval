@@ -49,7 +49,8 @@ SCHOOL_FIELD_TERMS = FieldTerms(
 )
 
 NON_RECORD_NAME_PATTERN = re.compile(
-    r'^(?:更新时间|更新日期|数据截止|截至日期|填表|制表|备注|说明|合计|总计)'
+    r'^(?:更新时间|更新日期|数据截止|截至日期|填表|制表|备注|说明|'
+    r'招生计划|计划招生|合计|总计)'
 )
 
 
@@ -156,7 +157,10 @@ def build_records_for_locations(
 
 def is_non_school_record_name(place_name: str) -> bool:
     """识别表尾说明、合计和更新时间。"""
-    return bool(NON_RECORD_NAME_PATTERN.search(normalize_text(place_name)))
+    normalized = normalize_text(place_name)
+    if NON_RECORD_NAME_PATTERN.search(normalized):
+        return True
+    return bool(re.fullmatch(r'\d[\d\s]*', normalized))
 
 
 CAMPUS_SUFFIX_WORDS = (

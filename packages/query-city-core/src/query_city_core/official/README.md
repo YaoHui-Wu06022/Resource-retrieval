@@ -14,8 +14,10 @@
   - `html_reader.py`：HTML/Word 读取，Word 经 LibreOffice 转 HTML。
   - `spreadsheet_reader.py`：Excel/CSV 表格读取。
   - `pdf_reader.py`：PDF 原生文字层与表格检测。
-  - `vision_reader.py`：图片标记、视觉模型调用与 `vision_source_result`
-    JSON 读取合并于同一文件。
+  - `vision_reader.py`：图片 needs_vision 标记与 `vision_source_result`
+    JSON 读取。
+  - `mineru_reader.py`：MinerU v4 API 客户端（OpenXLab AK/SK → JWT、
+    逐页 URL/上传任务、结果 zip 转二维行）。
   - `tables.py`：DataFrame 到纯文本二维表的转换。
 - `collectors/`：官方来源收集。
   - `directory_links.py`：栏目页候选链接收集。
@@ -44,9 +46,17 @@
 
 - 医疗机构 Skill 接入同一引擎（`medical_government_flow.py`），
   通过 `FieldTerms` 与规则修饰注入医疗词表，公共引擎不新增场景语义。
-- `image_reader.py` 并入 `vision_reader.py`；后者支持图片 needs_vision
-  标记、DashScope 兼容视觉调用（key/模型/base 从 `.env` 或环境读取）
-  与 `vision_source_result` 读取。
+- `image_reader.py` 并入 `vision_reader.py`；后者保留图片 needs_vision
+  标记与 `vision_source_result` 读取。
 - `download` 链路新增 zip 自动安全解压：仅解一层并保留 zip 内相对路径，
   成功项写回 `extracted_files`（可含 `skipped_entries`），zip 原件保留；
   解压失败进入清单 `errors` 且不删除压缩包。
+
+### 2026-09-04
+
+- 新增 `mineru_reader.py`：以 MinerU v4 API 取代 DashScope 兼容视觉模型，
+  凭据改读 `.env` 的 `MINERU_ACCESS_KEY`/`MINERU_SECRET_KEY`
+  （OpenXLab AK/SK → JWT），移除 `VISION_API_KEY` 等旧配置与
+  `vision_reader.py` 中的 VLM 调用、图片分段与 base64 编码逻辑。
+- 视觉产物 schema（`vision_source_result`）不变，扫描 PDF 改为逐页
+  MinerU URL/上传任务生成，输出 `<原名>.pdf.vision.json`。
