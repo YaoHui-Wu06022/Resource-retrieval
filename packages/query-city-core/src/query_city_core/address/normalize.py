@@ -124,7 +124,8 @@ CONTACT_TAIL_PATTERN = re.compile(
 )
 POSTCODE_PATTERN = re.compile(r'\s*[（(]\s*\d{6}\s*[）)]\s*$')
 PROVINCE_PREFIX_PATTERN = re.compile(
-    r'^(?P<province>[\u4e00-\u9fff]{2,30}?(?:特别行政区|维吾尔自治区|壮族自治区|回族自治区|自治区|省))'
+    r'^(?P<province>(?:[^\s省市县区旗盟]){2,30}?'
+    r'(?:特别行政区|维吾尔自治区|壮族自治区|回族自治区|自治区|省))'
 )
 CITY_PREFIX_PATTERN = re.compile(
     r'^(?P<city>[\u4e00-\u9fff]{2,30}?(?:自治州|地区|盟|市))'

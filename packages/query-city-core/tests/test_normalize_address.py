@@ -177,6 +177,15 @@ class NormalizeAddressTests(unittest.TestCase):
         self.assertEqual(result['normalized_address'], '')
         self.assertEqual(result['normalization_status'], 'conflict')
 
+    def test_road_starting_with_sheng_is_not_province_conflict(self):
+        """“省实路”等以省字开头的道路名不得被误判为省级单位。"""
+        result = self.normalize('广州市', '广州市荔湾区省实路1号')
+        self.assertEqual(result['normalization_status'], 'complete')
+        self.assertEqual(
+            result['normalized_address'],
+            '广州市荔湾区省实路1号',
+        )
+
     def test_orphan_trailing_bracket_is_removed(self):
         """地址标签外层遗留的孤立右括号不得进入规范地址。"""
         result = self.normalize('广州市', '广州市花都区赤坭镇髻岭西路26号）')

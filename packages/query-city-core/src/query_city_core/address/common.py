@@ -27,7 +27,9 @@ MAP_MATCH_STATUS_LABELS = {
 }
 COMPARISON_PUNCTUATION_PATTERN = re.compile(r'[\s，,。；;：:（）()]+')
 DISTRICT_PATTERN = re.compile(r'^(.{1,15}?(?:区|县|旗))')
-PROVINCE_PREFIX_PATTERN = re.compile(r'^[^省]{1,12}省')
+PROVINCE_PREFIX_PATTERN = re.compile(
+    r'^(?:[^\s省市县区旗盟]){1,12}省'
+)
 LEADING_CITY_PATTERN = re.compile(r'^[^省市区县]{1,12}市')
 ZONE_CITY_PREFIX_PATTERN = re.compile(
     r'^[\u4e00-\u9fff]{2,6}(?=大学城|高教园区|高校园区|大学园|职教园|'
