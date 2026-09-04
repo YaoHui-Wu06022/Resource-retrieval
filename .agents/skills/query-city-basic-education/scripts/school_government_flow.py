@@ -405,6 +405,127 @@ def read_preview_table_cell(table_row: list[str], column_index: int) -> str:
     return normalize_text(table_row[column_index - 1])
 
 
+_PREVIEW_TABLE_RULE_KINDS = frozenset(
+    {'table', 'sheet', 'pdf_table', 'vision_table'}
+)
+
+
+def _preview_rule_key(rule: dict[str, Any]) -> tuple[Any, tuple]:
+    """生成规则定位键，区分同一文件中的不同表。"""
+    location = rule.get('location') or {}
+    return (
+        rule.get('kind') or '',
+        tuple(sorted(location.items())),
+    )
+
+
+def _preview_location_label(location: dict[str, Any]) -> str:
+    """把表格定位转成可读标签。"""
+    if 'table_index' in location:
+        return f"table {location['table_index']}"
+    if 'sheet' in location:
+        return f"sheet {location['sheet']}"
+    if 'page' in location:
+        return f"page {location['page']}"
+    return str(location)
+
+
+def _preview_rule_rows(
+    rule: dict[str, Any],
+    table_rows: list[list[str]],
+    *,
+    include_excluded: bool = False,
+) -> dict[int, str]:
+    """模拟一条规则将提取的数据行：行号 -> 地点名。"""
+    start_row = int(rule.get('data_start_row') or 1)
+    end_row = rule.get('data_end_row')
+    if end_row is None:
+        end_row = len(table_rows)
+    excluded_rows = set(rule.get('exclude_rows') or [])
+    required_values = [
+        required_mapping
+        for required_mapping in (rule.get('required_cell_values') or [])
+        if isinstance(required_mapping, dict)
+    ]
+    fill_columns = {
+        int(column_index)
+        for column_index in (rule.get('fill_down_columns') or [])
+    }
+    place_columns = [
+        int(column_index)
+        for column_index in rule.get('place_name_columns') or []
+    ]
+    separator = str(rule.get('place_name_separator') or '')
+    filled_values: dict[int, str] = {}
+    extracted_rows: dict[int, str] = {}
+    for row_number in range(
+        start_row, min(end_row, len(table_rows)) + 1
+    ):
+        if not include_excluded and row_number in excluded_rows:
+            continue
+        table_row = list(table_rows[row_number - 1])
+        if any(
+            read_preview_table_cell(table_row, required_mapping['column'])
+            != normalize_text(required_mapping.get('value'))
+            for required_mapping in required_values
+        ):
+            continue
+        for column_index in fill_columns:
+            cell_value = read_preview_table_cell(table_row, column_index)
+            if cell_value:
+                filled_values[column_index] = cell_value
+            elif column_index in filled_values:
+                while len(table_row) < column_index:
+                    table_row.append('')
+                table_row[column_index - 1] = filled_values[column_index]
+        name_parts = [
+            read_preview_table_cell(table_row, column_index)
+            for column_index in place_columns
+        ]
+        place_name = separator.join(
+            part for part in name_parts if part
+        )
+        if (
+            not place_name
+            or any(
+                SCHOOL_FIELD_TERMS.is_place_header(part)
+                for part in name_parts
+            )
+            or is_non_school_record_name(place_name)
+        ):
+            continue
+        extracted_rows[row_number] = place_name
+    return extracted_rows
+
+
+def _preview_rule_type(
+    rule: dict[str, Any],
+    table_row: list[str],
+    place_name: str,
+) -> str:
+    """按规则返回该行的学校类型文本。"""
+    type_attributes = [
+        attribute
+        for attribute in rule.get('attribute_fields') or []
+        if attribute.get('field') == 'school_type'
+    ]
+    rule_type = ''
+    for attribute in type_attributes:
+        if attribute.get('column') is not None:
+            rule_type = read_preview_table_cell(
+                table_row, attribute.get('column')
+            )
+        else:
+            rule_type = normalize_text(attribute.get('value'))
+        if rule_type:
+            break
+    return (
+        infer_school_type_from_stage_name(place_name)
+        or infer_school_type_from_name_marker(place_name)
+        or rule_type
+    )
+
+
 def preview_extraction_plan(plan_path: Path) -> tuple[dict[str, Any], int]:
     """复核提取计划的行覆盖、重叠与类型分布。"""
     extraction_plan = read_json_payload(plan_path)
@@ -472,139 +593,163 @@ def preview_extraction_plan(plan_path: Path) -> tuple[dict[str, Any], int]:
                 preview_errors.append(f'{file_name} 没有已批准的表格提取规则')
                 file_reports.append(file_report)
                 continue
-            table_rules = []
+            rule_groups: dict[tuple[Any, tuple], list[dict[str, Any]]] = {}
+            tables_by_key: dict[tuple[Any, tuple], dict[str, Any]] = {}
             for rule in approved_rules:
-                if rule.get('kind') not in {
-                    'table', 'sheet', 'pdf_table', 'vision_table'
-                }:
+                if rule.get('kind') not in _PREVIEW_TABLE_RULE_KINDS:
                     continue
+                location = rule.get('location') or {}
                 table = next(
                     (
                         structure
                         for structure in tables
                         if structure.get('kind') == rule.get('kind')
-                        and structure.get('location') == rule.get('location')
+                        and structure.get('location') == location
                     ),
                     None,
                 )
                 if table is None:
                     preview_errors.append(
-                        f'{file_name} 未找到规则定位的表格'
+                        f'{file_name} 未找到规则定位的表格 '
+                        f'{_preview_location_label(location)}'
                     )
                     continue
-                table_rows = table.get('rows') or []
-                start_row = rule.get('data_start_row') or 1
-                end_row = rule.get('data_end_row') or len(table_rows)
                 if not rule.get('place_name_columns'):
                     preview_errors.append(
                         f'{file_name} 规则缺少 place_name_columns'
                     )
                     continue
-                table_rules.append((
-                    rule, table_rows, start_row, end_row,
-                ))
-            if not table_rules:
+                key = _preview_rule_key(rule)
+                rule_groups.setdefault(key, []).append(rule)
+                tables_by_key[key] = table
+            if not rule_groups:
                 file_report['error'] = '没有可用的表格提取规则'
                 preview_errors.append(f'{file_name} 没有可用的表格提取规则')
                 file_reports.append(file_report)
                 continue
-            global_start_row = min(
-                start_row for _rule, _rows, start_row, _end in table_rules
-            )
-            global_end_row = max(
-                end_row for _rule, _rows, _start, end_row in table_rules
-            )
-            first_table_rows = table_rules[0][1]
-            candidate_rows: dict[int, str] = {}
-            for row_number in range(
-                global_start_row,
-                min(global_end_row, len(first_table_rows)) + 1,
-            ):
-                table_row = list(first_table_rows[row_number - 1])
-                name_parts = [
-                    read_preview_table_cell(
-                        table_row, column_index
+            file_candidates = 0
+            file_covered = 0
+            file_uncovered = []
+            file_overlaps = []
+            for key, rules in rule_groups.items():
+                table = tables_by_key[key]
+                table_rows = table.get('rows') or []
+                extracted_rows: dict[int, dict[int, str]] = {}
+                for rule_index, rule in enumerate(rules):
+                    candidate_rows_by_rule = _preview_rule_rows(
+                        rule, table_rows, include_excluded=True
                     )
-                    for column_index in table_rules[0][0].get(
-                        'place_name_columns'
-                    )
+                    if rule_index == 0:
+                        candidate_rows = set(candidate_rows_by_rule)
+                    else:
+                        candidate_rows.update(candidate_rows_by_rule)
+                    for row_number, place_name in _preview_rule_rows(
+                        rule, table_rows
+                    ).items():
+                        extracted_rows.setdefault(
+                            row_number, {}
+                        )[rule_index] = place_name
+                covered_rows = set(extracted_rows)
+                starts = [
+                    int(rule.get('data_start_row') or 1)
+                    for rule in rules
                 ]
-                place_name = ''.join(
-                    part for part in name_parts if part
+                ends = [
+                    len(table_rows)
+                    if rule.get('data_end_row') is None
+                    else int(rule.get('data_end_row'))
+                    for rule in rules
+                ]
+                candidate_rows.update(covered_rows)
+                span_start = min(starts)
+                span_end = min(max(ends), len(table_rows))
+                ordered_rules = sorted(
+                    zip(rules, starts, ends), key=lambda item: item[1]
                 )
-                if not place_name or any(
-                    SCHOOL_FIELD_TERMS.is_place_header(part)
-                    for part in name_parts
-                ) or is_non_school_record_name(place_name):
-                    continue
-                candidate_rows[row_number] = place_name
-            row_rule_count: dict[int, int] = {}
-            row_types: dict[int, list[str]] = {}
-            covered_rows: set[int] = set()
-            for rule, table_rows, start_row, end_row in table_rules:
-                excluded_rows = set(rule.get('exclude_rows') or [])
-                type_attributes = [
-                    attribute
-                    for attribute in rule.get('attribute_fields') or []
-                    if attribute.get('field') == 'school_type'
-                ]
                 for row_number in range(
-                    start_row, min(end_row, len(table_rows)) + 1
+                    span_start, span_end + 1
                 ):
-                    if (
-                        row_number not in candidate_rows
-                        or row_number in excluded_rows
+                    if row_number in covered_rows:
+                        continue
+                    if any(
+                        start <= row_number <= end
+                        for _rule, start, end in ordered_rules
                     ):
                         continue
-                    covered_rows.add(row_number)
-                    row_rule_count[row_number] = (
-                        row_rule_count.get(row_number, 0) + 1
-                    )
+                    reference_rule = rules[0]
+                    for rule, start, end in ordered_rules:
+                        if end < row_number:
+                            reference_rule = rule
                     table_row = list(table_rows[row_number - 1])
-                    place_name = candidate_rows[row_number]
-                    rule_type = ''
-                    for attribute in type_attributes:
-                        if attribute.get('column') is not None:
-                            rule_type = read_preview_table_cell(
-                                table_row, attribute.get('column')
-                            )
-                        else:
-                            rule_type = normalize_text(
-                                attribute.get('value')
-                            )
-                        if rule_type:
-                            break
-                    row_types.setdefault(row_number, []).append(
-                        (
-                            infer_school_type_from_stage_name(place_name)
-                            or infer_school_type_from_name_marker(place_name)
-                            or rule_type
+                    required_values = [
+                        required_mapping
+                        for required_mapping in (
+                            reference_rule.get('required_cell_values') or []
                         )
+                        if isinstance(required_mapping, dict)
+                    ]
+                    if any(
+                        read_preview_table_cell(
+                            table_row, required_mapping['column']
+                        ) != normalize_text(required_mapping.get('value'))
+                        for required_mapping in required_values
+                    ):
+                        continue
+                    name_parts = [
+                        read_preview_table_cell(table_row, column_index)
+                        for column_index in (
+                            reference_rule.get('place_name_columns') or []
+                        )
+                    ]
+                    place_name = ''.join(
+                        part for part in name_parts if part
                     )
-            uncovered_rows = sorted(
-                row_number
-                for row_number, _place_name in candidate_rows.items()
-                if row_number not in covered_rows
-            )
-            overlap_rows = sorted(
-                row_number
-                for row_number, hit_count in row_rule_count.items()
-                if hit_count > 1
-            )
-            file_report['candidate_row_count'] = len(candidate_rows)
-            file_report['covered_row_count'] = len(covered_rows)
-            file_report['uncovered_rows'] = uncovered_rows
-            file_report['overlap_rows'] = overlap_rows
-            for row_number, rule_types in row_types.items():
-                for school_type in dict.fromkeys(rule_types):
-                    if school_type:
-                        type_counts[school_type] = (
-                            type_counts.get(school_type, 0) + 1
+                    if (
+                        not place_name
+                        or any(
+                            SCHOOL_FIELD_TERMS.is_place_header(part)
+                            for part in name_parts
                         )
-            total_candidates += len(candidate_rows)
-            total_covered += len(covered_rows)
-            total_uncovered += len(uncovered_rows)
-            total_overlaps += len(overlap_rows)
+                        or is_non_school_record_name(place_name)
+                    ):
+                        continue
+                    candidate_rows.add(row_number)
+                uncovered_rows = sorted(
+                    row_number
+                    for row_number in candidate_rows
+                    if row_number not in covered_rows
+                )
+                overlap_rows = sorted(
+                    row_number
+                    for row_number, rule_hits in extracted_rows.items()
+                    if len(rule_hits) > 1
+                )
+                for row_number in covered_rows:
+                    table_row = list(table_rows[row_number - 1])
+                    row_types = []
+                    for rule_index in sorted(extracted_rows[row_number]):
+                        row_types.append(_preview_rule_type(
+                            rules[rule_index],
+                            table_row,
+                            extracted_rows[row_number][rule_index],
+                        ))
+                    for school_type in dict.fromkeys(row_types):
+                        if school_type:
+                            type_counts[school_type] = (
+                                type_counts.get(school_type, 0) + 1
+                            )
+                file_candidates += len(candidate_rows)
+                file_covered += len(covered_rows)
+                file_uncovered.extend(uncovered_rows)
+                file_overlaps.extend(overlap_rows)
+            file_report['candidate_row_count'] = file_candidates
+            file_report['covered_row_count'] = file_covered
+            file_report['uncovered_rows'] = file_uncovered
+            file_report['overlap_rows'] = file_overlaps
+            total_candidates += file_candidates
+            total_covered += file_covered
+            total_uncovered += len(file_uncovered)
+            total_overlaps += len(file_overlaps)
             file_reports.append(file_report)
     error_count = len(preview_errors)
     preview_payload = {
