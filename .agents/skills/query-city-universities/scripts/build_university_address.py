@@ -46,6 +46,11 @@ WEBSITE_MODULE_CAMPUS_NAMES = frozenset((
     '智慧校园',
     '关于校区',
     '走进校区',
+    '走进校园',
+    '校区分布',
+    '校园分布',
+    '学校导游',
+    '办学地点',
 ))
 NAVIGATION_LINK_PREFIX_PATTERN = re.compile(
     r'^(?:上一条|下一条|上一篇|下一篇|上一页|下一页)\s*[：:]?\s*'
@@ -860,7 +865,7 @@ def postprocess_university_address_records(records):
 
 
 def drop_unlabeled_incomplete_addresses(records):
-    """丢弃同校“同路有门牌”并存的无门牌无校区名地址变体。"""
+    """丢弃同校同路已有门牌时并存的无门牌地址变体（含带校区名残缺行）。"""
     numbered_roads = defaultdict(set)
     for record in records:
         attributes = record.get('attributes') or {}
@@ -871,7 +876,9 @@ def drop_unlabeled_incomplete_addresses(records):
             record.get('map_address') or record.get('final_address') or ''
         ).strip()
         if has_house_number(location_address):
-            numbered_roads[school_identifier].add(road_name(location_address))
+            numbered_road = road_name(location_address)
+            if len(numbered_road) >= 2:
+                numbered_roads[school_identifier].add(numbered_road)
     retained = []
     for record in records:
         attributes = record.get('attributes') or {}
@@ -883,8 +890,7 @@ def drop_unlabeled_incomplete_addresses(records):
         ).strip()
         road = road_name(location_address)
         if (
-            not record_campus_name(record)
-            and location_address
+            location_address
             and not has_house_number(location_address)
             and road
             and any(

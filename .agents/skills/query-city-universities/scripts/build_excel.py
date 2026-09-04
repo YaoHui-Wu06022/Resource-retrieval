@@ -5,6 +5,7 @@
 import argparse
 import json
 import sys
+from collections import defaultdict
 from datetime import date
 
 from query_city_core.address.city import validate_city_context
@@ -19,6 +20,11 @@ from query_city_core.excel_output import (
 from query_city_core.io_utils import read_json_payload
 
 from build_university_address import postprocess_university_address_records
+from university_campus_rules import (
+    has_contact_label_noise,
+    has_house_number,
+    road_name,
+)
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -148,6 +154,55 @@ def build_abnormal_rows(address_records):
     return rows
 
 
+def find_output_row_issues(output_rows):
+    """找出高校信息行中应拦截的地址残留问题。"""
+    issues = []
+    numbered_roads_by_school = defaultdict(set)
+    for _, address_record in output_rows:
+        attributes = address_record.get('attributes') or {}
+        school_identifier = str(
+            attributes.get('school_identifier') or ''
+        ).strip()
+        address = str(address_record.get('final_address') or '').strip()
+        if school_identifier and has_house_number(address):
+            road = road_name(address)
+            if len(road) >= 2:
+                numbered_roads_by_school[school_identifier].add(road)
+    for domain_values, address_record in output_rows:
+        place_name = str(domain_values[0] or '').strip()
+        attributes = address_record.get('attributes') or {}
+        school_identifier = str(
+            attributes.get('school_identifier') or ''
+        ).strip()
+        address = str(address_record.get('final_address') or '').strip()
+        if not address:
+            continue
+        if has_contact_label_noise(address):
+            issues.append(
+                f'{place_name}：地址残留联系词「{address}」'
+            )
+            continue
+        road = road_name(address)
+        if (
+            school_identifier
+            and not has_house_number(address)
+            and road
+            and any(
+                road == numbered
+                or road.endswith(numbered)
+                or numbered.endswith(road)
+                for numbered in numbered_roads_by_school.get(
+                    school_identifier, ()
+                )
+            )
+        ):
+            issues.append(
+                f'{place_name}：同路已有带门牌地址却保留无门牌地址'
+                f'「{address}」'
+            )
+    return issues
+
+
 def create_workbook(output_rows, abnormal_rows=()):
     """创建高校信息与异常校两个工作表的最终工作簿。"""
     return create_result_workbook(
@@ -182,6 +237,12 @@ def main():
         payload['city_context']['city_name'],
     )
     abnormal_rows = build_abnormal_rows(payload['items'])
+    output_issues = find_output_row_issues(output_rows)
+    if output_issues:
+        raise ValueError(
+            '发布前质量门禁命中，需 Agent 兜底判断并修正后重跑：\n- '
+            + '\n- '.join(output_issues)
+        )
     output = write_result_workbook_atomically(
         _spec(),
         SHEET_NAME,

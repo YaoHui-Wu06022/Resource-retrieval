@@ -63,3 +63,17 @@
   自动发现链接按 host+path 去重。
 - SKILL.md 与 `references/retrieval-result-format.md` 的工作簿列数与
   页数预算描述对齐实现（「异常校」九列）。
+
+### 2026-09-04（防残留加固）
+
+- `university_campus_rules.py` 地址清洗新增联系词尾巴去除（TEL/电话/传真/
+  EMAIL/邮箱/邮编/QQ/微信，兼容带/不带冒号与号码），并新增
+  `has_contact_label_noise` 供发布前门禁复用。
+- 校区栏目词过滤双层加固：`university_page_fetch.py` 与
+  `build_university_address.py` 同步排除走进校园/校区分布/校园分布/学校导游/
+  办学地点等导航词，避免栏目词被当作校区名产生空地址行。
+- `build_university_address.py` 同路去重扩展为不限校区名：同校同路已有门牌
+  时，无门牌变体（含带校区名的残缺行）一律丢弃；路名退化为单个“路/街/道”
+  等无效片段时不参与同路判定，避免中文数字路名（如广从九路）误删其它校区。
+- `build_excel.py` 新增发布前质量门禁：地址残留联系词或同路“有门牌 vs
+  无门牌”重复直接报错，命中后由 Agent 兜底判断并修正来源后重跑。

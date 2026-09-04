@@ -58,6 +58,12 @@ ROOM_CODE_SUFFIX_PATTERN = re.compile(
     r'[（(]?\s*[A-Za-z]{0,3}\d{1,4}(?:[-－]\d{1,4})?'
     r'(?:室|房|层|座)?\s*[）)]?$'
 )
+CONTACT_LABEL_TAIL_PATTERN = re.compile(
+    r'(?<![0-9A-Za-z\u4e00-\u9fff])\s*'
+    r'(?:TEL|电话|传真|E-?MAIL|邮箱|邮编|QQ|微信)'
+    r'(?:\s*[：:])?(?:\s*[0-9A-Za-z@.\-_]+)?\s*$',
+    re.IGNORECASE,
+)
 ROAD_SUFFIXES = ('大道', '大街', '公路', '路', '街', '巷', '弄', '道')
 NUMBER_TAIL_PATTERN = re.compile(
     r'([0-9A-Za-z一二三四五六七八九十百]+(?:[-－][0-9A-Za-z一二三四五六七八九十百]+)?'
@@ -229,11 +235,29 @@ def strip_room_code_suffix(address):
         text = stripped
 
 
+def strip_contact_label_tail(address):
+    """删除地址末尾以空白或标点分隔的联系词及其号码尾巴。"""
+    text = str(address or '').strip()
+    while True:
+        stripped = CONTACT_LABEL_TAIL_PATTERN.sub(
+            '', text
+        ).strip(' ，,；;：:|｜')
+        if stripped == text:
+            return text
+        text = stripped
+
+
+def has_contact_label_noise(address):
+    """判断地址文本是否仍以联系词结尾。"""
+    return bool(CONTACT_LABEL_TAIL_PATTERN.search(str(address or '').strip()))
+
+
 def clean_address_text(address, school_name=''):
     """按高校场景规则清洗地址文本。"""
     cleaned = strip_school_name_tail(address, school_name)
     cleaned = strip_institution_name_tail(cleaned)
-    return strip_room_code_suffix(cleaned)
+    cleaned = strip_room_code_suffix(cleaned)
+    return strip_contact_label_tail(cleaned)
 
 
 def has_fee_noise(address):

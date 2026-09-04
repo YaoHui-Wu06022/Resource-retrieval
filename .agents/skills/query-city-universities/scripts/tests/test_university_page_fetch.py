@@ -1095,6 +1095,9 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         """数字校园等网站栏目词不得作为校区名。"""
         self.assertEqual(extract_campus_names('数字校园'), [])
         self.assertEqual(extract_campus_names('智慧校园'), [])
+        self.assertEqual(extract_campus_names('走进校园'), [])
+        self.assertEqual(extract_campus_names('校区分布'), [])
+        self.assertEqual(extract_campus_names('校园分布'), [])
         self.assertEqual(
             extract_campus_names('广州科技贸易职业学院数字校园'),
             [],

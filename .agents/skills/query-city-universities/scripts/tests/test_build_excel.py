@@ -27,6 +27,7 @@ from build_excel import (  # noqa: E402
     build_abnormal_rows,
     build_output_rows,
     create_workbook,
+    find_output_row_issues,
     load_processed_records,
     main,
     verify_workbook,
@@ -73,6 +74,11 @@ def build_address_record(
         'final_address': final_address,
         'final_address_source': final_address_source,
     }
+
+
+def build_domain_row(record):
+    """构造门禁函数可读的展示行。"""
+    return ([str(record.get('place_name') or '')], record)
 
 
 class FinalWorkbookTests(unittest.TestCase):
@@ -366,6 +372,99 @@ class FinalWorkbookTests(unittest.TestCase):
             )
             with self.assertRaisesRegex(ValueError, 'processed_address_records'):
                 load_processed_records(input_path)
+
+
+class OutputQualityGateTests(unittest.TestCase):
+    """覆盖发布前质量门禁的拦截规则。"""
+
+    def test_contact_label_residue_is_flagged(self):
+        """地址残留联系词尾巴时返回问题行。"""
+        record = build_address_record(
+            3100,
+            '示例大学花都校区',
+            '广州市花都区工业大道11号 TEL：',
+            'https://example.edu.cn/contact',
+            '花都校区',
+            map_match_status='consistent',
+            final_address_source='official',
+            school_identifier='4144010861',
+        )
+
+        issues = find_output_row_issues([build_domain_row(record)])
+
+        self.assertEqual(len(issues), 1)
+        self.assertIn('残留联系词', issues[0])
+        self.assertIn('示例大学花都校区', issues[0])
+
+    def test_same_road_no_number_duplicate_is_flagged(self):
+        """同校同路已有带门牌行时，无门牌行应被门禁拦截。"""
+        numbered = build_address_record(
+            3101,
+            '示例大学校本部',
+            '广州市环市东路465号',
+            'https://example.edu.cn/',
+            '校本部',
+            school_identifier='4144013709',
+        )
+        incomplete = build_address_record(
+            3102,
+            '示例大学广州校区',
+            '广州市环市东路',
+            'https://example.edu.cn/charter',
+            '广州校区',
+            school_identifier='4144013709',
+        )
+
+        issues = find_output_row_issues([
+            build_domain_row(numbered),
+            build_domain_row(incomplete),
+        ])
+
+        self.assertEqual(len(issues), 1)
+        self.assertIn('无门牌地址', issues[0])
+        self.assertIn('示例大学广州校区', issues[0])
+
+    def test_street_level_official_address_is_not_flagged(self):
+        """官网仅公开街道级地址（无门牌）且无同路门牌行时不拦截。"""
+        record = build_address_record(
+            3103,
+            '示例职业技术学院',
+            '广州市黄埔区龙湖街道示例职业技术学院',
+            'https://example.edu.cn/contact',
+            map_match_status='needs_review',
+            final_address_source='official',
+            school_identifier='4144012575',
+        )
+
+        issues = find_output_row_issues([build_domain_row(record)])
+
+        self.assertEqual(issues, [])
+
+    def test_degenerate_road_name_does_not_flag_unrelated_campus(self):
+        """中文数字路名解析退化时，不同道路的无门牌校区不得被门禁拦截。"""
+        numbered = build_address_record(
+            3104,
+            '示例职业技术学院北校区',
+            '广州市白云区钟落潭镇马沥村广从九路160号',
+            'https://example.edu.cn/',
+            '北校区',
+            school_identifier='4144012743',
+        )
+        unnumbered = build_address_record(
+            3105,
+            '示例职业技术学院东校区',
+            '广州市天河区龙洞教育园区渔兴路',
+            'https://example.edu.cn/campus',
+            '东校区',
+            school_identifier='4144012743',
+        )
+
+        issues = find_output_row_issues([
+            build_domain_row(numbered),
+            build_domain_row(unnumbered),
+        ])
+
+        self.assertEqual(issues, [])
 
 
 if __name__ == '__main__':

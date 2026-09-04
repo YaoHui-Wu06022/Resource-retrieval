@@ -71,3 +71,16 @@
   有校区名学校仍按“校本部/无名校区”合并规则与同址择优执行。
 - 地址原文的“学校名+校区名位于…”句式和“通讯地址：”标签（公共采集器
   支持标点边界后的标签识别）可关联到对应校区。
+
+### 2026-09-04（防残留加固）
+
+- `university_campus_rules.py`：`clean_address_text` 新增联系词尾巴清洗
+  （TEL/电话/传真/EMAIL/邮箱/邮编/QQ/微信，兼容带/不带冒号与号码）；
+  新增 `has_contact_label_noise` 残留检测。
+- `university_page_fetch.py`：`GENERIC_CAMPUS_PATTERN` 并入走进校园/校区分布/
+  校园分布/学校导游/办学地点等栏目词，标题与链接不再把它们当校区名。
+- `build_university_address.py`：`WEBSITE_MODULE_CAMPUS_NAMES` 同步并入上述
+  栏目词；同路去重放宽为不限校区名，同校同路已有门牌时无门牌行一律丢弃；
+  单字符退化路名（“路/街/道”）不参与同路判定，避免中文数字路名误删校区。
+- `build_excel.py`：新增发布前质量门禁 `find_output_row_issues`，残留联系词
+  与同路重复行命中即报错，需 Agent 修正来源后重跑。

@@ -21,6 +21,7 @@ from build_university_address import (
     main,
     postprocess_university_address_records,
 )
+from university_campus_rules import clean_address_text, has_contact_label_noise
 from query_city_core.address.common import validate_address_record
 
 
@@ -321,7 +322,18 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         page = build_page(
             'https://example.edu.cn/',
             candidates=[],
-            hints=['数字校园', '智慧校园', '关于校区', '走进校区', '东湖校区'],
+            hints=[
+                '数字校园',
+                '智慧校园',
+                '关于校区',
+                '走进校区',
+                '走进校园',
+                '校区分布',
+                '校园分布',
+                '学校导游',
+                '办学地点',
+                '东湖校区',
+            ],
         )
         result = build_address_payload(
             build_payload([build_completed_item(school, [page])]),
@@ -1138,6 +1150,101 @@ class UniversityAddressPostprocessTests(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0], verified)
+
+    def test_labeled_no_number_variant_is_dropped_with_numbered_road(self):
+        """同校同路已有门牌时，带校区名的无门牌行也不再成行。"""
+        numbered = self.build_final_record(
+            '4144010861',
+            '',
+            '广州市花都区工业大道11号',
+        )
+        incomplete = self.build_final_record(
+            '4144010861',
+            '花都校区',
+            '广州市花都区工业大道',
+        )
+
+        result = postprocess_university_address_records(
+            [numbered, incomplete]
+        )
+
+        self.assertEqual(result, [numbered])
+
+    def test_labeled_incomplete_row_loses_to_labeled_numbered_row(self):
+        """同校同路已保留带门牌行时，无门牌校区行被丢弃。"""
+        numbered = self.build_final_record(
+            '4144013709',
+            '校本部',
+            '广州市环市东路465号',
+        )
+        incomplete = self.build_final_record(
+            '4144013709',
+            '广州校区',
+            '广州市环市东路',
+        )
+
+        result = postprocess_university_address_records(
+            [numbered, incomplete]
+        )
+
+        self.assertEqual(result, [numbered])
+
+    def test_degenerate_road_name_does_not_drop_unrelated_campus(self):
+        """中文数字路名解析退化为“路”时不得误删其它无门牌校区。"""
+        numbered = self.build_final_record(
+            '4144012743',
+            '北校区',
+            '广州市白云区钟落潭镇马沥村广从九路160号',
+        )
+        unnumbered = self.build_final_record(
+            '4144012743',
+            '东校区',
+            '广州市天河区龙洞教育园区渔兴路',
+        )
+
+        result = postprocess_university_address_records(
+            [numbered, unnumbered]
+        )
+
+        self.assertEqual(
+            [record['attributes']['campus_name'] for record in result],
+            ['北校区', '东校区'],
+        )
+
+
+class UniversityAddressCleaningTests(unittest.TestCase):
+    """覆盖地址联系词尾巴清洗与残留检测。"""
+
+    def test_contact_label_tail_is_cleaned_without_colon(self):
+        """不带冒号的联系词尾巴应被清洗。"""
+        cleaned = clean_address_text('广州市花都区工业大道11号 TEL')
+
+        self.assertEqual(cleaned, '广州市花都区工业大道11号')
+        self.assertFalse(has_contact_label_noise(cleaned))
+
+    def test_contact_label_tail_is_cleaned_with_colon_and_number(self):
+        """带冒号和电话号码的联系词尾巴应被整段清洗。"""
+        cleaned = clean_address_text(
+            '广州市花都区工业大道11号 TEL：020-87024621'
+        )
+
+        self.assertEqual(cleaned, '广州市花都区工业大道11号')
+        self.assertFalse(has_contact_label_noise(cleaned))
+
+    def test_postcode_label_tail_is_cleaned(self):
+        """邮编标签尾巴应被清洗。"""
+        cleaned = clean_address_text('广州市天河区天源路789号 邮编510650')
+
+        self.assertEqual(cleaned, '广州市天河区天源路789号')
+
+    def test_contact_label_noise_is_detected_before_cleaning(self):
+        """清洗前残留联系词可被噪声函数识别。"""
+        self.assertTrue(
+            has_contact_label_noise('广州市花都区工业大道11号 TEL：')
+        )
+        self.assertFalse(
+            has_contact_label_noise('广州市天河区环市东路465号')
+        )
 
 
 if __name__ == '__main__':
