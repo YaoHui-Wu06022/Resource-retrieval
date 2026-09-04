@@ -2,14 +2,24 @@
 
 import argparse
 import json
+import re
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 
+from query_city_core.access import (
+    fetch_direct_content,
+    is_url_in_domains,
+    normalize_domain,
+)
 from query_city_core.address.city import validate_city_context
 from query_city_core.host_gate import (
     DEFAULT_HOST_MAX_WORKERS,
     DEFAULT_HOST_MIN_INTERVAL,
     DEFAULT_MAX_WORKERS,
+    HostRequestGate,
+    extract_url_host,
 )
 from query_city_core.io_utils import write_json_payload
 from query_city_core.official.collectors.directory_links import (
@@ -26,6 +36,9 @@ from query_city_core.official.extract import (
     FieldTerms,
     extract_government_records,
     inspect_government_source,
+)
+from query_city_core.official.extract.rules import (
+    inspect_source_file as inspect_common_source_file,
 )
 from query_city_core.official.readers import normalize_text
 
@@ -189,9 +202,54 @@ def decorate_medical_rules(source_item, inspected_files, extraction_rules):
             ],
             'approved': False,
         }
+    elif source_type == 'query_platform':
+        rule = {
+            'file': file_name,
+            'kind': 'object_list',
+            'object_format': 'json',
+            'container_keys': [],
+            'place_name_keys': ['yymc'],
+            'original_address_keys': ['yydz'],
+            'attribute_fields': [
+                _object_attribute_field(
+                    'administrative_unit',
+                    ['szq'],
+                ),
+                _object_attribute_field(
+                    'institution_type',
+                    ['yytype'],
+                ),
+                _object_attribute_field(
+                    'institution_level',
+                    ['jb'],
+                ),
+            ],
+            'approved': False,
+        }
     else:
         return
     extraction_rules.append(rule)
+
+
+def inspect_medical_source_file(source_path, file_name):
+    """为 JSON/JSONP 汇总来源提供 ready 检查，其余文件走公共检查。"""
+    suffix = source_path.suffix.lower()
+    if suffix in {'.json', '.jsonp'}:
+        parse_jsonp_payload(
+            source_path.read_text(encoding='utf-8', errors='replace')
+        )
+        return ({
+            'file': file_name,
+            'format': suffix.lstrip('.'),
+            'size_bytes': source_path.stat().st_size,
+            'inspection_status': 'ready',
+            'structures': [],
+            'repeated_blocks': [],
+            'text_preview': '',
+        }, [])
+    return inspect_common_source_file(
+        source_path, file_name, MEDICAL_FIELD_TERMS
+    )
 
 
 def build_medical_extraction_plan(sources_path, plan_path):
@@ -207,6 +265,7 @@ def build_medical_extraction_plan(sources_path, plan_path):
         plan_stage=PLAN_STAGE,
         validate_manifest=normalize_source_items,
         decorate_source_plan=decorate_medical_rules,
+        inspect_source_file=inspect_medical_source_file,
     )
 
 
@@ -392,6 +451,296 @@ def extract_medical_records(plan_path, output_path):
     return payload
 
 
+def parse_jsonp_payload(text):
+    """解析 JSONP 回调包装或纯 JSON 文本为对象。"""
+    text = str(text or '').strip()
+    if not text:
+        raise ValueError('JSONP 响应为空')
+    callback_pattern = re.compile(
+        r'^[\w.]+\s*\((.*)\)\s*;?\s*$',
+        re.DOTALL,
+    )
+    callback_match = callback_pattern.match(text)
+    if callback_match:
+        try:
+            return json.loads(callback_match.group(1))
+        except (TypeError, ValueError):
+            pass
+    return json.loads(text)
+
+
+def _platform_settings(source_item):
+    """读取并校验查询平台配置。"""
+    config = source_item.get('platform') or {}
+    endpoint = str(config.get('endpoint') or '').strip()
+    allowed_domain = str(config.get('allowed_domain') or '').strip()
+    if not endpoint or not allowed_domain:
+        raise ValueError('query_platform 来源缺少 platform.endpoint 或 domain')
+    if not is_url_in_domains(
+        endpoint, [normalize_domain(allowed_domain)]
+    ):
+        raise ValueError(
+            f'平台 endpoint 不在允许域名内：{endpoint}'
+        )
+    paging = config.get('paging') or {}
+    return {
+        'config': config,
+        'endpoint': endpoint,
+        'allowed_domain': normalize_domain(allowed_domain),
+        'page_size': int(paging.get('page_size') or 500),
+        'total_field': str(paging.get('total_field') or 'count'),
+        'list_field': str(paging.get('list_field') or 'results'),
+        'json_ext_field': str(config.get('json_ext_field') or 'json_ext'),
+    }
+
+
+def build_platform_query_url(
+    source_item, administrative_unit_name, page_number
+):
+    """构造按行政单位过滤的平台分页查询 URL。"""
+    settings = _platform_settings(source_item)
+    config = settings['config']
+    params = dict(config.get('fixed_params') or {})
+    callback = str(config.get('callback') or '').strip()
+    if callback and 'callback' not in params:
+        params['callback'] = callback
+    paging = config.get('paging') or {}
+    params[str(paging.get('page_param') or 'page')] = int(page_number)
+    params[
+        str(paging.get('page_size_param') or 'pagesize')
+    ] = settings['page_size']
+    district_filter = config.get('district_filter') or {}
+    if district_filter:
+        filter_param = str(
+            district_filter.get('param') or 'json_ext_in'
+        )
+        filter_key = str(district_filter.get('key') or '')
+        filter_value = str(
+            district_filter.get('value') or administrative_unit_name
+        ).strip()
+        if not filter_key or not filter_value:
+            raise ValueError('district_filter 缺少 key 或 value')
+        if str(district_filter.get('encode') or 'json') == 'json':
+            params[filter_param] = json.dumps(
+                {filter_key: [filter_value]},
+                ensure_ascii=False,
+            )
+        else:
+            params[filter_param] = filter_value
+    return settings['endpoint'] + '?' + urlencode(params)
+
+
+def fetch_platform_page_text(url, allowed_domain, timeout=60):
+    """抓取单个平台分页并返回原文与审计元数据。"""
+    content, final_url, http_status, _access_attempts, _charset = (
+        fetch_direct_content(url, timeout=timeout)
+    )
+    if content is None:
+        raise ValueError(f'平台请求失败：{url}')
+    if http_status != 200:
+        raise ValueError(
+            f'平台请求返回 HTTP {http_status}：{url}'
+        )
+    if not is_url_in_domains(final_url, [allowed_domain]):
+        raise ValueError(
+            f'平台响应域名不在允许范围内：{final_url}'
+        )
+    text = content.decode('utf-8-sig', errors='replace')
+    return text, {
+        'url': url,
+        'final_url': final_url,
+        'http_status': http_status,
+        'size_bytes': len(content),
+    }
+
+
+def collect_platform_pages(
+    source_item,
+    administrative_unit_name,
+    timeout=60,
+    max_page_count=100,
+    fetch_page=None,
+    host_gate=None,
+):
+    """按区逐页收齐平台记录，返回记录、分页审计与原始文本。"""
+    settings = _platform_settings(source_item)
+    fetch_page = fetch_page or fetch_platform_page_text
+    collected_records = []
+    page_audits = []
+    raw_texts = []
+    expected_count = None
+    page_number = 1
+    while page_number <= max_page_count:
+        page_url = build_platform_query_url(
+            source_item, administrative_unit_name, page_number
+        )
+        host_name = extract_url_host(page_url)
+        if host_gate is not None:
+            host_gate.acquire(host_name)
+        try:
+            page_text, page_meta = fetch_page(
+                page_url, settings['allowed_domain'], timeout
+            )
+        finally:
+            if host_gate is not None:
+                host_gate.release(host_name)
+        payload = parse_jsonp_payload(page_text)
+        total_count = payload.get(settings['total_field'])
+        results = payload.get(settings['list_field'])
+        if total_count is None or not isinstance(results, list):
+            raise ValueError(
+                '平台响应缺少列表或总数字段'
+            )
+        if expected_count is None:
+            expected_count = int(total_count)
+        elif int(total_count) != expected_count:
+            raise ValueError('平台分页 count 前后不一致')
+        for row_index, result_item in enumerate(results, start=1):
+            if not isinstance(result_item, dict):
+                continue
+            extended_fields = {}
+            json_ext_text = result_item.get(settings['json_ext_field'])
+            if json_ext_text:
+                try:
+                    extended_fields = json.loads(
+                        json_ext_text
+                        if isinstance(json_ext_text, str)
+                        else json.dumps(json_ext_text)
+                    )
+                except (TypeError, ValueError):
+                    extended_fields = {}
+            record_item = {
+                **extended_fields,
+                'id': result_item.get('id'),
+                'url': result_item.get('url'),
+            }
+            record_item['_page'] = page_number
+            record_item['_row'] = row_index
+            collected_records.append(record_item)
+        page_audits.append({
+            'page': page_number,
+            'count': expected_count,
+            'result_count': len(results),
+            **page_meta,
+        })
+        raw_texts.append(page_text)
+        if not results or len(collected_records) >= expected_count:
+            break
+        page_number += 1
+    if expected_count is None:
+        raise ValueError('平台没有返回任何分页')
+    if len(collected_records) != expected_count:
+        raise ValueError(
+            f'平台记录未收齐：期望 {expected_count}，'
+            f'实际 {len(collected_records)}'
+        )
+    return collected_records, page_audits, expected_count, raw_texts
+
+
+def run_platform_query_command(
+    manifest_path,
+    host_max_workers=DEFAULT_HOST_MAX_WORKERS,
+    host_min_interval=DEFAULT_HOST_MIN_INTERVAL,
+    timeout=60,
+    force=False,
+):
+    """执行各行政单位政府查询平台分页抓取并回写清单。"""
+    manifest_path = Path(manifest_path).resolve()
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    if manifest.get('stage') != GOVERNMENT_STAGE:
+        raise ValueError(f'stage 必须是 {GOVERNMENT_STAGE}')
+    administrative_unit = manifest.get('administrative_unit') or {}
+    unit_name = str(administrative_unit.get('name') or '').strip()
+    if not unit_name:
+        raise ValueError('manifest 缺少 administrative_unit.name')
+    unit_dir = manifest_path.parent
+    host_gate = (
+        None
+        if host_max_workers <= 0
+        else HostRequestGate(host_max_workers, host_min_interval)
+    )
+    source_dir = unit_dir / 'sources'
+    source_dir.mkdir(parents=True, exist_ok=True)
+    fetched_count = 0
+    skipped_count = 0
+    errors = []
+    for source_item in manifest.get('sources') or []:
+        if str(source_item.get('source_type') or '') != 'query_platform':
+            continue
+        source_id = str(source_item.get('source_id') or '').strip()
+        if not force and (
+            str(source_item.get('status') or '') == 'ready'
+            and str(source_item.get('local_file') or '').strip()
+        ):
+            skipped_count += 1
+            continue
+        try:
+            records, page_audits, total_count, raw_texts = (
+                collect_platform_pages(
+                    source_item,
+                    unit_name,
+                    timeout=timeout,
+                    host_gate=host_gate,
+                )
+            )
+            raw_file_names = []
+            for page_audit, raw_text in zip(page_audits, raw_texts):
+                raw_file_name = (
+                    f'{source_id}_page_{page_audit["page"]:03d}.jsonp'
+                )
+                raw_path = source_dir / raw_file_name
+                raw_path.write_text(raw_text, encoding='utf-8')
+                raw_file_names.append(raw_file_name)
+            records_file_name = f'{source_id}_records.json'
+            records_path = source_dir / records_file_name
+            records_path.write_text(
+                json.dumps(records, ensure_ascii=False),
+                encoding='utf-8',
+            )
+            source_item['local_file'] = (
+                f'sources/{records_file_name}'
+            )
+            source_item['status'] = 'ready'
+            source_item['platform_result'] = {
+                'count': total_count,
+                'record_count': len(records),
+                'page_count': len(page_audits),
+                'snapshot_date': str(
+                    source_item.get('snapshot_date') or ''
+                ).strip(),
+                'fetched_at': datetime.now(timezone.utc).isoformat(
+                    timespec='seconds'
+                ),
+                'raw_files': raw_file_names,
+                'pages': page_audits,
+            }
+            source_item.pop('error', None)
+            fetched_count += 1
+        except Exception as exc:  # noqa: BLE001 - 单来源失败不中断整批
+            source_item['status'] = 'missing'
+            error_message = normalize_text(exc)
+            source_item['error'] = error_message
+            errors.append({
+                'source_id': source_id,
+                'error': error_message,
+            })
+    write_json_payload(manifest_path, manifest)
+    return {
+        'metrics': {
+            'item_count': sum(
+                1
+                for source_item in manifest.get('sources') or []
+                if str(source_item.get('source_type') or '')
+                == 'query_platform'
+            ),
+            'fetched_count': fetched_count,
+            'skipped_count': skipped_count,
+            'error_count': len(errors),
+        },
+        'errors': errors,
+    }, 1 if errors else 0
+
+
 def build_argument_parser():
     """创建医疗机构政府来源处理命令解析器。"""
     parser = argparse.ArgumentParser(
@@ -441,6 +790,22 @@ def build_argument_parser():
     collect_command.add_argument('--manifest', required=True)
     collect_command.add_argument('--allowed-domain', default='')
     add_fetch_arguments(collect_command)
+    platform_command = commands.add_parser(
+        'platform-query', help='按行政单位抓取政府查询平台分页记录'
+    )
+    platform_command.add_argument('--manifest', required=True)
+    platform_command.add_argument('--timeout', type=int, default=60)
+    platform_command.add_argument('--force', action='store_true')
+    platform_command.add_argument(
+        '--host-max-workers',
+        type=int,
+        default=DEFAULT_HOST_MAX_WORKERS,
+    )
+    platform_command.add_argument(
+        '--host-min-interval',
+        type=float,
+        default=DEFAULT_HOST_MIN_INTERVAL,
+    )
     inspect_command = commands.add_parser('inspect', help='生成提取计划')
     inspect_command.add_argument('--sources', required=True)
     inspect_command.add_argument('--output', required=True)
@@ -482,6 +847,22 @@ def main() -> int:
             if exit_code != 0:
                 print(
                     f"下载错误 {len(output_payload.get('errors') or [])} 条，"
+                    '详见清单 errors 字段',
+                    file=sys.stderr,
+                )
+            return exit_code
+        if arguments.command == 'platform-query':
+            output_payload, exit_code = run_platform_query_command(
+                Path(arguments.manifest).resolve(),
+                arguments.host_max_workers,
+                arguments.host_min_interval,
+                arguments.timeout,
+                arguments.force,
+            )
+            print(json.dumps(output_payload['metrics'], ensure_ascii=False))
+            if exit_code != 0:
+                print(
+                    f"平台抓取错误 {len(output_payload.get('errors') or [])} 条，"
                     '详见清单 errors 字段',
                     file=sys.stderr,
                 )

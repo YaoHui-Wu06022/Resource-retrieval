@@ -1,6 +1,5 @@
 """医疗机构最终工作簿生成测试。"""
 
-import importlib.util
 import io
 import json
 import sys
@@ -16,25 +15,20 @@ SCRIPTS_DIR = Path(__file__).resolve().parents[1]
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-SCRIPT_PATH = Path(__file__).resolve().parents[1] / 'build_excel.py'
-SPEC = importlib.util.spec_from_file_location(
-    'medical_build_excel', SCRIPT_PATH
-)
-BUILD_EXCEL = importlib.util.module_from_spec(SPEC)
-sys.modules[SPEC.name] = BUILD_EXCEL
-SPEC.loader.exec_module(BUILD_EXCEL)
+from build_excel import main as build_excel_main  # noqa: E402
 
 
-def build_city_context():
+def build_city_context(subdivision_names=None):
     """构造城市上下文测试夹具。"""
+    subdivision_names = subdivision_names or [
+        {'name': '甲区', 'adcode': '1', 'level': 'district'},
+    ]
     return {
         'stage': 'city_context',
         'input_city': '示例市',
         'city_name': '示例市',
         'province_name': '示例省',
-        'subdivisions': [
-            {'name': '甲区', 'adcode': '1', 'level': 'district'},
-        ],
+        'subdivisions': subdivision_names,
     }
 
 
@@ -43,6 +37,9 @@ def build_record(
     original_address,
     final_address,
     map_match_status='skipped',
+    administrative_unit='甲区',
+    license_no='',
+    institution_level='三级',
 ):
     """构造一条已处理地址记录。"""
     return {
@@ -52,11 +49,12 @@ def build_record(
         'source_nature': 'government_information',
         'source_reference': 'https://example.gov/list | list.html | row 1',
         'attributes': {
-            'administrative_unit': '甲区',
-            'license_administrative_unit': '甲区',
+            'administrative_unit': administrative_unit,
+            'license_administrative_unit': administrative_unit,
             'subdivision_scope': 'subdivision',
             'institution_type': '综合医院',
-            'institution_level': '三级',
+            'institution_level': institution_level,
+            'license_no': license_no,
         },
         'normalized_address': original_address,
         'map_match_status': map_match_status,
@@ -67,49 +65,120 @@ def build_record(
     }
 
 
-class MedicalBuildExcelTests(unittest.TestCase):
-    def test_ungraded_level_values_are_blank_in_domain_output(self):
-        """未定级/无定级/无级别在工作簿输出中显示为空。"""
-        for level_value in ('未定级', '无定级', '无级别'):
-            values = BUILD_EXCEL._domain_values({
-                'attributes': {
-                    'administrative_unit': '甲区',
-                    'institution_type': '综合医院',
-                    'institution_level': level_value,
-                },
-            })
-            self.assertEqual(values[3], '')
-        graded_values = BUILD_EXCEL._domain_values({
-            'attributes': {
-                'administrative_unit': '甲区',
-                'institution_type': '综合医院',
-                'institution_level': '三级',
-            },
-        })
-        self.assertEqual(graded_values[3], '三级')
+def write_unit_payload(unit_dir, city_context, items):
+    """写出一个行政单位的 processed_address_records.json。"""
+    processed_path = unit_dir / 'processed_address_records.json'
+    processed_path.write_text(json.dumps({
+        'stage': 'processed_address_records',
+        'city_context': city_context,
+        'items': items,
+        'metrics': {},
+    }, ensure_ascii=False), encoding='utf-8')
 
-    def test_effective_admin_prefers_final_address_district(self):
-        """最终地址含区名时优先使用该区，执照区只作兜底。"""
-        record = build_record(
-            '示例医院',
-            '花地大道南30-32号',
-            '示例市乙区花地大道南30-32号',
-        )
-        record['attributes']['administrative_unit'] = ''
-        record['attributes']['license_administrative_unit'] = '甲区'
-        self.assertEqual(
-            BUILD_EXCEL.resolve_effective_administrative_unit(
-                record, ['甲区', '乙区']
-            ),
-            '乙区',
-        )
-        record['final_address'] = '示例市花地大道南30-32号'
-        self.assertEqual(
-            BUILD_EXCEL.resolve_effective_administrative_unit(
-                record, ['甲区', '乙区']
-            ),
-            '甲区',
-        )
+
+def run_build_excel(root, output_path):
+    """在隔离 argv 下调用最新 build_excel 入口。"""
+    old_argv = sys.argv
+    sys.argv = [
+        'build_excel',
+        '--input-dir', str(root),
+        '--output', str(output_path),
+    ]
+    try:
+        output = io.StringIO()
+        with redirect_stdout(output):
+            build_excel_main()
+    finally:
+        sys.argv = old_argv
+
+
+class MedicalBuildExcelTests(unittest.TestCase):
+    def test_cross_district_rows_route_to_physical_unit_and_dedupe(self):
+        """跨目录同址记录去重后进入最终地址所在区工作簿。"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            first_dir = root / '甲区'
+            second_dir = root / '乙区'
+            first_dir.mkdir()
+            second_dir.mkdir()
+            city_context = build_city_context([
+                {'name': '甲区', 'adcode': '1', 'level': 'district'},
+                {'name': '乙区', 'adcode': '2', 'level': 'district'},
+            ])
+            first_items = [
+                build_record(
+                    '某医院乙区门诊部',
+                    '示例市乙区水荫路1号',
+                    '示例市乙区水荫路1号',
+                    administrative_unit='甲区',
+                    license_no='A1',
+                ),
+                build_record(
+                    '无地址诊所',
+                    '',
+                    '',
+                ),
+            ]
+            second_items = [
+                build_record(
+                    '某医院乙区门诊部',
+                    '示例市乙区水荫路1号',
+                    '示例市乙区水荫路1号',
+                    administrative_unit='乙区',
+                    license_no='A1',
+                ),
+            ]
+            write_unit_payload(first_dir, city_context, first_items)
+            write_unit_payload(second_dir, city_context, second_items)
+            output_path = root / '医疗机构信息_示例市_2026-09-03.xlsx'
+            run_build_excel(root, output_path)
+            first_workbook = openpyxl.load_workbook(
+                first_dir / '医疗机构信息_甲区.xlsx'
+            )
+            self.assertEqual(first_workbook['机构信息'].max_row, 1)
+            self.assertEqual(first_workbook['异常机构'].max_row, 2)
+            second_workbook = openpyxl.load_workbook(
+                second_dir / '医疗机构信息_乙区.xlsx'
+            )
+            self.assertEqual(second_workbook['机构信息'].max_row, 2)
+            city_workbook = openpyxl.load_workbook(output_path)
+            self.assertEqual(
+                city_workbook.sheetnames,
+                ['机构信息', '甲区', '乙区'],
+            )
+            self.assertEqual(city_workbook['机构信息'].max_row, 2)
+
+    def test_ungraded_levels_render_blank_through_public_workbook(self):
+        """未定级/无定级/无级别经工作簿输出后级别列为空。"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            unit_dir = root / '甲区'
+            unit_dir.mkdir()
+            items = [
+                build_record(
+                    f'级别示例{index}',
+                    f'示例市甲区测试路{index}号',
+                    f'示例市甲区测试路{index}号',
+                    institution_level=level_value,
+                )
+                for index, level_value in enumerate(
+                    ('未定级', '无定级', '无级别', '三级'),
+                    start=1,
+                )
+            ]
+            write_unit_payload(
+                unit_dir, build_city_context(), items
+            )
+            output_path = root / '医疗机构信息_示例市_2026-09-03.xlsx'
+            run_build_excel(root, output_path)
+            workbook = openpyxl.load_workbook(
+                unit_dir / '医疗机构信息_甲区.xlsx'
+            )
+            level_column = workbook['机构信息']['E']
+            self.assertEqual(
+                [cell.value or '' for cell in level_column[1:]],
+                ['', '', '', '三级'],
+            )
 
     def test_main_builds_unit_and_city_workbooks_without_anomaly_file(self):
         """从各行政单位目录生成区级工作簿与城市总表。"""
@@ -134,26 +203,11 @@ class MedicalBuildExcelTests(unittest.TestCase):
                     '',
                 ),
             ]
-            processed_path = unit_dir / 'processed_address_records.json'
-            processed_path.write_text(json.dumps({
-                'stage': 'processed_address_records',
-                'city_context': build_city_context(),
-                'items': items,
-                'metrics': {},
-            }, ensure_ascii=False), encoding='utf-8')
+            write_unit_payload(
+                unit_dir, build_city_context(), items
+            )
             output_path = root / '医疗机构信息_示例市_2026-09-03.xlsx'
-            old_argv = sys.argv
-            sys.argv = [
-                'build_excel',
-                '--input-dir', str(root),
-                '--output', str(output_path),
-            ]
-            try:
-                output = io.StringIO()
-                with redirect_stdout(output):
-                    BUILD_EXCEL.main()
-            finally:
-                sys.argv = old_argv
+            run_build_excel(root, output_path)
             self.assertTrue(output_path.is_file())
             city_workbook = openpyxl.load_workbook(output_path)
             self.assertEqual(city_workbook.sheetnames, ['机构信息', '甲区'])

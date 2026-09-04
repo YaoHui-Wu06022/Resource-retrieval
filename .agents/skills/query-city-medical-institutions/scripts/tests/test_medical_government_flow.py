@@ -4,6 +4,7 @@ import json
 import sys
 import tempfile
 import unittest
+from urllib.parse import parse_qs, urlparse
 from pathlib import Path
 
 
@@ -14,6 +15,8 @@ if str(SCRIPTS_DIR) not in sys.path:
 from medical_government_flow import (  # noqa: E402
     build_address_records,
     build_medical_extraction_plan,
+    build_platform_query_url,
+    collect_platform_pages,
     extract_medical_records,
 )
 
@@ -35,6 +38,191 @@ def build_administrative_unit():
 
 
 class MedicalGovernmentFlowTests(unittest.TestCase):
+    def test_query_platform_records_go_through_generic_engine(self):
+        """平台汇总 JSON 记录经对象列表规则提取为地址记录。"""
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            records_path = root / 'records.json'
+            records_path.write_text(json.dumps([{
+                'yymc': '平台综合医院',
+                'yydz': '示例市甲区测试路1号',
+                'szq': '甲区',
+                'yytype': '综合医院',
+                'jb': '三级',
+                '_page': 1,
+                '_row': 1,
+            }], ensure_ascii=False), encoding='utf-8')
+            manifest = {
+                'stage': 'medical_institutions_government_source',
+                'city_context': build_city_context(),
+                'administrative_unit': build_administrative_unit(),
+                'sources': [{
+                    'source_id': 'example_platform',
+                    'authority': '示例市卫生健康委员会',
+                    'source_type': 'query_platform',
+                    'url': 'https://example.gov/platform',
+                    'local_file': 'records.json',
+                    'snapshot_date': '2026-06-30',
+                    'priority': 15,
+                    'status': 'ready',
+                }],
+            }
+            manifest_path = root / 'government_source.json'
+            manifest_path.write_text(
+                json.dumps(manifest, ensure_ascii=False),
+                encoding='utf-8',
+            )
+            plan_path = root / 'extraction_plan.json'
+            plan, exit_code = build_medical_extraction_plan(
+                manifest_path, plan_path
+            )
+            self.assertEqual(exit_code, 0)
+            object_rules = [
+                rule
+                for rule in plan['items'][0]['extraction_rules']
+                if rule.get('kind') == 'object_list'
+            ]
+            self.assertEqual(object_rules[0]['object_format'], 'json')
+            self.assertEqual(
+                object_rules[0]['place_name_keys'], ['yymc']
+            )
+            plan['items'][0]['review_status'] = 'ready'
+            for rule in plan['items'][0]['extraction_rules']:
+                if rule.get('kind') == 'object_list':
+                    rule['approved'] = True
+            plan_path.write_text(
+                json.dumps(plan, ensure_ascii=False), encoding='utf-8'
+            )
+            payload = extract_medical_records(
+                plan_path, root / 'address_records.json'
+            )
+        self.assertEqual(payload['errors'], [])
+        self.assertEqual(payload['metrics']['record_count'], 1)
+        record = payload['items'][0]
+        self.assertEqual(record['place_name'], '平台综合医院')
+        self.assertEqual(
+            record['attributes']['administrative_unit'], '甲区'
+        )
+
+    def test_build_platform_query_url_applies_district_filter(self):
+        """平台查询 URL 包含区过滤 JSON 与分页参数。"""
+        source_item = {
+            'platform': {
+                'endpoint': 'https://search.example.gov/jsonp/site/1',
+                'allowed_domain': 'search.example.gov',
+                'callback': 'cb',
+                'fixed_params': {'category_id': '66705'},
+                'paging': {
+                    'page_param': 'page',
+                    'page_size_param': 'pagesize',
+                    'page_size': 500,
+                },
+                'district_filter': {'key': 'szq'},
+            },
+        }
+        page_url = build_platform_query_url(
+            source_item, '甲区', 3
+        )
+        parsed = urlparse(page_url)
+        query = parse_qs(parsed.query)
+        self.assertEqual(query['page'], ['3'])
+        self.assertEqual(query['pagesize'], ['500'])
+        self.assertEqual(query['category_id'], ['66705'])
+        self.assertIn('甲区', query['json_ext_in'][0])
+
+    def test_collect_platform_pages_pages_until_count(self):
+        """分页采集按 count 收齐并保存每页原文审计。"""
+        source_item = {
+            'platform': {
+                'endpoint': 'https://search.example.gov/jsonp/site/1',
+                'allowed_domain': 'search.example.gov',
+                'callback': 'cb',
+                'fixed_params': {},
+                'paging': {
+                    'page_param': 'page',
+                    'page_size_param': 'pagesize',
+                    'page_size': 2,
+                    'total_field': 'count',
+                    'list_field': 'results',
+                },
+                'district_filter': {'key': 'szq'},
+                'json_ext_field': 'json_ext',
+            },
+        }
+
+        def fake_fetch(page_url, _allowed_domain, _timeout):
+            query = parse_qs(urlparse(page_url).query)
+            page_number = int(query['page'][0])
+            if page_number == 1:
+                payload = {'count': 3, 'results': [
+                    {'id': '1', 'json_ext': json.dumps({
+                        'yymc': '医院一', 'yydz': '示例市甲区路1号',
+                        'szq': '甲区', 'yytype': '综合医院',
+                    }, ensure_ascii=False)},
+                    {'id': '2', 'json_ext': json.dumps({
+                        'yymc': '诊所一', 'yydz': '示例市甲区路2号',
+                        'szq': '甲区', 'yytype': '普通诊所',
+                    }, ensure_ascii=False)},
+                ]}
+            else:
+                payload = {'count': 3, 'results': [
+                    {'id': '3', 'json_ext': json.dumps({
+                        'yymc': '检验实验室一',
+                        'yydz': '示例市甲区路3号',
+                        'szq': '甲区', 'yytype': '医学检验实验室',
+                    }, ensure_ascii=False)},
+                ]}
+            return 'cb(' + json.dumps(
+                payload, ensure_ascii=False
+            ) + ')', {'url': page_url}
+
+        records, page_audits, total_count, raw_texts = (
+            collect_platform_pages(
+                source_item, '甲区', fetch_page=fake_fetch
+            )
+        )
+        self.assertEqual(total_count, 3)
+        self.assertEqual(len(records), 3)
+        self.assertEqual(len(page_audits), 2)
+        self.assertEqual(len(raw_texts), 2)
+        self.assertEqual(records[2]['_page'], 2)
+
+    def test_collect_platform_pages_rejects_count_mismatch(self):
+        """分页总数收不齐时抛出错误。"""
+        source_item = {
+            'platform': {
+                'endpoint': 'https://search.example.gov/jsonp/site/1',
+                'allowed_domain': 'search.example.gov',
+                'callback': 'cb',
+                'fixed_params': {},
+                'paging': {
+                    'page_param': 'page',
+                    'page_size_param': 'pagesize',
+                    'page_size': 2,
+                    'total_field': 'count',
+                    'list_field': 'results',
+                },
+                'district_filter': {'key': 'szq'},
+                'json_ext_field': 'json_ext',
+            },
+        }
+
+        def fake_fetch(page_url, _allowed_domain, _timeout):
+            query = parse_qs(urlparse(page_url).query)
+            page_number = int(query['page'][0])
+            payload = {'count': 5, 'results': [
+                {'id': str(page_number * 10 + index), 'json_ext': '{}'}
+                for index in range(2)
+            ]}
+            return 'cb(' + json.dumps(
+                payload, ensure_ascii=False
+            ) + ')', {'url': page_url}
+
+        with self.assertRaises(ValueError):
+            collect_platform_pages(
+                source_item, '甲区', fetch_page=fake_fetch
+            )
+
     def test_embedded_html_list_goes_through_generic_engine(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

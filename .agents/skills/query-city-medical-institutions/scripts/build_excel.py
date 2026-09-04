@@ -5,11 +5,9 @@
 import argparse
 import json
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 from openpyxl import load_workbook
-from query_city_core.address.city import validate_city_context
 from query_city_core.excel_output import (
     ResultWorkbookSpec,
     create_result_workbook,
@@ -20,7 +18,15 @@ from query_city_core.excel_style import (
     validate_common_worksheet,
     write_workbook_atomically,
 )
-from query_city_core.io_utils import read_json_payload
+
+from medical_scope import (
+    abnormal_reason,
+    collect_administrative_unit_payloads,
+    effective_main_record,
+    is_abnormal_record,
+    merge_city_records,
+    partition_main_records,
+)
 
 
 if hasattr(sys.stdout, 'reconfigure'):
@@ -51,65 +57,11 @@ def _domain_values(record):
     ]
 
 
-def resolve_effective_administrative_unit(record, subdivision_names):
-    """按最终地址、来源行政区、执照区顺序解析区级归属。"""
-    final_address = str(record.get('final_address') or '').strip()
-    if final_address:
-        for unit_name in sorted(
-            (name for name in subdivision_names if name),
-            key=len,
-            reverse=True,
-        ):
-            if unit_name in final_address:
-                return unit_name
-    attributes = record.get('attributes') or {}
-    return str(
-        (attributes.get('administrative_unit') or '').strip()
-        or (attributes.get('license_administrative_unit') or '').strip()
-    )
-
-
-def _effective_main_record(record):
-    """官方地址可用但地图未确认时，主表仍展示官方地址。"""
-    effective = dict(record)
-    final_address = str(record.get('final_address') or '').strip()
-    original_address = str(record.get('original_address') or '').strip()
-    if not final_address and original_address:
-        effective['final_address'] = original_address
-        effective['final_address_source'] = 'official'
-        effective['map_match_status'] = 'skipped'
-    return effective
-
-
-def _abnormal_reason(record):
-    """返回异常记录的展示原因。"""
-    attributes = record.get('attributes') or {}
-    return str(
-        (attributes.get('abnormal_reason') or '').strip()
-        or record.get('map_reason')
-        or record.get('normalization_reason')
-        or '官方来源未提供可用地址'
-    ).strip()
-
-
-def _is_abnormal_record(record):
-    """判断记录是否进入异常机构表。"""
-    return (
-        not str(record.get('final_address') or '').strip()
-        and (
-            not str(record.get('original_address') or '').strip()
-            or str(
-                (record.get('attributes') or {}).get('abnormal_reason') or ''
-            ).strip()
-        )
-    )
-
-
 def build_main_rows(records):
     """过滤无地址记录并返回公共生成器需要的 (领域值, 地址记录)。"""
     rows = []
     for record in records:
-        effective = _effective_main_record(record)
+        effective = effective_main_record(record)
         if not str(effective.get('final_address') or '').strip():
             continue
         rows.append((_domain_values(record), effective))
@@ -119,9 +71,9 @@ def build_main_rows(records):
 def build_abnormal_rows(records):
     """构造异常机构行。"""
     return [
-        (_domain_values(record), record, _abnormal_reason(record))
+        (_domain_values(record), record, abnormal_reason(record))
         for record in records
-        if _is_abnormal_record(record)
+        if is_abnormal_record(record)
     ]
 
 
@@ -174,67 +126,6 @@ def _write_main_only_workbook(output_path, spec, main_sheets):
     )
 
 
-def load_unit_payload(input_path):
-    """读取并校验一个行政单位目录的地址处理结果。"""
-    payload = read_json_payload(input_path)
-    if payload.get('stage') != 'processed_address_records':
-        raise ValueError(
-            f'{input_path} 阶段必须是 processed_address_records'
-        )
-    validate_city_context(payload.get('city_context'))
-    if not isinstance(payload.get('items'), list):
-        raise ValueError(f'{input_path} items 必须是数组')
-    return payload
-
-
-def collect_administrative_unit_payloads(input_dir):
-    """收集各行政单位目录中的地址处理结果。"""
-    root = Path(input_dir).resolve()
-    if not root.is_dir():
-        raise ValueError(f'输入目录不存在：{root}')
-    unit_payloads = []
-    city_name = ''
-    for unit_dir in sorted(root.iterdir(), key=lambda path: path.name):
-        processed_path = unit_dir / 'processed_address_records.json'
-        if not unit_dir.is_dir() or not processed_path.is_file():
-            continue
-        payload = load_unit_payload(processed_path)
-        payload_city = payload['city_context']['city_name']
-        if city_name and payload_city != city_name:
-            raise ValueError('各行政单位处理结果的 city 不一致')
-        city_name = payload_city
-        unit_payloads.append((unit_dir.name, unit_dir, payload))
-    if not unit_payloads:
-        raise ValueError('没有找到任何 processed_address_records.json')
-    return city_name, unit_payloads
-
-
-def scope_records_to_unit(records, unit_name, subdivision_names):
-    """把记录归属到目录行政单位并校验，防止跨区记录混入。"""
-    scoped_records = []
-    for record in records:
-        if not isinstance(record, dict):
-            raise ValueError(f'{unit_name}包含非对象地址记录')
-        effective_record = dict(record)
-        effective_attributes = dict(record.get('attributes') or {})
-        effective_unit = resolve_effective_administrative_unit(
-            record, subdivision_names
-        )
-        if not effective_unit:
-            raise ValueError(
-                f'{record.get("place_name")} 无法确定行政单位'
-            )
-        if effective_unit != unit_name:
-            raise ValueError(
-                f'{record.get("place_name")} 的行政单位'
-                f'“{effective_unit}”与目录不一致'
-            )
-        effective_attributes['administrative_unit'] = effective_unit
-        effective_record['attributes'] = effective_attributes
-        scoped_records.append(effective_record)
-    return scoped_records
-
-
 def main():
     """生成所有行政单位工作簿和一个城市总表。"""
     parser = argparse.ArgumentParser(
@@ -261,16 +152,48 @@ def main():
                 'subdivisions'
             ) or []
         ]
+        unit_dir_by_name = {
+            unit_name: unit_dir
+            for unit_name, unit_dir, _payload in unit_payloads
+        }
+        unit_records = [
+            (record, unit_name)
+            for unit_name, _unit_dir, payload in unit_payloads
+            for record in payload['items']
+        ]
+        abnormal_pairs = [
+            (record, unit_name)
+            for record, unit_name in unit_records
+            if is_abnormal_record(record)
+        ]
+        main_records = [
+            record
+            for record, _unit_name in unit_records
+            if not is_abnormal_record(record)
+        ]
+        merged_records = merge_city_records(
+            main_records, subdivision_names
+        )
+        main_partitions = partition_main_records(
+            merged_records, subdivision_names
+        )
+        abnormal_partitions = {}
+        for record, unit_name in abnormal_pairs:
+            abnormal_partitions.setdefault(unit_name, []).append(record)
         spec = ResultWorkbookSpec(DOMAIN_HEADERS, DOMAIN_WIDTHS)
         merged_main_rows = []
         unit_outputs = []
         unit_main_sheets = []
-        for unit_name, unit_dir, payload in unit_payloads:
-            records = scope_records_to_unit(
-                payload['items'], unit_name, subdivision_names
+        for unit_name in subdivision_names:
+            unit_dir = unit_dir_by_name.get(unit_name)
+            if unit_dir is None:
+                continue
+            main_rows = build_main_rows(
+                main_partitions.get(unit_name) or []
             )
-            main_rows = build_main_rows(records)
-            abnormal_rows = build_abnormal_rows(records)
+            abnormal_rows = build_abnormal_rows(
+                abnormal_partitions.get(unit_name) or []
+            )
             unit_output_path = _write_workbook(
                 unit_dir / f'医疗机构信息_{unit_name}.xlsx',
                 spec,

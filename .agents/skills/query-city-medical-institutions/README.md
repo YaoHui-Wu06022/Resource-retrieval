@@ -20,9 +20,11 @@
 | `SKILL.md` | 执行规范：来源检索、提取计划复核、地址处理与工作簿生成。 |
 | `AGENTS.md` | 本 Skill Python 代码操作规范。 |
 | `references/medical-source-format.md` | `government_source.json`（每区一份）与提取阶段格式规范。 |
-| `scripts/medical_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `inspect` / `extract`。 |
+| `scripts/medical_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `platform-query` / `inspect` / `extract`。 |
 | `scripts/medical_common.py` | 医疗记录构造、执业地址拆分、外市剔除、跨来源去重。 |
-| `scripts/build_excel.py` | 收集各行政单位 processed 结果并生成区级工作簿与城市总表。 |
+| `scripts/medical_scope.py` | 城市级跨目录去重、按最终物理地址分桶、机构类型大类归并。 |
+| `scripts/build_excel.py` | 汇总各行政单位 processed 结果，跨目录去重后按物理地址分桶生成区级工作簿与城市总表。 |
+| `scripts/medical_quality_check.py` | 交付前质量闸门：平台数量下界、大类覆盖与来源完整检查。 |
 
 ## 修改记录
 
@@ -47,3 +49,15 @@
 - SKILL.md 全文重排为整段行（不做 80 列手动折行），并压缩检索位置与
   顺序、执行边界、完成检查等表述；只描述栏目类型与查找次序，不写
   具体网址。
+
+### 2026-09-04
+
+- 检索层级改为“结果按区交付、来源先市后区”：市级统一注册查询平台/
+  市级发证全量先行，区级全量名单补充校正，省级名单补充，个案公示仅佐证；
+  平台页面“区发证信息以各区卫健局为准”等口径记入来源项并写入最终说明。
+- 新增政府注册查询平台 `query_platform` 来源形态与 `platform-query`
+  抓取子命令（原始 JSONP 页证据 + 汇总记录），平台官方快照即合格证据。
+- 区级归属改为城市级跨目录去重后按最终物理地址分桶；无地址异常行保留
+  在来源单位目录异常表。
+- 新增硬性质量闸门 `medical_quality_check.py`：平台数量下界（默认 90%）、
+  平台大类缺失阻断、无 ready 全量来源阻断，输出 `quality_report.json`。

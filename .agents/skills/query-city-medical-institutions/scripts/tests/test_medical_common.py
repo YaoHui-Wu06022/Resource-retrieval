@@ -23,7 +23,10 @@ def build_city_context():
         'input_city': '广州市',
         'city_name': '广州市',
         'province_name': '广东省',
-        'subdivisions': ['越秀区', '白云区'],
+        'subdivisions': [
+            {'name': '越秀区', 'adcode': '440104', 'level': 'district'},
+            {'name': '白云区', 'adcode': '440111', 'level': 'district'},
+        ],
     }
 
 
