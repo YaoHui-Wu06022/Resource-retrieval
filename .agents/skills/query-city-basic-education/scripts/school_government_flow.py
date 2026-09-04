@@ -60,6 +60,7 @@ SOURCE_MANIFEST_FIELDS = {
     'administrative_unit',
     'processing_status',
     'school_type_coverage',
+    'coverage_notes',
     'items',
 }
 SOURCE_ITEM_FIELDS = {
@@ -149,6 +150,28 @@ def validate_source_manifest(
         if coverage_status not in SOURCE_COVERAGE_STATUSES:
             raise ValueError(
                 f'school_type_coverage.{school_type} 不在允许范围内'
+            )
+
+    coverage_notes = source_manifest.get('coverage_notes') or {}
+    if not isinstance(coverage_notes, dict):
+        raise ValueError('coverage_notes 必须是对象')
+    for coverage_type, coverage_note in coverage_notes.items():
+        if (
+            not str(coverage_type or '').strip()
+            or not isinstance(coverage_note, str)
+            or not coverage_note.strip()
+        ):
+            raise ValueError(
+                'coverage_notes 的学段键与说明必须是非空字符串'
+            )
+    for school_type in REQUIRED_SCHOOL_TYPE_COVERAGE:
+        if (
+            school_type_coverage[school_type] != 'covered'
+            and not coverage_notes.get(school_type)
+        ):
+            raise ValueError(
+                f'school_type_coverage.{school_type} 不是 covered 时'
+                '必须在 coverage_notes 中填写检索层级与结论'
             )
 
     source_items = source_manifest.get('items')

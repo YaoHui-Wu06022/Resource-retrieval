@@ -11,6 +11,7 @@
   "administrative_unit": {"name": "越秀区", "adcode": "440104", "level": "district"},
   "processing_status": "partial",
   "school_type_coverage": {"幼儿园": "covered", "小学": "covered", "初中": "no_official_source", "高中": "no_official_source"},
+  "coverage_notes": {"初中": "区级未发布独立初中名录，已核验市级义务教育招生名单后仍无可采用来源", "高中": "区级未发布独立高中名录；已核验广州市高中阶段招生学校名单（市级，含校址所在区）后按区采用"},
   "items": [{
     "source_title": "越秀区幼儿园和小学名录",
     "publisher": "越秀区教育局",
@@ -31,7 +32,10 @@
 | `administrative_unit` | 必须原样取自 `city_context.subdivisions` 的一项。 |
 | `processing_status` | 本行政单位整体检索结果，取值见下。 |
 | `school_type_coverage` | 至少含幼儿园、小学、初中、高中；状态限 `covered`/`partial`/`no_official_source`/`source_unusable`。 |
+| `coverage_notes` | 可选对象；键为学段，值为非空说明。某学段状态不是 `covered` 时必填该学段说明，写清已完成检索层级与结论。 |
 | `items` | 已确认采用并保存到本地的来源。 |
+
+`no_official_source`/`source_unusable` 只表示按该学段首选与回退层级完成核验后仍无可用政府名录，不等于该行政单位没有该学段学校。学段检索起点：高中以市级（上级教育部门 / 市招生考试机构 / 市政府数据平台）为首要层级；幼儿园/小学/初中以区级为首要层级，缺失时再回退市级。市级名录若带“校址所在区 / 行政区”等字段，应按行政单位过滤后作为该单位来源采用，不能因名录覆盖全市而跳过；市级名录若无可拆分行政单位字段，不得整表归入任一行政单位，须在 `coverage_notes` 说明并继续找区级或可拆分来源。
 
 `processing_status` 与 `items`/覆盖的组合：
 

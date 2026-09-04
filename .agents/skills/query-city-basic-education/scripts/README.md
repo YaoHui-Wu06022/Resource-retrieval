@@ -10,6 +10,14 @@
 
 ## 修改记录
 
+### 2026-09-04
+
+- `school_government_flow.py` 来源清单校验新增顶层字段 `coverage_notes`
+  （对象：学段 → 非空说明），并强制 `school_type_coverage` 中每个非
+  `covered` 学段必须提供说明；用于落实“上级层级回退与缺口依据可复核”。
+- `tests/test_build_school_records.py` 补齐 `coverage_notes` 接受、
+  缺失、非法值与全 covered 可省略四类用例。
+
 ### 2026-09-03
 
 - 由 `build_school_address.py`、`inspect_government_source.py`、 `extract_school_records.py`、`normalize_school_records.py` 收敛为 `school_government_flow.py` + `school_common.py`； `inspect` 参数统一为 `--sources`。

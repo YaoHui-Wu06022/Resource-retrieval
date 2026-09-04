@@ -858,6 +858,16 @@ class SourceManifestTests(unittest.TestCase):
                 '初中': 'no_official_source',
                 '高中': 'no_official_source',
             },
+            'coverage_notes': {
+                school_type: (
+                    '高中按市级优先核验市招考机构与数据平台后'
+                    '仍未检索到可用政府名录'
+                    if school_type == '高中'
+                    else '按区级优先核验并回退市级后'
+                    '仍未检索到可用政府名录'
+                )
+                for school_type in ('幼儿园', '小学', '初中', '高中')
+            },
             'items': [],
         }
 
@@ -1001,6 +1011,46 @@ class SourceManifestTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'source_form_reason'):
             INSPECTOR.validate_source_manifest(source_manifest)
 
+    def test_non_covered_school_type_requires_coverage_note(self):
+        """非 covered 学段必须在 coverage_notes 中说明检索层级与结论。"""
+        source_manifest = self.build_source_manifest()
+        del source_manifest['coverage_notes']['高中']
+        with self.assertRaisesRegex(ValueError, 'coverage_notes'):
+            INSPECTOR.validate_source_manifest(source_manifest)
+
+    def test_coverage_notes_require_non_empty_string_values(self):
+        """coverage_notes 的学段说明必须是非空字符串。"""
+        for invalid_note in ('', 2026, None):
+            with self.subTest(value=invalid_note):
+                source_manifest = self.build_source_manifest()
+                source_manifest['coverage_notes']['高中'] = invalid_note
+                with self.assertRaisesRegex(
+                    ValueError, 'coverage_notes'
+                ):
+                    INSPECTOR.validate_source_manifest(source_manifest)
+
+    def test_full_coverage_does_not_require_coverage_notes(self):
+        """四类均为 covered 时 coverage_notes 为可选字段。"""
+        source_manifest = self.build_source_manifest()
+        source_manifest['processing_status'] = 'completed'
+        source_manifest['school_type_coverage'] = {
+            school_type: 'covered'
+            for school_type in ('幼儿园', '小学', '初中', '高中')
+        }
+        source_manifest['items'] = [{
+            'source_title': '全区学校名录',
+            'publisher': '越秀区教育局',
+            'publication_date': '2026-08-01',
+            'landing_page_url': 'https://www.example.gov.cn/notice/1',
+            'content_url': 'https://www.example.gov.cn/files/list.xlsx',
+            'covered_school_types': ['幼儿园', '小学', '初中', '高中'],
+            'contains_address': True,
+            'local_files': ['全区学校名录.xlsx'],
+        }]
+        del source_manifest['coverage_notes']
+        _, _, items = INSPECTOR.validate_source_manifest(source_manifest)
+        self.assertEqual(items, source_manifest['items'])
+
     def test_inspect_consolidates_identical_key_value_detail_pages(self):
         """inspect 应把同目录同结构详情页合并为一条文件模式规则。"""
         with tempfile.TemporaryDirectory() as temporary_dir:
@@ -1136,6 +1186,16 @@ class InspectionRuleSuggestionTests(unittest.TestCase):
                 '小学': 'no_official_source',
                 '初中': 'no_official_source',
                 '高中': 'no_official_source',
+            },
+            'coverage_notes': {
+                school_type: (
+                    '高中按市级优先核验市招考机构与数据平台后'
+                    '仍未检索到可用政府名录'
+                    if school_type == '高中'
+                    else '按区级优先核验并回退市级后'
+                    '仍未检索到可用政府名录'
+                )
+                for school_type in ('小学', '初中', '高中')
             },
             'items': [{
                 'source_title': '越秀区幼儿园基本情况',
