@@ -833,7 +833,7 @@ def postprocess_university_address_records(records):
             existing, campus_seen[group_key]
         ):
             campus_records[existing_index] = record
-    campus_records = drop_unlabeled_incomplete_addresses(campus_records)
+    campus_records = drop_incomplete_road_duplicates(campus_records)
     retained = []
     location_seen = {}
     for order, record in enumerate(campus_records):
@@ -864,8 +864,8 @@ def postprocess_university_address_records(records):
     return retained
 
 
-def drop_unlabeled_incomplete_addresses(records):
-    """丢弃同校同路已有门牌时并存的无门牌地址变体（含带校区名残缺行）。"""
+def drop_incomplete_road_duplicates(records):
+    """丢弃同校同路已有门牌时并存的无门牌重复行（含带校区名残缺行）。"""
     numbered_roads = defaultdict(set)
     for record in records:
         attributes = record.get('attributes') or {}

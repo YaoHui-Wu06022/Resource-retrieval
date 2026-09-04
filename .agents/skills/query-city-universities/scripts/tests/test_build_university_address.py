@@ -882,16 +882,16 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
                 build_city_universities_payload([completed_school, missing_school]),
             )
 
-    def test_rejects_old_item_without_processing_status(self):
-        """旧格式没有处理状态时应拒绝输入。"""
+    def test_rejects_item_without_processing_status(self):
+        """检索结果项缺少 processing_status 时拒绝输入。"""
         school = build_school()
-        old_item = {
+        item_without_status = {
             'school_identifier': school['school_identifier'],
             'pages': [build_page('https://example.edu.cn/')],
         }
         with self.assertRaisesRegex(ValueError, 'processing_status'):
             build_address_payload(
-                build_payload([old_item]),
+                build_payload([item_without_status]),
                 build_city_universities_payload([school]),
             )
 
@@ -933,17 +933,17 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
                 build_city_universities_payload([city_university]),
             )
 
-    def test_rejects_old_full_school_object(self):
-        """精简输入不得继续携带完整学校对象。"""
+    def test_rejects_embedded_school_object_in_item(self):
+        """检索结果项必须使用 school_identifier，不得携带完整学校对象。"""
         school = build_school()
-        old_item = {
+        embedded_item = {
             'school': school,
             'processing_status': 'completed',
             'pages': [build_page('https://example.edu.cn/')],
         }
         with self.assertRaisesRegex(ValueError, 'school_identifier'):
             build_address_payload(
-                build_payload([old_item]),
+                build_payload([embedded_item]),
                 build_city_universities_payload([school]),
             )
 
@@ -965,16 +965,19 @@ class BuildUniversityAddressRecordsTest(unittest.TestCase):
         self.assertEqual(result['city_context'], build_city_context())
         self.assertEqual(result['items'][0]['school'], school)
 
-    def test_rejects_old_complete_page_results_payload(self):
-        """命令输入不再接受旧的完整页面批次格式。"""
+    def test_rejects_complete_page_results_payload_as_input(self):
+        """地址构建命令只接受仅含 items 的检索结果，不接受完整页面批次。"""
         school = build_school()
-        old_payload = {
+        page_results_payload = {
             'stage': 'university_page_results',
             'city_context': build_city_context(),
             'items': [],
         }
         with self.assertRaisesRegex(ValueError, '仅包含 items'):
-            build_address_payload(old_payload, build_city_universities_payload([school]))
+            build_address_payload(
+                page_results_payload,
+                build_city_universities_payload([school]),
+            )
 
     def test_main_reads_sibling_city_universities(self):
         """命令入口应读取基础信息并自动写出页面批次归档。"""

@@ -347,8 +347,8 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
             'candidate_urls': list(candidate_urls),
         }
 
-    def test_stops_when_home_has_address(self):
-        """首页已有非空地址候选时不再补抓。"""
+    def test_home_only_when_no_more_pages_to_fetch(self):
+        """首页已有地址且队列无候选或相关链接时，只保留首页页。"""
         requested = []
 
         def fetch_page(url, domains):
@@ -515,7 +515,7 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         self.assertEqual(len(pages), 3)
 
     def test_follows_candidate_urls_before_related_links(self):
-        """首页无地址时按 candidate_urls 顺序补抓，候选页抓完后停止。"""
+        """candidate_urls 优先于自动发现链接，队列耗尽即结束。"""
         item = self.build_item(candidate_urls=[
             'https://www.example.edu.cn/contact',
         ])
@@ -540,7 +540,7 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         self.assertEqual(len(pages), 2)
 
     def test_falls_back_to_related_links_in_page_order(self):
-        """首页与候选页均无地址时，按页面返回的相关链接顺序补抓。"""
+        """即使中途页面命中地址，队列中同域相关链接仍按序补抓。"""
         item = self.build_item()
         requested = []
 
@@ -1377,7 +1377,7 @@ class FixedPolicyBatchFetchTests(unittest.TestCase):
         )
 
     def test_navigation_link_does_not_become_campus_hint(self):
-        """旧版页面中“下一条”校区链接不再生成孤立校区提示。"""
+        """“下一条”校区链接不得生成孤立校区提示。"""
         result = build_university_result({
             'requested_url': 'https://example.edu.cn/info/2080.htm',
             'final_url': 'https://example.edu.cn/info/2080.htm',
