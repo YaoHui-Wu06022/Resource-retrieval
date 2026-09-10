@@ -1,11 +1,120 @@
 """v2 复核辅助：按文件/表配置精确批准提取计划规则。"""
 
+import hashlib
 import json
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any
 
 from query_city_core.official.readers import load_source_tables
+
+_PDF_CACHE_ROOT = Path(tempfile.gettempdir()) / 'query_city_core_review_cache'
+_HEADER_FIRST_CELLS = {
+    '序号', '编号', '代码', '学校', '学校名称', '单位', '单位名称',
+    '名称', '学段',
+}
+
+
+def parse_page_spec(raw_pages: str) -> list[int]:
+    """解析 15-33 / 15,17,20 / 15 形式的页参数。"""
+    pages: set[int] = set()
+    for token in str(raw_pages).replace('，', ',').split(','):
+        token = token.strip()
+        if not token:
+            continue
+        if '-' in token:
+            start_text, _, end_text = token.partition('-')
+            start = int(start_text.strip())
+            end = int(end_text.strip())
+            if start <= 0 or end < start:
+                raise ValueError(f'无效页范围：{token}')
+            pages.update(range(start, end + 1))
+        else:
+            page = int(token)
+            if page <= 0:
+                raise ValueError(f'无效页码：{token}')
+            pages.add(page)
+    if not pages:
+        raise ValueError('--pages 必须至少指定一页')
+    return sorted(pages)
+
+
+def expand_page_specs(spec: dict) -> list[dict]:
+    """把含 pages 范围的规则配置展开为逐页配置（无 pages 时原样返回）。"""
+    raw_pages = spec.get('pages')
+    if raw_pages is None:
+        return [spec]
+    if isinstance(raw_pages, str):
+        pages = parse_page_spec(raw_pages)
+    else:
+        pages = sorted({int(page) for page in raw_pages})
+    if not pages:
+        raise ValueError('规则 pages 不能为空')
+    expanded = []
+    for page in pages:
+        page_spec = dict(spec)
+        page_spec.pop('pages', None)
+        page_spec['location'] = page
+        expanded.append(page_spec)
+    return expanded
+
+
+def vision_page_start_meta(
+    plan_path: Path,
+    file_name: str,
+    page: int,
+) -> tuple[int, int]:
+    """从视觉 JSON 判断该页首行是否为表头，返回 (header_row, data_start_row)。"""
+    try:
+        payload = json.loads(
+            (Path(plan_path).parent / file_name).read_text(
+                encoding='utf-8-sig'
+            )
+        )
+    except (OSError, ValueError):
+        return 0, 1
+    for entry in payload.get('pages') or []:
+        if entry.get('page') != page:
+            continue
+        rows = entry.get('rows') or []
+        if rows and isinstance(rows[0], list):
+            first_cell = str(rows[0][0]).strip()
+            if first_cell in _HEADER_FIRST_CELLS:
+                return 1, 2
+        return 0, 1
+    return 0, 1
+
+
+def _cached_pdf_tables(pdf_path: Path) -> list[dict]:
+    """按文件路径+mtime 缓存 PDF 解析表，重跑复核时避免重复解析。"""
+    stat = pdf_path.stat()
+    digest = hashlib.sha1(
+        str(pdf_path.resolve()).encode('utf-8')
+    ).hexdigest()
+    cache_path = _PDF_CACHE_ROOT / f'{digest}.json'
+    meta = {
+        'path': str(pdf_path.resolve()),
+        'mtime_ns': stat.st_mtime_ns,
+        'size': stat.st_size,
+    }
+    if cache_path.is_file():
+        try:
+            cached = json.loads(cache_path.read_text(encoding='utf-8'))
+            if cached.get('meta') == meta:
+                return cached['tables']
+        except (OSError, ValueError, KeyError):
+            pass
+    tables, _ = load_source_tables(pdf_path)
+    try:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(
+            json.dumps({'meta': meta, 'tables': tables}, ensure_ascii=False),
+            encoding='utf-8',
+        )
+    except OSError:
+        pass
+    return tables
 
 
 def _set_attr(rule: dict, field_name: str, column: int | None, value: str) -> None:
@@ -78,18 +187,30 @@ def _make_rule(
     file_name: str,
     spec: dict,
     location_key: str,
+    plan_path: Path | None = None,
 ) -> dict[str, Any]:
     location = spec['location']
     if location_key == 'page':
         location_value: dict[str, Any] = {'page': location}
     else:
         location_value = {'table_index': location}
+    header_row = spec.get('header_row', 0)
+    data_start_row = spec.get('data_start_row', 1)
+    if (
+        location_key == 'page'
+        and plan_path is not None
+        and 'header_row' not in spec
+        and 'data_start_row' not in spec
+    ):
+        header_row, data_start_row = vision_page_start_meta(
+            plan_path, file_name, location
+        )
     return {
         'file': file_name,
         'kind': spec.get('kind', 'vision_table'),
         'location': location_value,
-        'header_row': spec.get('header_row', 0),
-        'data_start_row': spec.get('data_start_row', 1),
+        'header_row': header_row,
+        'data_start_row': data_start_row,
         'data_end_row': None,
         'place_name_columns': spec.get('name_cols') or [1],
         'place_name_separator': '',
@@ -118,7 +239,7 @@ def _load_pdf_tables_by_location(
     pdf_path = Path(plan_path).parent / pdf_rule['file']
     if not pdf_path.exists():
         return {}
-    tables, _ = load_source_tables(pdf_path)
+    tables = _cached_pdf_tables(pdf_path)
     return {
         (
             table.get('location', {}).get('page'),
@@ -201,19 +322,23 @@ def main() -> None:
                 if file_spec['file'] in rule.get('file', '')
             }
             kept = []
-            for spec in file_spec.get('rules', []):
-                key = (spec.get('kind'), spec.get('location'))
-                rule = existing.get(key)
-                if spec.get('drop'):
-                    continue
-                if rule is None:
-                    rule = _make_rule(
-                        file_spec['file'], spec, location_key
-                    )
-                    item.setdefault('extraction_rules', []).append(rule)
-                _apply_spec(rule, spec)
-                rule['approved'] = True
-                kept.append(rule)
+            for base_spec in file_spec.get('rules', []):
+                for spec in expand_page_specs(base_spec):
+                    key = (spec.get('kind'), spec.get('location'))
+                    rule = existing.get(key)
+                    if spec.get('drop'):
+                        continue
+                    if rule is None:
+                        rule = _make_rule(
+                            file_spec['file'],
+                            spec,
+                            location_key,
+                            plan_path,
+                        )
+                        item.setdefault('extraction_rules', []).append(rule)
+                    _apply_spec(rule, spec)
+                    rule['approved'] = True
+                    kept.append(rule)
             for rule in item.get('extraction_rules', []):
                 if (
                     file_spec['file'] in rule.get('file', '')

@@ -85,7 +85,3 @@ Windows 中文控制台默认 GBK（cp936），`conda run` 捕获子进程输出
 - 启动时加 UTF-8 模式参数：`python -X utf8 script.py`；
 - 或先设 `$env:PYTHONIOENCODING='utf-8'`；
 - 两者任选其一即可，否则中文 stdout 会按 GBK 输出成乱码（实测）。
-
-## 6. 补充需求
-
-- 在开发过程中，在每个层级下需要写一份md用于记录该层级下各文件实现的功能和修改记录
