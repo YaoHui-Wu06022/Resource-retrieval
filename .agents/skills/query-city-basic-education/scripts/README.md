@@ -7,8 +7,22 @@
 | `school_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `inspect` / `preview` / `extract`；来源清单校验与引擎调用。 |
 | `school_common.py` | 学校字段词表、记录构造、类型/办学性质规范、校区拆分、官方一贯制标记判型、POI 别名与按名称+地址去重。 |
 | `build_excel.py` | 生成行政单位与城市总表（学校信息 + 异常校），异常行从 processed 推导。 |
+| `school_quality_check.py` | 交付质量闸门：来源清单合规、提取计划已复核、记录阶段合法，写出 `quality_report.json`，未通过退出码非 0。 |
 
 ## 修改记录
+
+### 2026-09-11
+
+- 新增 `school_quality_check.py`：交付前闸门，调用方式与其他场景一致
+  （`--input-dir <运行目录>`，报告缺省写 `<运行目录>/quality_report.json`），
+  未通过时退出码非 0。检查项复用既有校验：`validate_source_manifest`
+  （含非 `covered` 学段必须写 `coverage_notes`）、提取计划
+  `review_status` 与已批准规则、`address_records.json` 阶段、
+  `processed_address_records.json` 合法性与主表/异常行计数。
+- 闸门脚本的公共脚手架（参数、报告骨架、摘要与退出码）改用
+  `query_city_core.quality_gate`。测试仍需按 Skill 目录分别执行：
+  各 Skill 的 `scripts/` 存在同名模块（如 `build_excel`），
+  同一进程内一起收集会互相覆盖。
 
 ### 2026-09-04
 

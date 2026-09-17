@@ -24,8 +24,9 @@ description: "根据中国城市筛选教育部普通高校名单，检索学校
 | 并发抓取 | `scripts/university_fetch_runner.py`（参数见 §2.2） |
 | 合并结果 | `scripts/university_results_merge.py` |
 | 公共地址输入 | `scripts/build_university_address.py` |
-| 地址规范化 | `python -m query_city_core.address.process` |
+| 地址规范化 | `python -m query_city_core.address.process` （串行） |
 | 工作簿 | `scripts/build_excel.py` |
+| 质量闸门 | `scripts/university_quality_check.py --input-dir <runDir>` |
 
 域名确认、合并/停办判断由 Agent 依官方证据完成；官网抓取、单校结果落盘与覆盖校验由脚本完成。单校结果文件只能由 `university_fetch_runner.py` 写出/替换。
 
@@ -93,7 +94,7 @@ scripts/university_filter.py --city-context "$runDir/city_context.json"
 - `fetch_report.json` 的 `campus_coverage` 已复核：`missing_campus_names` 仅指“详情页未抓且任何已抓页都未给地址”的真实缺口；`detail_page_not_fetched` 仅提示不告警。
 - 同校多条无校区名地址按不同物理地址各保留一行；方向/距离描述与职责叙述句不产生行；`school_results/` 逐校覆盖、无重复遗漏；页面通常 ≤3（扩展条件成立 ≤6）。
 - 地址处理无未处理错误；`map_match_status=needs_review` 行逐条复核，地图未确证时保留官网地址，不写无关 POI；工作簿可打开，两表列与行约束符合约定。
-- 发布门禁通过：最终地址无 TEL/电话/传真/邮箱/邮编等联系词尾巴，不存在同校同路“有门牌与无门牌”并存重复行；门禁命中由 Agent 逐条兜底（补官方候选页或改批次后重跑），禁止静默放行。
+- 交付前运行 `university_quality_check.py --input-dir <runDir>` 且 `passed = true`：最终地址无 TEL/电话/传真/邮箱/邮编等联系词尾巴，不存在同校同路“有门牌与无门牌”并存重复行；命中时由 Agent 逐条兜底（补官方候选页或改批次后重跑），禁止静默放行。
 - 官网未公开的校区地址按“官网未公开”口径记录说明；不引入 PDF/第三方来源补地址。
 
 最终回复只给：标准城市名、名录学校数、域名/抓取状态计数、地址处理状态计数、最终地址行数、最终文件绝对路径；不展开逐校过程。

@@ -27,11 +27,11 @@ from build_excel import (  # noqa: E402
     build_abnormal_rows,
     build_output_rows,
     create_workbook,
-    find_output_row_issues,
     load_processed_records,
     main,
     verify_workbook,
 )
+from university_quality_check import find_output_row_issues  # noqa: E402
 
 
 def build_address_record(

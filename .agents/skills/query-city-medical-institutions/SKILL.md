@@ -14,17 +14,18 @@ description: "按中国城市的直接下级行政单位检索政府公开的持
 
 ## 流程与分工
 
-| 步骤 | 命令 |
+| 步骤 | 命令/方式 |
 | --- | --- |
 | 行政单位 | `python -m query_city_core.address.city` |
-| 栏目/附件/详情页（按需） | `scripts/medical_government_flow.py list-links/download/collect-details` |
-| 查询平台分页 | `scripts/medical_government_flow.py platform-query --manifest <government_source.json>` |
-| 提取计划/提取 | `scripts/medical_government_flow.py inspect` → `extract` |
-| 地址规范化 | `python -m query_city_core.address.process`（串行） |
-| 工作簿 | `scripts/build_excel.py --input-dir <运行目录> --output <医疗机构信息_<标准城市名>_<YYYY-MM-DD>.xlsx>` |
+| 来源保存 | `scripts/medical_government_flow.py` 的 `list-links`/`download`/`collect-details`（按需，见 §2） |
+| 平台分页抓取 | `scripts/medical_government_flow.py platform-query --manifest <government_source.json>` |
+| 提取计划 | `scripts/medical_government_flow.py inspect`（见 §3） |
+| 记录提取 | `scripts/medical_government_flow.py extract`（见 §4） |
+| 地址规范化 | `python -m query_city_core.address.process` （串行） |
+| 工作簿 | `scripts/build_excel.py`（见 §6） |
 | 质量闸门 | `scripts/medical_quality_check.py --input-dir <运行目录>` |
 
-Agent 负责来源检索、类别覆盖核对、计划复核与来源质量；脚本负责字段解析、地址拆分、去重、排序与工作簿。按 `subdivisions` 逐区完成 §2–§4（一次只写该区目录），§5 串行，最后 §6。`government_source.json` 与 `sources/` 原始文件只能由 Agent 人工确认后写入。
+来源检索、类别覆盖与来源质量、计划复核由 Agent 依官方证据完成；字段解析、地址拆分、去重、排序与工作簿格式由脚本完成。`government_source.json` 与 `sources/` 原始文件只能由 Agent 确认后写入。
 
 ## 1. 行政单位
 
@@ -34,7 +35,7 @@ $runDir = "output/<标准城市名>/$runDate/Medical_Institutions/$runTime"; New
 python -m query_city_core.address.city --city <用户城市> > "$runDir/city_context.json"
 ```
 
-按 `subdivisions[].name` 建同名目录；不增删/合并/改名，不查更低一级。
+按 `subdivisions[].name` 建同名目录并依次处理；不增删/合并/改名，不查更低一级。
 
 ## 2. 逐区检索并保存官方来源
 
@@ -50,7 +51,7 @@ python -m query_city_core.address.city --city <用户城市> > "$runDir/city_con
 **保存**
 
 - 栏目/附件/详情页用 `list-links/download/collect-details`，文件放 `<行政单位目录>/sources/`。
-- `query_platform` 先以 `status=pending` 写入，再执行 `platform-query`：成功回写 `ready`+`local_file`+`platform_result`（平台总数、页数、原始页清单），失败回写 `missing`+原因。
+- `query_platform` 先以 `status=pending` 写入，再执行 `platform-query --manifest <government_source.json>`：成功回写 `ready`+`local_file`+`platform_result`（平台总数、页数、原始页清单），失败回写 `missing`+原因。
 - 写入 `<行政单位目录>/government_source.json`（字段见 [来源格式](references/medical-source-format.md)）；顶层含完整 `city_context` 与 `administrative_unit`（原样取 `subdivisions` 一项）；`status` 限 `pending/ready/missing/no_official_source`，`ready` 必须有本地文件。
 
 ## 3. 复核提取计划
@@ -67,7 +68,7 @@ python -m query_city_core.address.city --city <用户城市> > "$runDir/city_con
 
 ## 6. 生成工作簿
 
-先城市级跨目录去重（登记号+地址，其次机构名+行政单位+地址），再按最终物理地址（无最终地址用官方原文地址）分桶：每区一份区级工作簿 + 运行目录一份城市总表。区级含「机构信息」「异常机构」；总表为“机构信息”汇总 + 各区工作表，不含异常机构表；无地址异常行保留在来源单位目录异常表。
+运行 `scripts/build_excel.py --input-dir <运行目录> --output <医疗机构信息_<标准城市名>_<YYYY-MM-DD>.xlsx>`：先城市级跨目录去重（登记号+地址，其次机构名+行政单位+地址），再按最终物理地址（无最终地址用官方原文地址）分桶：每区一份区级工作簿 + 运行目录一份城市总表。区级含「机构信息」「异常机构」；总表为“机构信息”汇总 + 各区工作表，不含异常机构表；无地址异常行保留在来源单位目录异常表。
 
 - 「机构信息」列：序号、行政单位、机构名称、机构类型、机构级别、查询日期、地址、地址获取方式、地图匹配状态、信息来源。
 - 「异常机构」列：序号、行政单位、机构名称、机构类型、机构级别、异常原因、信息来源、查询日期。异常行由脚本从 processed 结果推导（最终地址空且无官方原文，或带 `abnormal_reason`），不另设异常清单文件。

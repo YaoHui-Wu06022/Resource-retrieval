@@ -11,9 +11,24 @@
 | `university_results_merge.py` | 合并逐校结果并校验文件名、覆盖与页面预算。 |
 | `build_university_address.py` | 页面结果 → 候选地点地址对 → 清洗/校验/去重 → 地址记录。 |
 | `build_excel.py` | 生成高校信息与异常校工作簿。 |
+| `university_quality_check.py` | 交付质量闸门：地址残留与同校同路重复行检查，写出 `quality_report.json`，未通过退出码非 0。 |
 | `university_campus_rules.py` | 高校领域统一规则：校区语义、噪音/房间码、配对置信度与同址键。 |
 
 ## 修改记录
+
+### 2026-09-11
+
+- 新增 `university_quality_check.py`：把原 `build_excel.py` 内的发布门禁
+  抽成独立闸门脚本，调用方式与其他场景一致
+  （`--input-dir <运行目录>`，报告缺省写 `<运行目录>/quality_report.json`），
+  未通过时退出码非 0。
+- `build_excel.py` 只保留行构造与工作簿写入，门禁逻辑（含
+  `find_output_row_issues`）迁出，避免同一规则两处维护；
+  交付前由闸门脚本负责拦截。
+- 闸门脚本的公共脚手架（参数、报告骨架、摘要与退出码）改用
+  `query_city_core.quality_gate`。测试仍需按 Skill 目录分别执行：
+  各 Skill 的 `scripts/` 存在同名模块（如 `build_excel`），
+  同一进程内一起收集会互相覆盖。
 
 ### 2026-09-03
 

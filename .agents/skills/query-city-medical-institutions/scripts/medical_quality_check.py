@@ -6,8 +6,14 @@ import argparse
 import json
 import sys
 from collections import Counter
-from datetime import datetime, timezone
 from pathlib import Path
+
+from query_city_core.quality_gate import (
+    add_quality_gate_arguments,
+    build_quality_report as build_report,
+    run_quality_gate,
+    write_quality_report,
+)
 
 from medical_scope import (
     MAJOR_INSTITUTION_CATEGORIES,
@@ -22,6 +28,10 @@ from medical_scope import (
 if hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8')
 
+
+STAGE = 'medical_quality_report'
+DEFAULT_MIN_RATIO = 0.9
+DEFAULT_CATEGORY_MIN = 10
 
 def load_government_manifest(unit_dir):
     """读取行政单位来源清单，不存在时返回空清单。"""
@@ -177,10 +187,17 @@ def build_district_quality(
 def build_quality_report(
     input_dir,
     output_path,
-    min_ratio=0.9,
-    category_min=10,
+    arguments=None,
 ):
     """汇总各区质量检查并写出 quality_report.json。"""
+    min_ratio = (
+        DEFAULT_MIN_RATIO if arguments is None else arguments.min_ratio
+    )
+    category_min = (
+        DEFAULT_CATEGORY_MIN
+        if arguments is None
+        else arguments.category_min
+    )
     city_name, unit_payloads = collect_administrative_unit_payloads(
         input_dir
     )
@@ -249,74 +266,39 @@ def build_quality_report(
                 f'{unit_name}：{reason}'
                 for reason in district_report['reasons']
             )
-    report = {
-        'stage': 'medical_quality_report',
-        'city': city_name,
-        'generated_at': datetime.now(timezone.utc).isoformat(
-            timespec='seconds'
-        ),
-        'config': {
+    report = build_report(
+        STAGE,
+        city_name,
+        units=district_reports,
+        reasons=overall_reasons,
+        config={
             'min_ratio': min_ratio,
             'category_min': category_min,
             'major_categories': list(MAJOR_INSTITUTION_CATEGORIES),
         },
-        'units': district_reports,
-        'reasons': overall_reasons,
-        'passed': not overall_reasons,
-    }
-    output_path = Path(output_path).resolve()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=1),
-        encoding='utf-8',
     )
+    write_quality_report(report, output_path)
     return report
 
 
 def main():
     """执行质量闸门并输出 quality_report.json。"""
-    parser = argparse.ArgumentParser(
-        description='医疗机构交付质量闸门'
-    )
-    parser.add_argument('--input-dir', required=True)
-    parser.add_argument(
-        '--output',
-        default='',
-        help='质量报告输出路径，缺省为输入目录下 quality_report.json',
+    parser = add_quality_gate_arguments(
+        argparse.ArgumentParser(description='医疗机构交付质量闸门')
     )
     parser.add_argument(
         '--min-ratio',
         type=float,
-        default=0.9,
+        default=DEFAULT_MIN_RATIO,
         help='平台数量下界比例，默认 0.9',
     )
     parser.add_argument(
         '--category-min',
         type=int,
-        default=10,
+        default=DEFAULT_CATEGORY_MIN,
         help='平台某大类达到该数量而交付为零时阻断，默认 10',
     )
-    arguments = parser.parse_args()
-    try:
-        output_path = (
-            arguments.output
-            or str(Path(arguments.input_dir).resolve() / 'quality_report.json')
-        )
-        report = build_quality_report(
-            arguments.input_dir,
-            output_path,
-            arguments.min_ratio,
-            arguments.category_min,
-        )
-    except (FileNotFoundError, json.JSONDecodeError, ValueError) as exc:
-        parser.error(str(exc))
-    print(json.dumps({
-        'output': output_path,
-        'passed': report['passed'],
-        'unit_count': len(report['units']),
-        'reasons': report['reasons'],
-    }, ensure_ascii=False))
-    return 0 if report['passed'] else 1
+    return run_quality_gate(parser, build_quality_report)
 
 
 if __name__ == '__main__':
