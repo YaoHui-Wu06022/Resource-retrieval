@@ -4,8 +4,9 @@
 
 | 文件 | 功能 |
 | --- | --- |
-| `school_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `inspect` / `preview` / `extract`；来源清单校验与引擎调用。 |
+| `school_government_flow.py` | 政府资料流程 CLI：`list-links` / `download` / `collect-details` / `inspect` / `preview` / `mineru-parse` / `mineru-inspect` / `extract`；来源清单校验与引擎调用。 |
 | `school_common.py` | 学校字段词表、记录构造、类型/办学性质规范、校区拆分、官方一贯制标记判型、POI 别名与按名称+地址去重。 |
+| `review.py` | 提取计划复核辅助：按文件/表配置精确批准规则，用法 `review.py <plan.json> <plan_config_<区>.json>`。 |
 | `build_excel.py` | 生成行政单位与城市总表（学校信息 + 异常校），异常行从 processed 推导。 |
 | `school_quality_check.py` | 交付质量闸门：来源清单合规、提取计划已复核、记录阶段合法，写出 `quality_report.json`，未通过退出码非 0。 |
 
