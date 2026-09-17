@@ -1,5 +1,11 @@
 .env
-output/
+# output：只提交最终 Excel 报告，忽略中间过程文件
+output/**/*
+!output/**/
+!output/**/基础教育学校信息_*.xlsx
+!output/**/基础教育学校查询_*.xlsx
+!output/**/医疗机构信息_*.xlsx
+!output/**/高校建筑查询_*.xlsx
 
 # Python 缓存与构建产物
 __pycache__/
