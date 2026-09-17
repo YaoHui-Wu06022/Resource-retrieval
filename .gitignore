@@ -22,6 +22,9 @@ dist/
 .vscode/
 *.swp
 
+# Agent 工作目录：本地记忆与临时产物，不随仓库分发
+.workbuddy-ai/
+
 # 日志与临时文件
 *.log
 debug.log
